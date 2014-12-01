@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- ERROR Messages -->
+  <resource code="PC_ERROR_0001">
+    <message>Error communicating with Chef server</message>
+  </resource>
+  <resource code="PC_ERROR_0002">
+    <message>Specified cookbooks are not present on the chef server</message>
+  </resource>
+  <resource code="PC_ERROR_0003">
+    <message>A Chef server must be specified in order for POSHChef to run</message>
+  </resource>
+  <resource code="PC_ERROR_0004">
+    <message>Unable to create new client on Chef server</message>
+  </resource>  
+  <resource code="PC_ERROR_0005">
+    <message>Unable to create new node on Chef server</message>
+  </resource>
+  <resource code="PC_ERROR_0006">
+    <indent>1</indent>
+    <message>Invalid Node - {0}</message>
+  </resource>
+  <resource code="PC_ERROR_0007">
+    <message>Unable to register node as the validation key cannot be located</message>
+  </resource>
+  <resource code="PC_ERROR_0008">
+    <message>Error from Chef server</message>
+  </resource>
+  <resource code="PC_ERROR_0009">
+    <message>The following mandatory parameters have not been set.  Please try again.</message>
+  </resource>
+  <resource code="PC_ERROR_0010">
+    <message>Unable to locate the specified chef validation file.</message>
+  </resource>
+  <resource code="PC_ERROR_0011">
+    <message>Unable to locate metadata file for cookbook.  Please create a 'metadata.psd1' file in cookbook files section.</message>
+  </resource>
+  <resource code="PC_ERROR_0012">
+    <message>Cannot find specified client key</message>
+  </resource>
+  <resource code="PC_ERROR_0013">
+    <message>Specified plugin '{0}' cannot be found</message>
+  </resource>
+  <resource code="PC_ERROR_0014">
+    <message>The specified item type '{0}' is not supported</message>
+  </resource>
+  <resource code="PC_ERROR_0015">
+    <message>The type '{0}' does not support the action '{1}'</message>
+  </resource>
+  <resource code="PC_ERROR_0016">
+    <message>The specified configuration file '{0}' cannot be found</message>
+  </resource>
+  <resource code="PC_ERROR_0017">
+    <message>Problem communicating with the Chef Server</message>
+  </resource>
+  <resource code="PC_ERROR_0018">
+    <message>There have been errors running DSC, please refer to previous messages</message>
+  </resource>
+  <resource code="PC_ERROR_0019">
+    <message>Plugin cannot be found: {0}</message>
+    <indent>2</indent>
+  </resource>
+  <resource code="PC_ERROR_0020">
+    <message>The scheme for the specified location is not supported: {0}</message>
+  </resource>
+  <resource code="PC_ERROR_0021">
+    <message>Unable to find plugin: {0}</message>
+    <indent>2</indent>
+  </resource>
+  <resource code="PC_ERROR_0022">
+    <message>Client '{0}' does not have permission to decrypt information about '{1}'</message>
+  </resource>
+  <resource code="PC_ERROR_0023">
+    <message>{0}/{1} already exists, use 'poshknife vault remove' 'poshknife vault update' or 'poshknife vault edit' to make changes</message>
+  </resource>
+  <resource code="PC_ERROR_0024">
+    <message>Vault '{0}' does not exist</message>
+  </resource>
+  <resource code="PC_ERROR_0025">
+    <message>The specified path '{0}' does not exist</message>
+  </resource>
+  <resource code="PC_ERROR_0026">
+    <message>The specified databag '{0}' does not exist on the server</message>
+  </resource>
+  
+    <!-- WARN Messages -->
+	<resource code="PC_WARN_0001">
+		<message>Cannot find specified node key, attempting resgistration</message>
+	</resource>
+  <resource code="PC_WARN_0002">
+    <message>Registering node on server</message>
+  </resource>
+  <resource code="PC_WARN_0003">
+    <message>Unable to find recipe, skipping execution</message>
+  </resource>
+  <resource code="PC_WARN_0004">
+    <message>Not downloading cookbooks as it has been disabled</message>
+  </resource>
+  <resource code="PC_WARN_0005">
+    <indent>2</indent>
+    <message>No run list has been specified</message>
+  </resource>
+  <rescource code="PC_WARN_0006">
+    <message>Unable to find recipe file for '{0}'</message>
+  </rescource>
+  <resource code="PC_WARN_0007">
+    <message>{0} '{1}' does not exist on the server</message>
+  </resource>
+  <resource code="PC_WARN_0008">
+    <message>Scheduled job '{0}' already exists, skipping registration</message>
+  </resource>
+  <resource code="PC_WARN_0009">
+    <message>Vault '{0}' does not contain the item called '{1}'</message>
+  </resource>
+  <resource code="PC_WARN_0010">
+    <message>No clients were returned from search, you may not have got what you expected!!</message>
+  </resource>
+  <resource code="PC_WARN_0011">
+    <message>This appears to be a community cookbook, not overwriting metadata file</message>
+  </resource>
+  <resource code="PC_WARN_0012">
+    <message>The databag item in the path '{0}' does not contain an ID, skipping</message>
+  </resource>
+  <resource code="PC_WARN_0013">
+    <message>Unable to remove item: {0}</message>
+  </resource>
+  
+	<!-- DEBUG Messages -->
+	<resource code="PC_DEBUG_0001">
+		<message>Adding missing attributes to the configuration as it has not been explicity set</message>
+	</resource>
+  <resource code="PC_DEBUG_0002">
+    <message>Attempting to find client key</message>
+  </resource>
+  <resource code="PC_DEBUG_0003">
+    <message>Post data</message>
+  </resource>
+  <resource code="PC_DEBUG_0004">
+    <message>Reading in locally specified runlist file</message>
+  </resource>
+  <resource code="PC_DEBUG_0005">
+    <message>Accessing Chef Server URI       {0}</message>
+  </resource>
+  <resource code="PC_DEBUG_0006">
+    <message>Resolving paths</message>
+  </resource>
+  <resource code="PC_DEBUG_0007">
+    <message>Path to DSC recipe</message>
+  </resource>
+  <resource code="PC_DEBUG_0008">
+    <message>Copying directory</message>
+  </resource>
+  <resource code="PC_DEBUG_0009">
+    <message>Importing recipes</message>
+  </resource>
+  <resource code="PC_DEBUG_0010">
+    <message>Loading attribute files</message>
+  </resource>
+  <resource code="PC_DEBUG_0012">
+    <message>Creating config directories</message>
+  </resource>
+  <resource code="PC_DEBUG_0013">
+    <message>Signing key file:               {0}</message>
+  </resource>
+  <resource code="PC_DEBUG_0014">
+    <message>Timestamp:                      {0}</message>
+  </resource>
+  <resource code="PC_DEBUG_0015">
+    <message>Recipe matching pattern:        {0}</message>
+  </resource>
+  <resource code="PC_DEBUG_0016">
+    <message>Key item used for signing:      {0}</message>
+  </resource>
+  <resource code="PC_DEBUG_0017">
+    <message>***** {0} *****</message>
+    <colours>
+      <foreground>white</foreground>
+      <background>blue</background>
+    </colours>
+  </resource>
+  <resource code="PC_DEBUG_0018">
+    <message>Reading local runlist file</message>
+  </resource>
+  <resource code="PC_DEBUG_0019">
+    <message>Expression to run:         {0}</message>
+  </resource>
+  <resource code="PC_DEBUG_0020">
+    <message>Knife plugin path:         {0}</message>
+  </resource>
+  <resource code="PC_DEBUG_0021">
+    <message>Cookbook manifest</message>
+  </resource>
+  <resource code="PC_DEBUG_0022">
+    <message>Recipe path:               {0}</message>
+  </resource>
+  <resource code="PC_DEBUG_0023">
+    <message>File path:                 {0}</message>
+  </resource>
+  <resource code="PC_DEBUG_0024">
+    <message>File checksum:             {0}</message>
+  </resource>
+  <resource code="PC_DEBUG_0025">
+    <message>Target DSC path:           {0}</message>
+  </resource>
+  <resource code="PC_DEBUG_0026">
+    <message>Creating PowerShell Automation object</message>
+  </resource>
+  <resource code="PC_DEBUG_0027">
+    <message>Creating Runspace</message>
+  </resource>
+  <resource code="PC_DEBUG_0028">
+    <message>Executing command within runspace</message>
+  </resource>
+  <resource code="PC_DEBUG_0029">
+    <message>Converting key to byte array</message>
+  </resource>
+  <resource code="PC_DEBUG_0030">
+    <message>Key Digest`n`t{0}</message>
+  </resource>
+  <resource code="PC_DEBUG_0031">
+    <message>Arguments passed to {0}</message>
+  </resource>
+  <resource code="PC_DEBUG_0032">
+    <message>Log directory: {0}</message>
+  </resource>
+  
+  
+  <!-- INFO Messages -->
+  <resource code="PC_INFO_0001">
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+    <message>Synchronising cookbooks</message>
+  </resource>
+  <resource code="PC_INFO_0002">
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+    <message>Copying DSC Resources</message>
+  </resource>
+  <resource code="PC_INFO_0003">
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+    <message>Executing run list</message>
+  </resource>
+  <resource code="PC_INFO_0004">
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>    
+    <message>Resolving attributes</message>
+  </resource>
+  <resource code="PC_INFO_0005">
+    <message>Completing Run</message>
+  </resource>
+  <resource code="PC_INFO_0006">
+    <message>Starting PowerShell Chef Client, version {0}</message>
+  </resource>
+  <resource code="PC_INFO_0007">
+    <message>Configuration</message>
+  </resource>
+  <resource code="PC_INFO_0008">
+    <indent>1</indent>
+    <message>Reading configuration file</message>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0009">
+    <indent>1</indent>
+    <message>Chef settings</message>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0010">
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+    <message>Logging</message>
+  </resource>
+  <resource code="PC_INFO_0011">
+    <indent>2</indent>
+    <message>Performing housekeeping on log directories</message>
+    <colours>
+      <foreground>darkgreen</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0012">
+    <message>Node</message>
+  </resource>
+  <resource code="PC_INFO_0013">
+    <message>Run List</message>
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0014">
+    <message>Running attribute plugins</message>
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0015">
+    <message>Run completed in {0} seconds</message>
+  </resource>
+  <resource code="PC_INFO_0016">
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+    <message>Expanded runlist</message>
+  </resource>
+  <resource code="PC_INFO_0017">
+    <indent>2</indent>
+    <colours>
+      <foreground>magenta</foreground>
+    </colours>
+    <message>MOF File generated</message>
+  </resource>
+  <resource code="PC_INFO_0018">
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+    <message>Desired State Configuration</message>
+  </resource>
+  <resource code="PC_INFO_0019">
+    <message>`nConfiguring POSHChef</message>
+  </resource>
+  <resource code="PC_INFO_0020">
+    <indent>1</indent>
+    <message>Downloading Chef Validation key to:</message>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0021">
+    <indent>1</indent>
+    <message>Copying Chef Validation key to:</message>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0022">
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+    <message>Formatting resolved attributes</message>
+  </resource>
+  <resource code="PC_INFO_0023">
+    <message>Creating Cookbook {0}</message>
+  </resource>
+  <resource code="PC_INFO_0024">
+    <message>Path</message>
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0025">
+    <message>Uploading Cookbooks</message>
+  </resource>
+  <resource code="PC_INFO_0026">
+    <message>`nConfiguring POSHKnife</message>
+  </resource>
+  <resource code="PC_INFO_0027">
+    <message>Copying client key to correct location: {0}</message>
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0028">
+    <message>Creating or updating '{0}' resource file: {1}</message>
+    <indent>2</indent>
+    <colours>
+      <foreground>darkgreen</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0029">
+    <message>Uploading Roles</message>
+  </resource>
+  <resource code="PC_INFO_0030">
+    <message>{0} {1}</message>
+    <indent>2</indent>
+    <colours>
+      <foreground>magenta</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0031">
+    <message>{0} {1}</message>
+  </resource>
+  <resource code="PC_INFO_0032">
+    <message>Environment</message>
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0033">
+    <message>Checking notifications</message>
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0034">
+    <message>No services to restart</message>
+    <indent>3</indent>
+    <colours>
+      <foreground>darkgreen</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0035">
+    <message>Scheduled Task</message>
+  </resource>
+  <resource code="PC_INFO_0036">
+    <message>Checking local environment</message>
+  </resource>
+  <resource code="PC_INFO_0037">
+    <message>PS Remoting</message>
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0038">
+    <message>Creating '{0}'</message>
+    <indent>1</indent>
+    <colours>
+      <foreground>darkred</foreground>
+    </colours>    
+  </resource>
+  <resource code="PC_INFO_0039">
+    <message>'{0}' already exists</message>
+    <indent>1</indent>
+    <colours>
+      <foreground>darkgreen</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0040">
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+    <message>Local DSC Configuration</message>
+  </resource>
+  <resource code="PC_INFO_0041">
+    <indent>2</indent>
+    <colours>
+      <foreground>magenta</foreground>
+    </colours>
+    <message>Local Configuration Manager settings have not been specified</message>
+  </resource>
+  <resource code="PC_INFO_0042">
+    <indent>2</indent>
+    <colours>
+      <foreground>magenta</foreground>
+    </colours>
+    <message>Configuring 'Local Configuration Manager' for DSC</message>
+  </resource>
+  <resource code="PC_INFO_0043">
+    <indent>2</indent>
+    <colours>
+      <foreground>magenta</foreground>
+    </colours>
+    <message>Executing compiled DSC</message>
+  </resource>
+  <resource code="PC_INFO_0044">
+    <message>Network connectivity</message>
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0045">
+    <message>{0}</message>
+    <indent>3</indent>
+    <colours>
+      <foreground>darkcyan</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0046">
+    <message>copying</message>
+    <indent>2</indent>
+    <colours>
+      <foreground>darkgreen</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0047">
+    <message>No results found</message>
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0048">
+    <message>{0} results found</message>
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0049">
+    <message>A newer version of POSHChef, {0}, exists.  Please consider upgrading.</message>
+    <colours>
+      <foreground>yellow</foreground>
+    </colours>
+    <indent>1</indent>
+  </resource>
+  <resource code="PC_INFO_0050">
+    <message>MOF file output path:    {0}</message>
+    <indent>2</indent>
+    <colours>
+      <foreground>gray</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0051">
+    <message>WMI Process for DSC Core is not running</message>
+  </resource>
+  <resource code="PC_INFO_0052">
+    <message>Attempting to stop process '{0}'</message>
+    <colours>
+      <foreground>yellow</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0053">
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+    <message>Cleaning Cookbooks</message>
+  </resource>
+  <resource code="PC_INFO_0054">
+    <indent>2</indent>
+    <colours>
+      <foreground>magenta</foreground>
+    </colours>
+    <message>Removing cookbook '{0}' as it is no longer required</message>
+  </resource>
+  <resource code="PC_INFO_0055">
+    <indent>3</indent>
+    <colours>
+      <foreground>gray</foreground>
+    </colours>
+    <message>Deleting DSC resource '{0}'</message>
+  </resource>
+  <resource code="PC_INFO_0056">
+    <indent>2</indent>
+    <colours>
+      <foreground>magenta</foreground>
+    </colours>
+    <message>Removing obsolete files from cookbook '{0}'</message>
+  </resource>
+  <resource code="PC_INFO_0057">
+    <message>Handlers</message>
+  </resource>
+  <resource code="PC_INFO_0058">
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+    <message>No handlers have been configured</message>
+  </resource>
+  <resource code="PC_INFO_0059">
+    <indent>1</indent>
+    <colours>
+      <foreground>darkgreen</foreground>
+    </colours>
+    <message>{0} handlers have been found</message>
+  </resource>
+  <resource code="PC_INFO_0060">
+    <indent>4</indent>
+    <message>Not restarting service as this has been skipped</message>
+  </resource>
+  <resource code="PC_INFO_0061">
+    <indent>4</indent>
+    <colours>
+      <foreground>darkred</foreground>
+    </colours>
+    <message>Service does not exist</message>
+  </resource>
+
+  <!-- Verbose -->
+  <resource code="PC_VERBOSE_0001">
+    <message>Chef Server endpoint</message>
+  </resource>
+  <resource code="PC_VERBOSE_0002">
+    <message>Chef query parameters</message>
+  </resource>
+  <resource code="PC_VERBOSE_0003">
+    <message>Chef API Headers</message>
+  </resource>
+  <resource code="PC_VERBOSE_0004">
+    <message>Canonicalized hash</message>
+  </resource>
+  <resource code="PC_VERBOSE_0005">
+    <message>Executing external command</message>
+  </resource>
+  <resource code="PC_VERBOSE_0006">
+    <message>Start DSC Configuration parameters</message>
+  </resource>
+  <resource code="PC_VERBOSE_0007">
+    <message>Encrypted canonicalized header</message>
+  </resource>
+
+
+  <resource code="PC_MISC_0000">
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+    <message>{0}</message>
+  </resource>
+  <resource code="PC_MISC_0001">
+    <indent>2</indent>
+    <colours>
+      <foreground>magenta</foreground>
+    </colours>
+    <message>{0}</message>
+  </resource>
+  <resource code="PC_MISC_0002">
+    <indent>3</indent>
+    <colours>
+      <foreground>gray</foreground>
+    </colours>
+    <message>{0}</message>
+  </resource>
+  <resource code="PC_MISC_0003">
+    <indent>4</indent>
+    <colours>
+      <foreground>darkcyan</foreground>
+    </colours>
+    <message>{0}</message>
+  </resource>
+
+</resources>
