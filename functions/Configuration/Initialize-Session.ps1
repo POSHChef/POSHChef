@@ -152,6 +152,9 @@ function Initialize-Session {
 					roles = @{}
 
 					environments = @{}
+
+					# Hold attributes that have been specified on the command line
+					cmdline = $parameters.json_attributes
 				}
 
 				# add in string array to set the items that should be skipped

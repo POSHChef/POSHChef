@@ -62,6 +62,11 @@ function Get-ModuleFunctions {
 		}
 	}
 
+	# Ensure that Test-Handler and Report-Handler are added to the function list so that
+	# these are recognised as coming from POSHChef
+	$functions += "Test-Handler"
+	$functions += "Report-Handler"
+
 	# return the hashtable of information to the calling function
 	@{$module_info.name = $functions}
 

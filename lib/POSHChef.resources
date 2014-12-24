@@ -310,7 +310,7 @@
     </colours>
   </resource>
   <resource code="PC_INFO_0015">
-    <message>Run completed in {0} seconds</message>
+    <message>Run completed in {0} seconds`nStatus: {1}</message>
   </resource>
   <resource code="PC_INFO_0016">
     <indent>1</indent>
@@ -563,7 +563,7 @@
     <message>Removing obsolete files from cookbook '{0}'</message>
   </resource>
   <resource code="PC_INFO_0057">
-    <message>Handlers</message>
+    <message>{0} Handlers</message>
   </resource>
   <resource code="PC_INFO_0058">
     <indent>1</indent>

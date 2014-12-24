@@ -90,7 +90,12 @@ function Invoke-POSHChef {
 
 		[switch]
 		# Sepcify this switch to Force a DSC run
-		$force
+		$force,
+
+		[alias("attributes")]
+		# List of attributes that should be added from the command line
+		# This allows extra information to be set that can be acted upon, e.g. if this is the first run or not
+		$json_attributes
 
 	)
 
@@ -136,7 +141,7 @@ function Invoke-POSHChef {
 
 	# Patch the $PSBoundParameters to contain the default values
 	# if they have not been explicitly set
-	foreach ($param in @("options", "runlist", "environment", "cache", "download", "generated", "basedir", "logdir", "key", "skip")) {
+	foreach ($param in @("options", "runlist", "environment", "cache", "download", "generated", "basedir", "logdir", "key", "skip", "json_attributes")) {
 		if (!$PSBoundParameters.ContainsKey($param)) {
 			$PSBoundParameters.$param = (Get-Variable -Name $param).Value
 		}
@@ -323,8 +328,29 @@ function Invoke-POSHChef {
 		# Call function to convert the configurationdata attributes into the correct format for chef
 		$node_attributes = Clean-Attributes -configurationdata $configurationdata
 
+		# Run Test handlers and use the result to determine if the run has failed
+		# However do not invoke them if the run has already failed
+
+		if (![String]::IsNullOrEmpty($node_attributes.tests.enabled) -and
+		    $node_attributes.tests.enabled -eq $true -and
+			$run_status.status -eq "success") {
+
+			$splat = @{
+				attributes = $node_attributes
+				type = "test"
+			}
+
+			$test_results = Invoke-Handlers @splat
+
+			# If the test_results are greater than 0 then set the run status to fail
+			if ($test_results.failed -gt 0) {
+				$run_status.status = "fail"
+				$run_status.exception = "{0} of {1} tests failed" -f $test_results.failed, $test_results.total
+			}
+		}
+
 		# The following line must be executed at the very end of the run
-		Complete-ChefRun -run_status $run_status -success -attributes $node_attributes
+		Complete-ChefRun -run_status $run_status -attributes $node_attributes
 
 		# Now that the run has completed the handlers can be run
 		Invoke-Handlers -status $run_status -attributes $node_attributes 

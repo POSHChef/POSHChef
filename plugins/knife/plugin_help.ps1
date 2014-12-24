@@ -55,6 +55,7 @@ function plugin_help {
 		$name,
 
 		[switch]
+		# State whether examples should be displayed when showing the help
 		$examples
 
 	)

@@ -36,14 +36,6 @@ function Complete-ChefRun {
 		# The run_status object
 		$run_status,
 
-		[switch]
-		# indicate if the run was successful
-		$success,
-
-		[switch]
-		# indicate if the run failed
-		$fail,
-
 		# the execption that may have been passed
 		$exception,
 
@@ -61,19 +53,6 @@ function Complete-ChefRun {
 	# Set the elapsed and stop times
 	$run_status.end = Get-FormattedDate
 	$run_status.elapsed = $run_status.stopwatch.elapsed.totalseconds
-
-	<#
-	# set the status flag based on the switch
-	if ($success) {
-		$run_status.status = "successful"
-	} elseif ($fail) {
-		$run_status.status = "failed"
-
-		# add in the exception message
-		$run_status.debug = @{}
-		$run_status.debug.exception = $_
-	}
-	#>
 	
 	# Combine the run_status information with the node_attrubutes under the last_run element
 	$node_attributes = Merge-Hashtables -primary (Get-LastRun -status $run_status) -secondary $attributes
@@ -85,6 +64,6 @@ function Complete-ChefRun {
 	Update-Node -attrs $node_attributes
 	
 	Write-Log " "
-	Write-Log -EventId PC_INFO_0015 -extra $run_status.elapsed
+	Write-Log -EventId PC_INFO_0015 -extra $run_status.elapsed,$run_status.status
 
 }

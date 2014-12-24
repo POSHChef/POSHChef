@@ -97,11 +97,11 @@ function Resolve-Attributes {
 		$resolved_attrs = Merge-Hashtables -primary $script:session.attributes.roles -secondary $resolved_attrs
 	}
 
-	# Finally check to see if there are any environment attributes
+	# Check to see if there are any environment attributes
 	if ($script:session.attributes.environments.count -gt 0) {
 
 		# there are so merge those attributes with the ones we already have
-		# this needs to be done so that the role values win out
+		# this needs to be done so that the environment values win out
 		$resolved_attrs = Merge-Hashtables -primary $script:session.attributes.environments -secondary $resolved_attrs
 
 	}
@@ -124,6 +124,22 @@ function Resolve-Attributes {
 
 	# Run the platform attribute plugins and merge them with the resolved_attrs
 	$resolved_attrs = Merge-HashTables -primary $resolved_attrs -secondary (Invoke-AnalysePlatform)
+
+	# Determine if any attributes have been specified on the command line
+	if ($script:session.attributes.cmdline.count -gt 0) {
+
+		# determine the type of the attributes that have been set on the command line
+		if ($script:session.attributes.cmdline -is [hashtable]) {
+
+			# It is already a hashtable so set as the primary table to merge
+			$primary = $script:session.attributes.cmdline
+
+		}
+
+		# merge in the attributes that have been specified on the command line
+		# such attributes will override anything that has been previously set	
+		$resolved_attrs = Merge-Hashtables -primary $primary -secondary $resolved_attrs
+	}
 
 	# Output the resolved attributes if in Debug mode
 	# Write-Log -IfDebug -Message ($resolved_attrs | ConvertTo-Json -Depth 8)

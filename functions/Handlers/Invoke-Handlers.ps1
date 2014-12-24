@@ -37,24 +37,32 @@ function Invoke-Handlers {
 	[CmdletBinding()]
 	param (
 
-		[Parameter(Mandatory=$true)]
 		[hashtable]
 		# Hashtable containing the status of the run
 		$status,
 
 		[hashtable]
 		# All of the resolved attributes for the node
-		$attributes
+		$attributes,
+
+		[string]
+		# The type of handler that needs to be run
+		$type = "report"
 	)
 
 	# If in debug mode, show the function currently in
 	Write-Log -IfDebug -Message $("***** {0} *****" -f $MyInvocation.MyCommand)
 
+	# get a title from the type of the handler that is being run
+	$textinfo = (Get-Culture).TextInfo
+
 	Write-Log " "
-	Write-Log -EventId PC_INFO_0057
+	Write-Log -EventId PC_INFO_0057 -extra ($textinfo.ToTitleCase($type))
 
 	# Get all the powershell script that are in the handlers directory
-	$handlers = Get-ChildItem -Path $script:session.config.paths.handlers -filter "*.ps1"
+	# Build up the path to the to the handlers directory
+	$path = "{0}\{1}" -f $script:session.config.paths.handlers, $type
+	$handlers = Get-ChildItem -Path $path -filter "*.ps1" -ErrorAction SilentlyContinue
 
 	# check to see if there are any handlers to run
 	if ($handlers.count -gt 0) {
@@ -64,11 +72,37 @@ function Invoke-Handlers {
 		# iterate around each file
 		foreach ($handler in $handlers) {
 
+			# Create a splat hashtable of the parameters to pass to the handler
+			$splat = @{}
+			$all_parameters = @{
+				status = $status
+				attributes = $attributes
+				logparameters = get-logparameters
+			}
+
+			# Source the file so that the parameters it supports can be analysed
+			. $handler.fullname
+
+			$function_name = "{0}-Handler" -f $type
+
+			# Iterate around the parameters that the handler supports and add each to the splat
+			foreach ($param in (Get-Command $function_name).Parameters.Keys) {
+				if ($all_parameters.ContainsKey($param)) {
+					$splat.$param = $all_parameters.$param
+				}
+			}
+
+			$result = & $function_name @splat
+
 			# execute the script and pass in the status hashtable
-			& $handler.fullname -status $status -attributes $attributes
+			# $result = & $handler.fullname @splat
 		}
 	} else {
 
 		Write-Log -EventId PC_INFO_0058
+	}
+
+	if ($type -eq "test") {
+		return $result
 	}
 }
