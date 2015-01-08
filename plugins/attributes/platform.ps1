@@ -25,7 +25,7 @@ limitations under the License.
 	uptime etc.
 
 	The script will attempt to determine the friendly name of windows based on the version number
-	
+
 	.OUTPUTS
 	System.Hashtable. Hashtable representing the attributes that have been retrived from the system
 
@@ -40,7 +40,7 @@ $attrs = @{}
 $os = gwmi Win32_OperatingSystem
 
 # Work out the uptime of the server, both in human readale format and in seconds
-[TimeSpan] $uptime = New-TimeSpan ($os.ConvertToDateTime($os.Lastbootuptime).touniversaltime()) 
+[TimeSpan] $uptime = New-TimeSpan ($os.ConvertToDateTime($os.Lastbootuptime).touniversaltime())
 $attrs.uptime = "{0,3} Days {1,2} Hours {2,2} Minutes {3,2} Seconds" -f `
 			$uptime.days, `
 			$uptime.hours, `
@@ -92,8 +92,13 @@ if ($attrs.platform_version -match "6\.1.*" -and ($os.producttype -eq 2 -or $os.
 }
 
 # Windows 2012
+if ($attrs.platform_version -match "6\.2.*" -and ($os.producttype -eq 2 -or $os.producttype -eq 3)) {
+$friendly_name = "windows_2012"
+}
+
+# Windows 2012 R2
 if ($attrs.platform_version -match "6\.3.*" -and ($os.producttype -eq 2 -or $os.producttype -eq 3)) {
-	$friendly_name = "windows_2012"
+$friendly_name = "windows_2012_r2"
 }
 
 # set the platform attribute
