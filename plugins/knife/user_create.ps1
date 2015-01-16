@@ -47,7 +47,7 @@ function user_create {
 
 		Key                                                               Name                                                              Password
 		---                                                               ----                                                              --------
-		-----BEGIN RSA PRIVATE KEY-----...                                foo                                                               foobar  
+		-----BEGIN RSA PRIVATE KEY-----...                                foo                                                               foobar
 
 		Creates a new user called 'foo' with a password of 'foobar'.  The user will have admin rights within the Chef system.
 
@@ -81,7 +81,7 @@ function user_create {
 
 	# Determine the name of the chef type from the function name
 	$chef_type, $action = $MyInvocation.MyCommand -split "_"
-	 
+
 	# determine the mapping for the chef query
 	$mapping = "{0}s" -f $chef_type
 
@@ -139,7 +139,7 @@ function user_create {
 	if ([String]::IsNullOrEmpty($output)) {
 
 		# none was specified so output to the screen
-		$users | fl
+		$users
 	} else {
 
 		# an output directory has been specified
@@ -150,7 +150,7 @@ function user_create {
 
 		# iterate around the users array and craetea file for each user based on the name
 		foreach ($user in $users) {
-			
+
 			# set the body for the text file
 			$text = @"
 Username:    $($user.name)
