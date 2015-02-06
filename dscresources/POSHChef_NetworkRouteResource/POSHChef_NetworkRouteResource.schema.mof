@@ -1,0 +1,13 @@
+
+[ClassVersion("1.0.0.0"), FriendlyName("NetworkRoute")]
+class POSHChef_NetworkRouteResource : OMI_BaseResource
+{
+	[Key, Description("Destination of the new route")] string Destination;
+	[Write, Description("Subnet mask of the new route")] string Mask;
+	[Write, Description("Gateway to use to get to the specified destination")] string Gateway;
+	[Write, Description("Route metric")] string Metric;
+	[Write, Description("Route is persistent")] boolean Persistent;
+	[Write, Description("Name of the route being added")] string Name;
+	[Write, Description("Description of the route being added")] string Description;
+	[Write, Description("Specify if the route should exist or not"), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] string Ensure;
+};
