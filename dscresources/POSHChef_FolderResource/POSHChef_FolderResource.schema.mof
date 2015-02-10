@@ -1,0 +1,14 @@
+
+[ClassVersion("1.0.0.0"), FriendlyName("Folder")]
+class POSHChef_FolderResource : OMI_BaseResource
+{
+	[Key, Description("Path for the directory")] string path;
+	[Write, Description("NTFS permissions to apply to the specified path")] string permissions;
+	[Write, Description("If the directory is to be shared then what is the name of the share")] string share;
+	[Write, Description("The ACL for the share")] String acl;
+	[Write, ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
+	[Write, Description("Specify if machine should be rebooted after file has been downloaded or changed")] Boolean Reboot;
+	[Write, Description("Array containing the services that need to be notified of any change")] string Notifies[];
+	[Write, Description("Path to the file that will be used to store the service to restart")] string NotifiesServicePath;
+};
+

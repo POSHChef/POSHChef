@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <version>0.0.0.0</version>
+    <authors>POSHChef Development Team</authors>
+    <owners>POSHChef Development Team</owners>
+    <dependencies>
+      <dependency id="Logging" version="" />
+    </dependencies>
+    <id>POSHChef</id>
+    <title>POSHChef</title>
+    <!--<iconUrl></iconUrl>-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A PowerShell Client for Chef</description>
+    <copyright>Copyright © 2013</copyright>
+  </metadata>
+  <files>
+    <file src="**\*.ps*1" target="content\poshchef" exclude="" />
+    <file src="**\*.rb" target="content\poshchef" exclude="" />
+    <file src="**\*.md" target="content\poshchef" exclude="" />
+    <file src="**\*.resources" target="content\poshchef" exclude="" />
+    <file src="**\*.dll" target="content\poshchef" exclude="" />
+    <file src="**\*.pdb" target="content\poshchef" exclude="" />
+    <file src="**\*.mof" target="content\poshchef" exclude="" />
+    <file src="**\*.mfl" target="content\poshchef" exclude="" />
+  </files>
+</package>
