@@ -47,7 +47,7 @@ function user_create {
 
 		Key                                                               Name                                                              Password
 		---                                                               ----                                                              --------
-		-----BEGIN RSA PRIVATE KEY-----...                                foo                                                               foobar  
+		-----BEGIN RSA PRIVATE KEY-----...                                foo                                                               foobar
 
 		Creates a new user called 'foo' with a password of 'foobar'.  The user will have admin rights within the Chef system.
 
@@ -81,7 +81,7 @@ function user_create {
 
 	# Determine the name of the chef type from the function name
 	$chef_type, $action = $MyInvocation.MyCommand -split "_"
-	 
+
 	# determine the mapping for the chef query
 	$mapping = "{0}s" -f $chef_type
 
@@ -90,6 +90,12 @@ function user_create {
 
 	# Run a query to get the list of users that already exist in chef
 	$result = Invoke-ChefQuery -Path ("/{0}" -f $mapping)
+
+	# After the initial call has been made the version of the API can be interrogated
+	# if it is 12 or greater then output error message
+	if ($script:session.apiversion -ge 12) {
+		Write-Log -EventId PC_ERROR_0027 -LogLevel Error -stop
+	}
 
 	# create a hash that will store the passwords and the privateky for the users that are created
 	$users = @()
@@ -150,7 +156,7 @@ function user_create {
 
 		# iterate around the users array and craetea file for each user based on the name
 		foreach ($user in $users) {
-			
+
 			# set the body for the text file
 			$text = @"
 Username:    $($user.name)

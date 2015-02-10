@@ -116,26 +116,20 @@ function Invoke-ChefQuery {
 
 		# set the return value
 		$return = $response.data
-		
+
 		# if not raw then turn the response data into a hashtable
 		if (!$raw -and ![String]::IsNullOrEmpty($return)) {
-			$return = $return | ConvertFrom-JsonToHashtable
+			$return = ConvertFrom-JsonToHashtable -InputObject $return
 		}
 
 	}
 
-	# check the response to see if there is an error
-	#if (![String]::IsNullOrEmpty($response)) {
-
-	#	if ((Get-Member -InputObject $response -MemberType NoteProperty -Name "error") -and !$passthru) {
-		
-			# There is an error so throw an exception
-	#		Write-Log -ErrorLevel -EventId PC_ERROR_0008 -extra $response.error -stop
-	#	}
-	#}
+	# add the api version of the server to the session variable
+	# this is so that plugins can use the information to determine how to work
+	$script:session.apiversion = $response.apiversion
 
 	# return an object generated from the JSON
 	$return
-	
+
 
 }

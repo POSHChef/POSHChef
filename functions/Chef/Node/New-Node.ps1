@@ -49,11 +49,9 @@ function New-Node {
 		# Environment that the new machine should belong to
 		$environment = [String]::IsNullOrEmpty
 	)
-	
+
 	# If in debug mode, show the function currently in
 	Write-Log -IfDebug -Message $("***** {0} *****" -f $MyInvocation.MyCommand)
-
-	Write-Log -WarnLevel -EventId PC_WARN_0002
 
 	# set the values to be applied to the node
 	# If a nodename has not been specified then get it from the session
@@ -74,13 +72,15 @@ function New-Node {
 	# determine if the node already exists
 	$exists = Get-Node -name $name -passthru
 
-	# if the statuscode does not equal 404, not found, then return as the node 
+	# if the statuscode does not equal 404, not found, then return as the node
 	# already exists
 	# if ($exists.statuscode -ne "404") {
 	if (![String]::IsNullOrEmpty($exists)) {
 		$exists
 		return
 	}
+
+	Write-Log -WarnLevel -EventId PC_WARN_0002
 
 	# Create a hash of the new data that needs to be specified
 	$postdata = @{

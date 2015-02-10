@@ -41,16 +41,12 @@ function search {
 
 	$results = Search-ChefServer -index $index -query $query
 
-	#$path = "/search/{0}?q={1}" -f $index, [System.URI]::EscapeDataString($query)
-
-	
-	$results
 	# output information about the search
 	if ($results.total -gt 0) {
 		Write-Log -EventId PC_INFO_0048 -extra ($results.total)
 
 		# loop round the rows information
-		foreach ($row in $results.row) {
+		foreach ($row in $results.rows) {
 			$row
 		}
 	} else {
