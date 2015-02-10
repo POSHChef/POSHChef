@@ -44,10 +44,20 @@ function user_list {
 	# This so it can be determined if the role already exists or needs to be created
 	$items_on_server = Invoke-ChefQuery -Path "/users"
 
-	# Iterate around the items of the server and show list them
-	foreach ($item in ($items_on_server.keys | sort)) {
+	# iterate around the items that have been returned based on the type that has been
+	# returned
+	if ($items_on_server -is [Object[]]) {
 
-		Write-Log -EventId PC_MISC_0000 -extra ($item)
+		foreach ($item in $items_on_server) {
+			Write-Log -EventId PC_MISC_0000 -extra ($item.user.username)
+		}
+
+	} else {
+		# Iterate around the items of the server and show list them
+		foreach ($item in ($items_on_server.keys | sort)) {
+
+			Write-Log -EventId PC_MISC_0000 -extra ($item)
+		}
 	}
-	
+
 }

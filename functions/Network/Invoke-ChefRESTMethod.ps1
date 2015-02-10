@@ -43,7 +43,7 @@ function Invoke-ChefRestMethod {
 		# Set the content type to be applued to the request
 		$contenttype = "application/json"
 	)
-	
+
 	# Function variables
 	$data = $false
 
@@ -57,17 +57,17 @@ function Invoke-ChefRestMethod {
 
 	# Set the request method
 	$request.Method = $method
-	
+
 	# Set the agent
 	# $request.UserAgent = "Chef Knife/11.8.0 (ruby-1.9.3-p448; ohai-6.20.0; i386-mingw32; +http://opscode.com)"
-	$request.UserAgent = "POSHChef/{0} (PowerShell {1})" -f $script:Session.config.module_info.version.tostring(), $PSVersionTable.PSVersion.tostring()	
+	$request.UserAgent = "POSHChef/{0} (PowerShell {1})" -f $script:Session.config.module_info.version.tostring(), $PSVersionTable.PSVersion.tostring()
 
 	# loop round the headers that have been passed
 	$headers.keys | ForEach-Object {
 		$request.headers.add($_, $headers.item($_))
 	}
 
-	# Set the Accept 
+	# Set the Accept
 	$request.Accept = $accept
 
 	# if the content type is not false then add it to the request
@@ -95,7 +95,7 @@ function Invoke-ChefRestMethod {
 
 	# Send the request to the server and get the response
 	try {
-		
+
 		$response = $request.GetResponse()
 
 	} catch {
@@ -111,39 +111,34 @@ function Invoke-ChefRestMethod {
 
 		}
 	}
-	
+
 	# Take the response and read from the stream
 	$response_stream = $response.GetResponseStream()
 	$sr = New-Object system.IO.StreamReader $response_stream
 
 	# Read the response and convert to an object
 	$data = $sr.ReadToEnd()
-	
+
 	# Determine the status code of the request
 	$statuscode = [int32] $($response.StatusCode)
 
+	# Get information about the api version that is actually in use from the response headers
+	# this will be used to determine how to interpret the response from the server
+	$api_info = @{}
+	$api_header = $response.GetResponseHeader("X-Ops-API-Info")
+
+	# Split on the ; character to get the components of the API information
+	$components = $api_header -split ";"
+	foreach($component in $components) {
+
+		# split the component using the = sign
+		$parts = $component -split "="
+
+		# now set the api_info hashtable
+		$api_info.$($parts[0]) = $parts[1]
+	}
+
 	# Return a hashtable of the response data and the status code
-	return @{data = $data; statuscode = $statuscode}
+	return @{data = $data; statuscode = $statuscode; apiversion = $api_info.version}
 
-
-
-	# Closer the response object
-
-	
-		if ($raw) {
-			$data = $sr.ReadToEnd()
-		} else {
-			$data = $sr.ReadToEnd() | ConvertFrom-Json
-			
-			# add the response http code to the data
-			if (![String]::IsNullOrEmpty($data)) {
-				$data | Add-Member -MemberType NoteProperty -Name statuscode -Value $([int32] $($response.StatusCode))
-			}
-		}
-
-	# close the response as it is no longer required
-	$response.close()
-
-	# return the data that has been passed to the calling function
-	$data
 }

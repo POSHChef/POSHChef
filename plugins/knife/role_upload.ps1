@@ -32,15 +32,32 @@ function role_upload {
 		Multiple files can be passed to the plugin to be uploaded.  The specified paths must be an
 		absolute path to each role file.
 
+		The name parameter can be used to specify roles that need to be uploaded.  If this is used
+		then the plugin will assume that the roles are part of the chef_repo that has been specified
+		and look for files that are in the <CHEF_REPO>/roles directory.  The files will have the
+		.json extension added if it is not supplied
+
 	.EXAMPLE
 
-		Invoke-POSHKnife role upload -path c:\chef-repo\roles\WebServer.json
+		PS C:\> Invoke-POSHKnife role upload -path c:\chef-repo\roles\WebServer.json
 
 		Upload the specified file as a role to the chef server.
+
+	.EXAMPLE
+
+		PS C:\> Invoke-POSHKnife role upload -name WebServer
+
+		This will result in the file <CHEF_REPO>/roles/WebServer.json being uploaded to the file
+		if it exists
 
 	#>
 
 	param (
+
+		[string[]]
+		# Array of names of roles to be uploaded
+		# these will assumed to be a the 'roles' subfolder of the chef_repo setting
+		$names,
 
 		[string[]]
 		# String array of paths to the roles to upload
@@ -56,10 +73,43 @@ function role_upload {
 	Write-Log -Message " "
 	Write-Log -EVentId PC_INFO_0031 -extra ("Uploading", (Get-Culture).TextInfo.ToTitleCase($mapping))
 
+	# if the names array is not empty then determine the path using the poshchef settings
+	if ($names.count -gt 0) {
+
+		# check that the chef_repo path has been setup
+		if ([String]::IsNullOrEmpty($script:session.config.chef_repo)) {
+			Write-Log -EventId PC_WARN_0014 -LogLevel Warn -stop
+		}
+
+		# iterate around the names that has been specified
+		foreach ($name in $names) {
+
+			# build up a path to the file
+			$filepath = "{0}\roles\{1}" -f $script:session.config.chef_repo, $name
+
+			# if the path does not have a json extension add one
+			if (!$filepath.endswith(".json")) {
+				$filepath += ".json"
+			}
+
+			# see if the file exists
+			if (Test-Path -path $filepath) {
+				$path += $filepath
+			} else {
+				Write-Log -EventId PC_WARN_0015 -LogLevel Warn -extra ($name, $filepath)
+			}
+		}
+	}
+
+	# if the path array is empty stop
+	if ($path.count -eq 0) {
+		return
+	}
+
 	# Get a list of the roles currently on the server
 	# This so it can be determined if the role already exists and needs to be upadted (PUT) or if it is new (POST)
 	$items_on_server = Invoke-ChefQuery -Path ("/{0}" -f $mapping)
-	
+
 	# iterate around the paths that have been passed to the function
 	foreach ($p in $path) {
 
@@ -99,5 +149,5 @@ function role_upload {
 			}
 		}
 	}
-	
+
 }

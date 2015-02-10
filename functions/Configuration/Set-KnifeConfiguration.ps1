@@ -37,7 +37,7 @@ function Set-KnifeConfiguration {
 		$clientkey = "client.pem",
 
 		[string]
-		$cookbook_path,
+		$chef_repo,
 
 		[string]
 		$keeplogs
@@ -68,14 +68,14 @@ function Set-KnifeConfiguration {
 
 	}
 
-	# set the path to where cookbooks will be stored
-	cookbook_path = '$cookbook_path'
+	# set the path to the main chef repository
+	chef_repo = '$chef_repo'
 
 	# Path to the client_key
 	client_key = '$clientkey'
 }
 
-"@ 
+"@
 
 	# write this data file out to the $chef_config_file
 	Set-Content -Path $chef_config_file -Value $filedata

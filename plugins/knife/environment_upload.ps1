@@ -34,17 +34,30 @@ function environment_upload {
 		The function will check that the environment file is valid JSON before an upload
 		is attempted.
 
-		Unlike cookbooks the full path to the role(s) file must be specified.  Multiple paths
-		to role files can be specified
-		
+		Like cookbooks and roles it is possible to specify the name of the environment
+		file to upload and the system will assume this is part of the chef_repo that has been
+		specifed in the POSHKnife configuration file
+
+  .EXAMPLE
+
+		PS C:\> Invoke-POSHKnife environment upload -name Base,POSHChef
+
+		This will attempt to upload the environment files that are part of the <chef_repo>/environment
+		folder.  It will append the .json file extension so the end of the specified files
+
 	.EXAMPLE
 
-		Invoke-POSHKnife role upload -path "c:\temp\roles\base.json"
+		PS C:\> Invoke-POSHKnife environment upload -path "c:\temp\roles\base.json"
 
-		This will attempt to upload the role contained within the 'base.json' file
+		This will attempt to upload the environment contained within the 'base.json' file
 	#>
 
 	param (
+
+		[string[]]
+		# Array of names of the environments to be uploaded
+		# these will assumed to be a the 'roles' subfolder of the chef_repo setting
+		$names,
 
 		[string[]]
 		# String array of paths to the roles to upload
@@ -60,10 +73,43 @@ function environment_upload {
 	Write-Log -Message " "
 	Write-Log -EVentId PC_INFO_0031 -extra ("Uploading", (Get-Culture).TextInfo.ToTitleCase($mapping))
 
+	# if the names array is not empty then determine the path using the poshchef settings
+	if ($names.count -gt 0) {
+
+		# check that the chef_repo path has been setup
+		if ([String]::IsNullOrEmpty($script:session.config.chef_repo)) {
+			Write-Log -EventId PC_WARN_0014 -LogLevel Warn -stop
+		}
+
+		# iterate around the names that has been specified
+		foreach ($name in $names) {
+
+			# build up a path to the file
+			$filepath = "{0}\environments\{1}" -f $script:session.config.chef_repo, $name
+
+			# if the path does not have a json extension add one
+			if (!$filepath.endswith(".json")) {
+				$filepath += ".json"
+			}
+
+			# see if the file exists
+			if (Test-Path -path $filepath) {
+				$path += $filepath
+			} else {
+				Write-Log -EventId PC_WARN_0015 -LogLevel Warn -extra ($name, $filepath)
+			}
+		}
+	}
+
+	# if the path array is empty stop
+	if ($path.count -eq 0) {
+		return
+	}
+
 	# Get a list of the roles currently on the server
 	# This so it can be determined if the role already exists and needs to be upadted (PUT) or if it is new (POST)
 	$items_on_server = Invoke-ChefQuery -Path ("/{0}" -f $mapping)
-	
+
 	# iterate around the paths that have been passed to the function
 	foreach ($p in $path) {
 
@@ -103,5 +149,5 @@ function environment_upload {
 			}
 		}
 	}
-	
+
 }

@@ -20,7 +20,7 @@ function Set-Headers {
 
 	.SYNOPSIS
 	Build up the headers that are required for a chef API query
-	
+
 	.DESCRIPTION
 	Function to build up the headers for the query against the chef server.
 
@@ -56,33 +56,31 @@ function Set-Headers {
 	$timestamp = Get-Date -Date ([DateTime]::UTCNow) -uformat "+%Y-%m-%dT%H:%M:%SZ"
 	Write-Log -IfDebug -EventId PC_DEBUG_0014 -Extra $timestamp
 
-	# define the headers hash table
-	$headers = @{}
-
-	# add the necessary headers
-	$headers['X-Ops-Sign'] = 'algorithm=sha1;version=1.0;'
-	$headers['X-Ops-UserId'] = $script:session.config.$useritem #$chef_config.$useritem
-	$headers['X-Ops-Timestamp'] = $timestamp
-
-	# Set the hash of the content
+	# Determine the SHA1 hash of the content
 	$content_hash = Get-CheckSum -string $data -algorithm SHA1
-	$headers['X-Ops-Content-Hash'] = $content_hash
 
-	# create the signature which will be encrypted with the client's private key
-	$canonicalized_header = "Method:{0}`nHashed Path:{1}`nX-Ops-Content-Hash:{2}`nX-Ops-Timestamp:{3}`nX-Ops-UserId:{4}" -f $method.ToUpper(),
-														$(Get-Checksum -string $path -algorithm SHA1),
-														$content_hash,
-														$timestamp,
-														$script:session.config.$useritem.trim()
-
-	Write-Log -IfVerbose -EventId PC_VERBOSE_0004 -extra $canonicalized_header															
-
-	# Create the signature, determine if using ruby implementation
-	$use_ruby = $false
-	if ($options -contains "ruby") {
-		$use_ruby = $true
+	# define the headers hash table
+	$headers = @{
+		'X-Ops-Sign' = 'algorithm=sha1;version=1.0'
+		'X-Ops-UserId' = $script:session.config.$useritem
+		'X-Ops-Timestamp' = $timestamp
+		'X-Ops-Content-Hash' = $content_hash
+		'X-Chef-Version' = $script:session.config.apiversion
 	}
-	
+
+  # Create ArrayList to hold the parts of the header that need to be encrypted
+	$al = New-Object System.Collections.ArrayList
+
+	$al.Add(("Method:{0}" -f $method.ToUpper())) | Out-Null
+	$al.Add(("Hashed Path:{0}" -f $(Get-Checksum -string $path -algorithm SHA1))) | Out-Null
+	$al.Add(("X-Ops-Content-Hash:{0}" -f $content_hash)) | Out-Null
+	$al.Add(("X-Ops-Timestamp:{0}" -f $timestamp)) | Out-Null
+	$al.Add(("X-Ops-UserId:{0}" -f $script:session.config.$useritem.trim())) | Out-Null
+
+	$canonicalized_header = $al -join "`n"
+
+	Write-Log -IfVerbose -EventId PC_VERBOSE_0004 -extra $canonicalized_header
+
 	Write-Log -IfDebug -EventId PC_DEBUG_0016 -extra $keyitem
 	$cipher = Invoke-Encrypt -data $canonicalized_header -pempath ("{0}\{1}" -f $Script:Session.config.paths.conf, $Script:Session.config.$keyitem) -private
 

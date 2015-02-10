@@ -13,7 +13,7 @@
   </resource>
   <resource code="PC_ERROR_0004">
     <message>Unable to create new client on Chef server</message>
-  </resource>  
+  </resource>
   <resource code="PC_ERROR_0005">
     <message>Unable to create new node on Chef server</message>
   </resource>
@@ -83,7 +83,10 @@
   <resource code="PC_ERROR_0026">
     <message>The specified databag '{0}' does not exist on the server</message>
   </resource>
-  
+  <resource code="PC_ERROR_0027">
+    <message>It is not possible to create new users in Chef 12 or Enterprise Chef using POSHChef.</message>
+  </resource>
+
     <!-- WARN Messages -->
 	<resource code="PC_WARN_0001">
 		<message>Cannot find specified node key, attempting resgistration</message>
@@ -125,7 +128,13 @@
   <resource code="PC_WARN_0013">
     <message>Unable to remove item: {0}</message>
   </resource>
-  
+  <resource code="PC_WARN_0014">
+    <message>The 'chef_repo' path has not been specified. Please specify this in the POSHKnife configuration or use the '-path' argument instead"</message>
+  </resource>
+  <resource code="PC_WARN_0015">
+    <message>Role '{0}' cannot be located. ({1})</message>
+  </resource>
+
 	<!-- DEBUG Messages -->
 	<resource code="PC_DEBUG_0001">
 		<message>Adding missing attributes to the configuration as it has not been explicity set</message>
@@ -224,8 +233,8 @@
   <resource code="PC_DEBUG_0032">
     <message>Log directory: {0}</message>
   </resource>
-  
-  
+
+
   <!-- INFO Messages -->
   <resource code="PC_INFO_0001">
     <indent>1</indent>
@@ -252,7 +261,7 @@
     <indent>1</indent>
     <colours>
       <foreground>cyan</foreground>
-    </colours>    
+    </colours>
     <message>Resolving attributes</message>
   </resource>
   <resource code="PC_INFO_0005">
@@ -439,7 +448,7 @@
     <indent>1</indent>
     <colours>
       <foreground>darkred</foreground>
-    </colours>    
+    </colours>
   </resource>
   <resource code="PC_INFO_0039">
     <message>'{0}' already exists</message>

@@ -109,4 +109,21 @@ function Get-Configuration {
 		$script:session.skip = $configuration.skip
 	}
 
+	# set the API version that is to be used
+	# this will default to a value if not specified in the configuration file
+	$apiversion = "12.0.2"
+	if (![String]::IsNullOrEmpty($configuration.apiversion)) {
+		$apiversion = $configuration.apiversion
+	}
+	$script:session.config.apiversion = $apiversion
+
+	# by default set the response.apiversion to the same, but this will be updated
+	# by each call to the server
+	$script:session.apiversion = $apiversion
+
+	# if a path to the chefrepo has been set configure it now
+	if (![String]::IsNullOrEmpty($configuration.chef_repo)) {
+		$script:session.config.chef_repo = $configuration.chef_repo
+	}
+
 }
