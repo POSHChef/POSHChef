@@ -34,7 +34,7 @@ function cookbook_upload {
 
 			files\default\POSHChef\recipes
 
-		For any file that is found a '.rb' version will be created in 
+		For any file that is found a '.rb' version will be created in
 
 			recipes\
 
@@ -60,7 +60,7 @@ function cookbook_upload {
 	param (
 
 		[string]
-		# Name of the cookbook to create
+		# Name of the cookbook(s) to upload
 		$name,
 
 		[string]
@@ -70,7 +70,7 @@ function cookbook_upload {
 
 	# if the path is null or empty then set to the default path
 	if ([String]::IsNullOrEmpty($path)) {
-		$path = $script:session.config.paths.cookbooks
+		$path = "{0}\cookbooks" -f $script:session.config.chef_repo
 	}
 
 	# determine the path to the cookbook
@@ -81,7 +81,7 @@ function cookbook_upload {
 
 	# If the cookbook path exists, iterate around all the files and get a checksum
 	if (Test-Path -Path $cookbook_path) {
-	
+
 		$cookbook_path = Resolve-Path -Path $cookbook_path
 
 		Write-Log -EventId PC_MISC_0000 -extra $name
@@ -104,13 +104,13 @@ function cookbook_upload {
 
 		# get a list of all the files in the directory
 		$files = Get-ChildItem -Path $cookbook_path -Recurse | Where-Object { $_.PSISContainer -eq $false }
-		
+
 		# iterate around the files and add each checksum to the array
 		foreach ($file in $files) {
 
 			# work out the checksum of the file
 			$checksum = Get-Checksum -Path $file.fullname -NoBase64
-			
+
 			# add the checksym and the file to the hashfile, but only if it does not already exist
 			if ($checksum_files.keys -notcontains $checksum) {
 				$checksum_files.$checksum += $file.fullname
@@ -128,7 +128,7 @@ function cookbook_upload {
 
 		# iterate around the checksums in the result and determine which files need to be updated
 		foreach ($checksum in $results.checksums.keys) {
-		
+
 			# determine if the file needs uploading
 			if ($results.checksums.$checksum.needs_upload -eq $true) {
 				Write-Log -EventId PC_MISC_0002 -extra ("'{0}' needs uploading" -f ($checksum_files.$checksum.replace("$cookbook_path\", ""))) -fgcolour darkred
@@ -147,7 +147,7 @@ function cookbook_upload {
 				}
 
 				Invoke-ChefQuery @splat
-				
+
 			} else {
 				Write-Log -EventId PC_MISC_0002 -extra ("'{0}' has not changed" -f ($checksum_files.$checksum.replace("$cookbook_path\", ""))) -fgcolour darkgreen
 			}
@@ -166,7 +166,7 @@ function cookbook_upload {
 					  resources = @()
 					  root_files = @()
 					  templates = @()
-					  
+
 					  metadata = $metadata
 
 					  "frozen?" = $false
@@ -210,7 +210,7 @@ function cookbook_upload {
 					}
 
 					"recipes" {
-						
+
 						# set the name which is relative to the recipes path
 						$name = $relative_path -replace "recipes/", ""
 
@@ -224,7 +224,7 @@ function cookbook_upload {
 						$name = $relative_path
 					}
 				}
-			
+
 				# build up a hash for this file
 				$hash = @{path = $relative_path
 						  name = $name
@@ -234,7 +234,7 @@ function cookbook_upload {
 				$manifest.$component += $hash
 			}
 		}
-				
+
 		# The recipes and the providing hashtables in the metadata need to be populated
 		foreach ($recipe in $manifest.recipes) {
 
@@ -245,8 +245,8 @@ function cookbook_upload {
 			$manifest.metadata.providing.$name = ">= 0.0.0"
 			$manifest.metadata.recipes.$name = ""
 		}
-		
-		# If in debug mode output the manifest 
+
+		# If in debug mode output the manifest
 		Write-Log -IfDebug -EventId PC_DEBUG_21 -extra ($manifest | convertto-json)
 
 		# Finally save the manifest on the server
@@ -353,7 +353,7 @@ function Set-RecipeStubs {
 
 	.SYSNOPSIS
 	Ensures that recipe stubs exist in the main recipes area
-	
+
 	#>
 
 	[CmdletBinding()]
@@ -381,7 +381,7 @@ function Set-RecipeStubs {
 
 	# Get a list of the recipes in the files area of the cookbook
 	$posh_recipes = Get-ChildItem -Recurse -Path ("{0}\files" -f $path) -Include "*.ps1" | Where-Object { $_.Directory.Name -eq "recipes"}
-	
+
 	# Iterate around the files and get its name, based on the filename and craete a stub file if it does not exit
 	foreach ($posh_recipe in $posh_recipes) {
 
@@ -394,11 +394,9 @@ function Set-RecipeStubs {
 
 		# check to see if the file exists, create it if it does not
 		if (!(Test-Path -Path $recipe)) {
-			
+
 			# Set the content of the stub file with that above
 			Set-Content -Path $recipe -Value ($ExecutionContext.InvokeCommand.ExpandString($content))
 		}
 	}
 }
-
-

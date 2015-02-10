@@ -62,7 +62,7 @@ function Initialize-POSHKnife {
 		$keeplogs = 20,
 
 		[string]
-		# Path to the client key. 
+		# Path to the client key.
 		$clientkey,
 
 		[string]
@@ -70,8 +70,8 @@ function Initialize-POSHKnife {
 		$basedir = "C:\POSHChef",
 
 		[string]
-		# Path to the cookbooks
-		$cookbook_path = [String]::Empty
+		# Path to the chef repo that holds the cookbooks, roles, environments etc
+		$chef_repo = [String]::Empty
 	)
 
 	# Set log paraneters so that we have access to the help file
@@ -82,13 +82,13 @@ function Initialize-POSHKnife {
 	Write-Log -EventId PC_INFO_0026
 
 	# Check the cookbook path and if it is empty set it based on the basedir
-	if ([String]::IsNullOrEmpty($cookbook_path)) {
-		$cookbook_path = "{0}\cookbooks" -f $basedir
+	if ([String]::IsNullOrEmpty($chef_repo)) {
+		$cookbook_path = "{0}\chef_repo" -f $basedir
 	}
 
 	# Patch the $PSBoundParameters to contain the default values
 	# if they have not been explicitly set
-	foreach ($param in @("server", "client", "clientkey", "keeplogs", "basedir", "cookbook_path")) {
+	foreach ($param in @("server", "client", "clientkey", "keeplogs", "basedir", "chef_repo")) {
 		if (!$PSBoundParameters.ContainsKey($param)) {
 			$PSBoundParameters.$param = (Get-Variable -Name $param).Value
 		}
@@ -111,6 +111,6 @@ function Initialize-POSHKnife {
 	Copy-Item -Path $clientkey -Destination $destination | Out-Null
 
 	# Call the Set-Configuration function to get these parameters written to the configuration file
-	Set-KnifeConfiguration -server $server -nodename $client -keeplogs $keeplogs -cookbook_path $cookbook_path
+	Set-KnifeConfiguration -server $server -nodename $client -keeplogs $keeplogs -chef_repo $chef_repo
 
 }

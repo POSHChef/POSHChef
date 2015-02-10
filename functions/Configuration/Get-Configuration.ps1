@@ -121,4 +121,9 @@ function Get-Configuration {
 	# by each call to the server
 	$script:session.apiversion = $apiversion
 
+	# if a path to the chefrepo has been set configure it now
+	if (![String]::IsNullOrEmpty($configuration.chef_repo)) {
+		$script:session.config.chef_repo = $configuration.chef_repo
+	}
+
 }
