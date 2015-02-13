@@ -126,4 +126,23 @@ function Get-Configuration {
 		$script:session.config.chef_repo = $configuration.chef_repo
 	}
 
+	# set whether old mof files should be archived or not, default is false
+	# set the number of mof files to keep to 10 as a default
+	$script:session.config.mof = @{
+		archive = $false
+		keep = 20
+	}
+
+	if (![String]::IsNullOrEmpty($configuration.mof.archive) -and
+			$configuration.mof.archive -eq $true) {
+
+			$script:session.config.mof.archive = $true
+
+			# if a count has been specified then set it now
+			if (![String]::IsNullOrEmpty($configuration.mof.keep)) {
+				$script:session.config.mof.keep = $configuration.mof.keep
+			}
+	}
+
+
 }

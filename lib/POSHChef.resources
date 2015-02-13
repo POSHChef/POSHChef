@@ -599,6 +599,13 @@
     </colours>
     <message>Service does not exist</message>
   </resource>
+  <resource code="PC_INFO_0062">
+    <message>MOF File housekeeping</message>
+    <indent>1</indent>
+    <colours>
+      <foreground>cyan</foreground>
+    </colours>
+  </resource>
 
   <!-- Verbose -->
   <resource code="PC_VERBOSE_0001">

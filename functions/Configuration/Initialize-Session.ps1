@@ -53,9 +53,9 @@ function Initialize-Session {
 					# this is the only path that is outside of the paths as it should be rooted
 					# and we do nto want to test for relative path on it
 					basedir = $parameters.basedir
-					
+
 					paths = @{
-					
+
 						# define where the log directory should be
 						logdir = "log"
 
@@ -64,12 +64,15 @@ function Initialize-Session {
 
 						# Set the path that DSCResources should be copied to
 						dscresources = "C:\Windows\System32\WindowsPowerShell\v1.0\Modules\"
-					
+
 						# Set the path to the module
 						module = (Split-Path -Parent ($moduleInfo.Path))
 
 						# Set the path to where the generated MOF files should be stored
 						mof_file_path = "mof"
+
+						# Set the path where mof files should be archived to
+						mof_file_archive_path = "archive"
 
 						# Set the location for the cookbooks
 						cookbooks = "."
@@ -148,7 +151,7 @@ function Initialize-Session {
 
 				# attributes from the environment and the roles that have been specified
 				attributes = @{
-					
+
 					roles = @{}
 
 					environments = @{}
@@ -163,9 +166,9 @@ function Initialize-Session {
 
 
 	# Build up the basic headers to access the Chef server
-	$global:headers = @{
-		'X-Chef-Version' = '{0}' -f $chef_config.version
-	}
+	#$global:headers = @{
+	#		'X-Chef-Version' = '{0}' -f $chef_config.version
+	#		}
 
 	# define a the array which will contain the expanded run list for the node
 	# $global:expanded_runlist = @()
@@ -208,5 +211,5 @@ function Initialize-Session {
 			$script:session.local_runlist = Invoke-Expression (Get-Content -Path ($script:session.local_runlist) -raw)
 		}
 	}
-			
+
 }
