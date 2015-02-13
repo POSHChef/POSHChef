@@ -175,7 +175,7 @@ function Invoke-POSHChef {
 	# Get the Feed from NuGet for this module
 	$uri = "{0}/Packages()?`$filter=tolower(Id)+eq+'poshchef'&`$orderby=id" -f $script:session.config.nugetsource
 	[xml] $feed = Invoke-WebRequest -Uri $uri -UseBasicParsing
-	$latest_version = ($feed.feed.entry.properties.version -match "^(\d+(\s*\.\s*\d+){0,3})?$") | Select -Last 1  
+	$latest_version = ($feed.feed.entry.properties.version -match "^(\d+(\s*\.\s*\d+){0,3})?$") | Select -Last 1
 
 	# Compare the latest version with the current version and report that an update is available if different
 	if ($current_version -ne $latest_version) {
@@ -196,7 +196,7 @@ function Invoke-POSHChef {
 
 	# Test that the node is registered on the server
 	Test-Registration
-	
+
 	# Get the node information from the server
 	$node = Invoke-ChefQuery -path $("/nodes/{0}" -f $script:session.config.node)
 
@@ -212,14 +212,14 @@ function Invoke-POSHChef {
 
 		# set a default configuration data object
 		$configurationdata = @{}
-		
+
 		# get the environment for which this node belongs
 		Get-Environment -name $node.chef_environment
 
 		# Write out information about the run list that has been applied
 		Write-Log -Message " "
 		Write-Log -EventId PC_INFO_0013
-		
+
 		if ([String]::IsNullOrEmpty($node.run_list)) {
 			Write-Log -WarnLevel -EventId PC_WARN_0005
 		} else {
@@ -251,8 +251,8 @@ function Invoke-POSHChef {
 			# Resolve the attributes of the coobooks that have been downloaded
 			$configurationdata = Resolve-Attributes
 
-			# Ensure that existing MOF files are cleared out from the MOF file path
-			Remove-Item -Path $script:session.config.paths.mof_file_path -Include "*.mof" -Force -Recurse | Out-Null
+			# Perform house keeping on the MOF files
+			Invoke-MofHousekeeping
 
 			# Call the Set-DSCConfiguration function to set the local configuration manager settings for the node
 			Set-DSCConfiguration -Configuration $configurationdata
@@ -280,24 +280,24 @@ function Invoke-POSHChef {
 			# Provide feedback about the name of the file that has been created
 			Write-Log -Message " "
 			Write-Log -EVentId PC_INFO_0018
-			Write-Log -EVentId PC_INFO_0017 
+			Write-Log -EVentId PC_INFO_0017
 			Write-Log -EventId PC_MISC_0002 -Extra $mof.Fullname
 
 			# Call the Start-Configuration cmdlet that will be used to run the mof file
 			# this will use a hash to splat in so that various options can be added
 			$dscsplat = @{path = ($script:session.config.paths.mof_file_path)
 						  wait = $true}
-			
+
 			# if the force option has been set then set this on the parameters for DSC
 			if ($force) {
 				$dscsplat.force = $true
 			}
 
 			# add the verbose flag to the options so that we can see what is happening
-			$dscsplat.verbose = $true			
+			$dscsplat.verbose = $true
 
 			if ($skip -notcontains "runconfig") {
-				
+
 				Write-Log -EventId PC_INFO_0043
 
 				Write-Log -LogLevel Verbose -EventId PC_VERBOSE_0006 -extra ($dscsplat.Keys | Sort-Object $_ | ForEach-Object {"{0}:  {1}" -f $_, ($dscsplat.$_)})
@@ -353,7 +353,7 @@ function Invoke-POSHChef {
 		Complete-ChefRun -run_status $run_status -attributes $node_attributes
 
 		# Now that the run has completed the handlers can be run
-		Invoke-Handlers -status $run_status -attributes $node_attributes 
+		Invoke-Handlers -status $run_status -attributes $node_attributes
 
 
 	}
@@ -363,11 +363,3 @@ function Invoke-POSHChef {
 	}
 
 }
-
-
-
-
-
-
-
-

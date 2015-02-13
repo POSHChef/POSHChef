@@ -71,7 +71,15 @@ function Initialize-POSHChef {
 
 		[string]
 		# Nuget source server from where POSHChef can be installed
-		$nugetsource
+		$nugetsource,
+
+		[boolean]
+		# Sepcify of MOF files should be archived or not
+		$mofarchive = $false,
+
+		[int]
+		# The number of mof files that should be kept
+		$mofcount = 20
 
 	)
 
@@ -92,12 +100,21 @@ function Initialize-POSHChef {
 
 	# Check that mandatory parameters have been set
 	Confirm-Parameters -parameters $PSBoundParameters -name ($MyInvocation.MyCommand)
-	
+
 	# Initialize a session to that we can use the paths that are setup accessible
 	Initialize-Session -parameters $PSBoundParameters
 
 	# Call the Set-Configuration function to get these parameters written to the configuration file
-	Set-Configuration -server $server -nodename $nodename -keeplogs $keeplogs -environment $environment -nugetsource $nugetsource
+	$splat = @{
+		server = $server
+		nodename = $nodename
+		keeplogs = $keeplogs
+		environment = $environment
+		nugetsource = $nugetsource
+		mofarchive = $mofarchive
+		mofcount = $mofcount
+	}
+	Set-Configuration @splat
 
 	# Determine the file that is to be downloaded, based on whether a clientkey has been specified or not
 	if (![String]::IsNullOrEmpty($client_key)) {
@@ -105,7 +122,7 @@ function Initialize-POSHChef {
 	} else {
 		$uri = [System.URI] $validator
 	}
-	
+
 	switch -Wildcard ($uri.scheme) {
 
 		"http*" {
@@ -124,7 +141,7 @@ function Initialize-POSHChef {
 
 			# The validator is a file so copy it to the correct lcoation
 			# overwrite the target if it exists
-			
+
 			# Check that the file exists
 			If ((Test-Path -Path  $uri.OriginalString)) {
 

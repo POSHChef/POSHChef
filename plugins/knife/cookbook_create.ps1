@@ -91,11 +91,11 @@ function cookbook_create {
 		Write-Log -Eventid PC_INFO_0023 -extra $id
 
 		if ([String]::IsNullOrEmpty($path)) {
-			$path = $script:session.config.paths.cookbooks
+			$path = $script:session.config.chef_repo
 		}
 
 		# determine the path to the cookbook
-		$cookbook_path = "{0}\{1}" -f $path, $id
+		$cookbook_path = "{0}\cookbooks\{1}" -f $path, $id
 
 		Write-Log -EventId PC_INFO_0024
 		Write-Log -Eventid PC_MISC_0001 -extra $cookbook_path
