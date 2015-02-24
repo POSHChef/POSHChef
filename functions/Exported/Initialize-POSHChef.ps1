@@ -73,6 +73,10 @@ function Initialize-POSHChef {
 		# Nuget source server from where POSHChef can be installed
 		$nugetsource,
 
+		[string]
+		# Name of the configuration file to create
+		$name = [String]::Empty,
+
 		[boolean]
 		# Sepcify of MOF files should be archived or not
 		$mofarchive = $false,
@@ -111,8 +115,9 @@ function Initialize-POSHChef {
 		keeplogs = $keeplogs
 		environment = $environment
 		nugetsource = $nugetsource
+		name = $name
 		mofarchive = $mofarchive
-		mofcount = $mofcount
+		mofkeep = $mofcount
 	}
 	Set-Configuration @splat
 

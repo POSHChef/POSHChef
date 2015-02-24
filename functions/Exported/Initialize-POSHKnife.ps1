@@ -71,7 +71,12 @@ function Initialize-POSHKnife {
 
 		[string]
 		# Path to the chef repo that holds the cookbooks, roles, environments etc
-		$chef_repo = [String]::Empty
+		$chef_repo = [String]::Empty,
+
+		[string]
+		# Name of the configuration file
+		# By default this will be knife.psd1
+		$name = [String]::Empty
 	)
 
 	# Set log paraneters so that we have access to the help file
@@ -111,6 +116,6 @@ function Initialize-POSHKnife {
 	Copy-Item -Path $clientkey -Destination $destination | Out-Null
 
 	# Call the Set-Configuration function to get these parameters written to the configuration file
-	Set-KnifeConfiguration -server $server -nodename $client -keeplogs $keeplogs -chef_repo $chef_repo
+	Set-KnifeConfiguration -server $server -nodename $client -keeplogs $keeplogs -chef_repo $chef_repo -name $name
 
 }
