@@ -59,14 +59,14 @@ function Confirm-Parameters {
 
 			# Define a list of mandatory parameters
 			$mandatory = @("server", "nodename")
-			
+
 		}
-		
+
 		"Initialize-POSHKnife" {
 
 			# Define a list of mandatory parameters
-			$mandatory = @("server", "client", "clientkey", "cookbook_path")
-			
+			$mandatory = @("server", "client", "clientkey", "chef_repo")
+
 		}
 
 	}
@@ -76,12 +76,12 @@ function Confirm-Parameters {
 
 		# check the value of the parameter as spcified by the key
 		if ([String]::IsNullOrEmpty($parameters.$key) -or ($parameters.$key) -eq $false) {
-			
+
 			# add this key to the missing array
 			$missing += $key
 		}
 	}
-	
+
 	# determine if the missing array is empty or not
 	if ($missing.count -gt 0) {
 		Write-Log -ErrorLevel -EventId PC_ERROR_0009 -extra ($missing -join ", ") -stop

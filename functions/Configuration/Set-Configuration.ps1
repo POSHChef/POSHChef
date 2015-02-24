@@ -49,6 +49,10 @@ function Set-Configuration {
 		$mofkeep = 20,
 
 		[string]
+		# The name of the configuration file
+		$name = [String]::Empty,
+
+		[string]
 		$chef_config_file = [String]::Empty
 
 	)
@@ -56,9 +60,19 @@ function Set-Configuration {
 	# If in debug mode, show the function currently in
 	Write-Log -IfDebug -EventId PC_DEBUG_0017 -extra $MyInvocation.MyCommand
 
+	# Set the default name for the configuration file if it is empty
+	if ([String]::IsNullOrEmpty($name)) {
+		$name = "client"
+	}
+
+	# Now check that the name of the configuration file ends in psd1
+	if ($name.EndsWith(".psd1") -eq $false) {
+		$name = "{0}.psd1" -f $name
+	}
+
 	# Get the path to the configuration file so it can be written to
 	if ([String]::IsNullOrEmpty($chef_config_file)) {
-		$chef_config_file = "{0}\client.psd1" -f $script:session.config.paths.conf
+		$chef_config_file = "{0}\{1}" -f $script:session.config.paths.conf, $name
 	}
 
 	# Create a string builder object so that the configuration file can be written out to disk

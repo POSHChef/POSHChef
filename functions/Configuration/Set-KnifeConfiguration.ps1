@@ -40,15 +40,29 @@ function Set-KnifeConfiguration {
 		$chef_repo,
 
 		[string]
-		$keeplogs
+		$keeplogs,
+
+		[string]
+		# name of the configuration file
+		$name = [String]::Empty
 
 	)
 
 	# If in debug mode, show the function currently in
 	Write-Log -IfDebug -EventId PC_DEBUG_0017 -extra $MyInvocation.MyCommand
 
+	# if the name of the configuration file has not been set, set it now
+	if ([String]::IsNullOrEmpty($name)) {
+		$name = "knife"
+	}
+
+	# if the name does not end in psd1 add it
+	if ($name.EndsWith(".psd1") -eq $false) {
+		$name = "{0}.psd1" -f $name
+	}
+
 	# Get the path to the configuration file so it can be written to
-	$chef_config_file = "{0}\knife.psd1" -f $script:session.config.paths.conf
+	$chef_config_file = "{0}\{1}" -f $script:session.config.paths.conf, $name
 
 	# crreate a literal representation of a PSD1 file
 	$filedata = @"
