@@ -173,14 +173,16 @@ function Invoke-POSHChef {
 
 	# Determine if this is the latest version of the software or not
 	# Get the Feed from NuGet for this module
-	$uri = "{0}/Packages()?`$filter=tolower(Id)+eq+'poshchef'&`$orderby=id" -f $script:session.config.nugetsource
-	[xml] $feed = Invoke-WebRequest -Uri $uri -UseBasicParsing
-	$latest_version = ($feed.feed.entry.properties.version -match "^(\d+(\s*\.\s*\d+){0,3})?$") | Select -Last 1
+	if ($script:session.config.containskey("nugetsource") -and ![string]::IsnullOrEmpty($script:session.config.nugetsource)) {
+		$uri = "{0}/Packages()?`$filter=tolower(Id)+eq+'poshchef'&`$orderby=id" -f $script:session.config.nugetsource
+		[xml] $feed = Invoke-WebRequest -Uri $uri -UseBasicParsing
+		$latest_version = ($feed.feed.entry.properties.version -match "^(\d+(\s*\.\s*\d+){0,3})?$") | Select -Last 1
 
-	# Compare the latest version with the current version and report that an update is available if different
-	if ($current_version -ne $latest_version) {
-		Write-Log " "
-		Write-Log -EVentId PC_INFO_0049 -extra $latest_version
+		# Compare the latest version with the current version and report that an update is available if different
+		if ($current_version -ne $latest_version) {
+			Write-Log " "
+			Write-Log -EVentId PC_INFO_0049 -extra $latest_version
+		}
 	}
 
 	# Perform checks to ensure that POSHChef will run on the server

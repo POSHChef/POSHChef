@@ -134,6 +134,9 @@
   <resource code="PC_WARN_0015">
     <message>Role '{0}' cannot be located. ({1})</message>
   </resource>
+  <resource code="PC_WARN_0016">
+    <message>Cookbook '{0}' cannot be located: {1}</message>
+  </resource>
 
 	<!-- DEBUG Messages -->
 	<resource code="PC_DEBUG_0001">
@@ -605,6 +608,9 @@
     <colours>
       <foreground>cyan</foreground>
     </colours>
+  </resource>
+  <resource code="PC_INFO_0063">
+    <message>Extending Cookbook {0}</message>
   </resource>
 
   <!-- Verbose -->
