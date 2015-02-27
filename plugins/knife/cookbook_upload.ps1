@@ -146,7 +146,7 @@ function cookbook_upload {
 					data_checksum = $data_checksum
 				}
 
-				Invoke-ChefQuery @splat
+				$response = Invoke-ChefQuery @splat
 
 			} else {
 				Write-Log -EventId PC_MISC_0002 -extra ("'{0}' has not changed" -f ($checksum_files.$checksum.replace("$cookbook_path\", ""))) -fgcolour darkgreen
@@ -252,7 +252,7 @@ function cookbook_upload {
 		# Finally save the manifest on the server
 		$results = Invoke-ChefQuery -path ("/cookbooks/{0}/{1}" -f $manifest.metadata.name, $manifest.version) `
 									-method "PUT" `
-									-data ($manifest | ConvertTo-Json)
+									-data ($manifest | ConvertTo-Json -Compress -Depth 50)
 
 	}
 
