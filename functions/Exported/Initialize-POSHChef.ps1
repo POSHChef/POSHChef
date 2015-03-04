@@ -62,6 +62,10 @@ function Initialize-POSHChef {
 		$client_key = [String]::Empty,
 
 		[string]
+		# Sub folder in the conf directory that the key should be stored in
+		$keydir = [String]::Empty,
+
+		[string]
 		# Base directory where POSHChef files are stored
 		$basedir = "C:\POSHChef",
 
@@ -77,13 +81,29 @@ function Initialize-POSHChef {
 		# Name of the configuration file to create
 		$name = [String]::Empty,
 
+		[string[]]
+		# String array of operations withing POSHChef that should be skipped
+		$skip,
+
 		[boolean]
 		# Sepcify of MOF files should be archived or not
 		$mofarchive = $false,
 
 		[int]
 		# The number of mof files that should be kept
-		$mofcount = 20
+		$mofcount = 20,
+
+		[string]
+		# Set the API version to use when communicating with the chef server
+		$apiversion = "12.0.2",
+
+		[switch]
+		# Specify if any existing files should be overwtitten
+		$force,
+
+		[switch]
+		# Specify if the key should be kept in the same place
+		$nocopykey
 
 	)
 
@@ -108,61 +128,47 @@ function Initialize-POSHChef {
 	# Initialize a session to that we can use the paths that are setup accessible
 	Initialize-Session -parameters $PSBoundParameters
 
-	# Call the Set-Configuration function to get these parameters written to the configuration file
-	$splat = @{
+	# Build up an object to pass to the Setup-ConfigFiles function to configure the conf file
+	# for Chef
+	$userconfig = @{
 		server = $server
-		nodename = $nodename
-		keeplogs = $keeplogs
+		node = $nodename
+		logs = @{
+			keep = $keeplogs
+		}
 		environment = $environment
-		nugetsource = $nugetsource
-		name = $name
-		mofarchive = $mofarchive
-		mofkeep = $mofcount
+		mof = @{
+			keep = $mofcount
+			archive = $mofarchive
+		}
+		apiversion = $apiversion
+		skip = @($skip)
+		keydir = $keydir
 	}
-	Set-Configuration @splat
 
-	# Determine the file that is to be downloaded, based on whether a clientkey has been specified or not
+	# add in the extra information if it has been specified
 	if (![String]::IsNullOrEmpty($client_key)) {
-		$uri = [System.URI] $client_key
+		$userconfig.client_key = $client_key
 	} else {
-		$uri = [System.URI] $validator
+		$userconfig.validation_key = $validator
 	}
 
-	switch -Wildcard ($uri.scheme) {
-
-		"http*" {
-
-			# Work out the path to download the file to
-			$download_path = "{0}\{1}" -f ($script:session.config.paths.conf), (Split-Path -Leaf ($uri.Absolutepath))
-
-			Write-Log -EventId PC_INFO_0020
-			Write-Log -EventId PC_MISC_0001 -extra $download_path
-
-			# Run the method to actually download the file
-			Invoke-WebRequest -Uri $uri -OutFile $download_path
-		}
-
-		"file" {
-
-			# The validator is a file so copy it to the correct lcoation
-			# overwrite the target if it exists
-
-			# Check that the file exists
-			If ((Test-Path -Path  $uri.OriginalString)) {
-
-				Write-Log -EventId PC_INFO_0021
-				Write-Log -EventId PC_MISC_0001 -extra ($script:Session.config.paths.conf)
-
-				# Copy the file to the correct location
-				Copy-Item -Path $uri.OriginalString -Destination ($script:Session.config.paths.conf)
-
-			} else {
-
-				# output error and stop
-				Write-Log -ErrorLevel -EventId PC_ERROR_0010 -extra $validator -stop
-			}
-		}
+	# if a nugetsource has been specified add it here
+	if (![String]::IsNullOrEmpty($nugetsource)) {
+		$userconfig.nugetsource = $nugetsource
 	}
+
+	# Create the argument hashtable to splat into the Setup-Configfiles function
+	$splat = @{
+		type = "client"
+		name = $name
+		userconfig = $userconfig
+		force = $force
+		nocopykey = $nocopykey
+		keydir = $keydir
+	}
+
+	Setup-ConfigFiles @splat
 
 
 }

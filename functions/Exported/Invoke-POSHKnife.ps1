@@ -95,7 +95,7 @@ function Invoke-POSHKnife {
 		}
 
 		# Build up array of directories to look in for the plugin
-		$knife_plugin_dirs = @(("{0}\plugins\knife" -f (Split-Path -Parent (Get-Module -Name POSHChef).path)), 
+		$knife_plugin_dirs = @(("{0}\plugins\knife" -f (Split-Path -Parent (Get-Module -Name POSHChef).path)),
 							   ("{0}\plugins\knife" -f $basedir))
 
 		# based on the type and action that has been defined work out the function name
@@ -126,7 +126,7 @@ function Invoke-POSHKnife {
 			# get the parameters from the command that has been loaded
 			$cmd = Get-Command $function_name
 			foreach ($param in $cmd.parameters.keys) {
-				
+
 				# do not include any parameters that are already configured in this function
 				if (@("type", "action", "options") -contains $param) {
 					continue
@@ -135,7 +135,7 @@ function Invoke-POSHKnife {
 				$new_param = New-Object -TypeName 'Management.Automation.RunTimeDefinedParameter' -ArgumentList ($param, $cmd.Parameters.$param.ParameterType, $AttributesCollection)
 				$ParamDictionary.Add($param, $new_param)
 			}
-			
+
 			$ParamDictionary
 		}
 	}
@@ -177,11 +177,11 @@ function Invoke-POSHKnife {
 		# now get a list of the commands that each type supports
 		# this is done by looking in the plugins directory and calling the function with the -supports flag
 		# which will return an array of the types that the action is for
-	
+
 		$cmd_hash = @{}
 
 		# define an array of the paths for knife plugins
-		$knife_plugin_dirs = @(("{0}\plugins\knife" -f (Split-Path -Parent $moduleInfo.path)), 
+		$knife_plugin_dirs = @(("{0}\plugins\knife" -f (Split-Path -Parent $moduleInfo.path)),
 								$script:session.config.paths.knife_plugins)
 
 		# iterate around each of the knife_plugin_dirs
@@ -199,7 +199,7 @@ function Invoke-POSHKnife {
 				if (!($cmd_hash.ContainsKey($chef_type))) {
 					$cmd_hash.$chef_type = @{
 												actions = @()
-													
+
 											}
 				}
 
@@ -250,7 +250,7 @@ function Invoke-POSHKnife {
 		if (!($cmd_hash.$type.actions -contains $action) -and ![String]::IsNullOrEmpty($action)) {
 			Write-Log -EventId PC_ERROR_0015 -Extra @($type, $action)  -Error -stop
 		}
-		
+
 		# Determine what items in the PSBoundParameters should be passed to the underlying function
 		$h = @{}
 		ForEach ($key in (gcm $function_name).Parameters.Keys) {

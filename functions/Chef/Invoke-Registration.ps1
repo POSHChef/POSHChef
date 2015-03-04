@@ -43,11 +43,11 @@ function Invoke-Registration {
 
 	# Build up the data string to pass in the request
 	$postdata = @{"name" = $script:session.config.client; "admin" = $false} | ConvertTo-Json
-	
+
 	Write-Log -IfDebug -Extra $postdata -EventId PC_DEBUG_0003
 
 	# Before attempting to register the client, ensure that the validation key exists
-	$validation_key_path = "{0}\{1}" -f $script:session.config.paths.conf, $script:session.config.$script:session
+	$validation_key_path = "{0}\{1}" -f $script:session.config.paths.conf, $script:session.config.validation_key
 	if (!(Test-Path -Path $validation_key_path)) {
 
 		Write-Log -ErrorLevel -EventId PC_ERROR_0007 -extra $validation_key_path -stop

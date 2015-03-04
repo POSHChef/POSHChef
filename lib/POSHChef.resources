@@ -86,6 +86,9 @@
   <resource code="PC_ERROR_0027">
     <message>It is not possible to create new users in Chef 12 or Enterprise Chef using POSHChef.</message>
   </resource>
+  <resource code="PC_ERROR_0028">
+    <message>You must specified a valid path for the 'client_key' or 'validation_key'</message>
+  </resource>
 
     <!-- WARN Messages -->
 	<resource code="PC_WARN_0001">
@@ -134,6 +137,13 @@
   <resource code="PC_WARN_0015">
     <message>Role '{0}' cannot be located. ({1})</message>
   </resource>
+  <resource code="PC_WARN_0016">
+    <message>Cookbook '{0}' cannot be located: {1}</message>
+  </resource>
+  <resource code="PC_WARN_0017">
+    <message>Not removing environment var '{0}' as it has not been set</message>
+  </resource>
+
 
 	<!-- DEBUG Messages -->
 	<resource code="PC_DEBUG_0001">
@@ -383,7 +393,7 @@
     <message>`nConfiguring POSHKnife</message>
   </resource>
   <resource code="PC_INFO_0027">
-    <message>Copying client key to correct location: {0}</message>
+    <message>Copying key to correct location: {0}</message>
     <indent>1</indent>
     <colours>
       <foreground>cyan</foreground>
@@ -606,6 +616,16 @@
       <foreground>cyan</foreground>
     </colours>
   </resource>
+  <resource code="PC_INFO_0063">
+    <message>Extending Cookbook {0}</message>
+  </resource>
+  <resource code="PC_INFO_0064">
+    <message>Setting environment variable for {0} configuration</message>
+  </resource>
+  <resource code="PC_INFO_0065">
+    <message>Removing environment variable for {0} configuration</message>
+  </resource>
+
 
   <!-- Verbose -->
   <resource code="PC_VERBOSE_0001">
