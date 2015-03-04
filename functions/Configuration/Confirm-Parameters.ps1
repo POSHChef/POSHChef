@@ -65,7 +65,7 @@ function Confirm-Parameters {
 		"Initialize-POSHKnife" {
 
 			# Define a list of mandatory parameters
-			$mandatory = @("server", "client", "clientkey", "chef_repo")
+			$mandatory = @("server", "client", "key", "chef_repo")
 
 		}
 

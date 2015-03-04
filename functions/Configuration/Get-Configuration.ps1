@@ -23,10 +23,15 @@ function Get-Configuration {
 	Read in the POSHChef configuration from the filesystem
 
 	.DESCRIPTION
-	Read in the configuration file, based on convention, into the configuration object
+		Read in the configuration file so that the POSHCHef or POSHKnife work properly
 
-	If the file does not exist then various questions will be asked and the file will be
-	dynamically created and then read back in
+		Configuration files can be specified in an environment varible, a named file on the
+		command line and if nothing is specified a default file.  The priority order is thus
+		(in descending order)
+
+		1. Specified configuration file on command line
+		2. Environment variable
+		3. Default configuration file
 
 	#>
 
@@ -51,9 +56,22 @@ function Get-Configuration {
 	# Determine the path to the configuraton file
 	Write-Log -EventId PC_INFO_0008
 	if ($knife -eq $false) {
-		$chef_config_file = "{0}\client.psd1" -f $script:session.config.paths.conf
+
+		# check to see if a configuration file has been set in the environment
+		if (![String]::IsNullOrEmpty($env:POSHCHEF_CONFIG_FILE)) {
+			$chef_config_file = $env:POSHCHEF_CONFIG_FILE
+		} else {
+			$chef_config_file = "{0}\client.psd1" -f $script:session.config.paths.conf
+		}
+
 	} else {
-		$chef_config_file = "{0}\knife.psd1" -f $script:session.config.paths.conf
+
+		# determine if the environment variable has been set, if it has set the config file to that
+		if (![String]::IsNullOrEmpty($env:POSHKNIFE_CONFIG_FILE)) {
+			$chef_config_file = $env:POSHKNIFE_CONFIG_FILE
+		} else {
+			$chef_config_file = "{0}\knife.psd1" -f $script:session.config.paths.conf
+		}
 	}
 
 	# see if a configuration file has been specified, if it has then check it exists
@@ -100,8 +118,12 @@ function Get-Configuration {
 	}
 
 	# if the client_key has been set then set the session based on this
-	if (![String]::IsNullOrEmpty($configuration.client_key)) {
+	if (![String]::IsNullOrEmpty($configuration.client_key)) {		
 		$script:session.config.key = $configuration.client_key
+	}
+
+	if (![String]::IsNullOrEmpty($configuration.validation_key)) {
+		$script:session.config.validation_key = $configuration.validation_key
 	}
 
 	# if skip items have been specified then add to the configutation

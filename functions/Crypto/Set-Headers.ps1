@@ -82,7 +82,15 @@ function Set-Headers {
 	Write-Log -IfVerbose -EventId PC_VERBOSE_0004 -extra $canonicalized_header
 
 	Write-Log -IfDebug -EventId PC_DEBUG_0016 -extra $keyitem
-	$cipher = Invoke-Encrypt -data $canonicalized_header -pempath ("{0}\{1}" -f $Script:Session.config.paths.conf, $Script:Session.config.$keyitem) -private
+
+	# Build up the path to the pem.  this might be an absolute path in which case use that
+	if ([System.IO.Path]::IsPathRooted($script:session.config.$keyitem)) {
+		$pempath = $script:session.config.$keyitem
+	} else {
+		$pempath = Join-Path $script:session.config.paths.conf $script:session.config.$keyitem
+	}
+
+	$cipher = Invoke-Encrypt -data $canonicalized_header -pempath $pempath -private
 
 	# Write out the cipher in Verbose mode
 	Write-Log -IfDebug -EventId PC_VERBOSE_0007 -extra $cipher

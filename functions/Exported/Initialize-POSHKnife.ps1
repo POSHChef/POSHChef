@@ -54,6 +54,7 @@ function Initialize-POSHKnife {
 		$server,
 
 		[string]
+		[alias("username")]
 		# Name of the node as it will be stored in Chef
 		$client,
 
@@ -63,20 +64,37 @@ function Initialize-POSHKnife {
 
 		[string]
 		# Path to the client key.
-		$clientkey,
+		$key,
+
+		[string]
+		# Sub folder in the conf directory that the key should be stored in
+		$keydir = [String]::Empty,
 
 		[string]
 		# Base directory where POSHChef files are stored
 		$basedir = "C:\POSHChef",
 
 		[string]
+		[alias("repo")]
 		# Path to the chef repo that holds the cookbooks, roles, environments etc
 		$chef_repo = [String]::Empty,
 
 		[string]
 		# Name of the configuration file
 		# By default this will be knife.psd1
-		$name = [String]::Empty
+		$name = [String]::Empty,
+
+		[string]
+		# Set the API version to use when communicating with the chef server
+		$apiversion = "12.0.2",
+
+		[switch]
+		# Whether to force an override on an existing file
+		$force,
+
+		[switch]
+		# Specify if the key should be kept in the same place
+		$nocopykey
 	)
 
 	# Set log paraneters so that we have access to the help file
@@ -93,7 +111,7 @@ function Initialize-POSHKnife {
 
 	# Patch the $PSBoundParameters to contain the default values
 	# if they have not been explicitly set
-	foreach ($param in @("server", "client", "clientkey", "keeplogs", "basedir", "chef_repo")) {
+	foreach ($param in @("server", "client", "key", "keeplogs", "basedir", "chef_repo")) {
 		if (!$PSBoundParameters.ContainsKey($param)) {
 			$PSBoundParameters.$param = (Get-Variable -Name $param).Value
 		}
@@ -105,17 +123,29 @@ function Initialize-POSHKnife {
 	# Initialize a session to that we can use the paths that are setup accessible
 	Initialize-Session -parameters $PSBoundParameters
 
-	# check the client key file exists
-	if (!(Test-Path -Path $clientkey)) {
-		Write-Log -ErrorLevel -EventId PC_ERROR_0012 -Extra $clientkey -stop
+	# Build up an object to pass to the Setup-ConfigFiles function to configure the conf file
+	# for Chef
+	$userconfig = @{
+		server = $server
+		node = $client
+		logs = @{
+			keep = $keeplogs
+		}
+		chef_repo = $chef_repo
+		client_key = $key
+		apiversion = $apiversion
 	}
 
-	# As the file exists, copy the file to the conf directory
-	$destination = "{0}\client.pem" -f $script:session.config.paths.conf
-	Write-Log -EventId PC_INFO_0027 -Extra $destination
-	Copy-Item -Path $clientkey -Destination $destination | Out-Null
+	# Create the argument hashtable to splat into the Setup-Configfiles function
+	$splat = @{
+		type = "knife"
+		name = $name
+		userconfig = $userconfig
+		force = $force
+		keydir = $keydir
+		nocopykey = $nocopykey
+	}
 
-	# Call the Set-Configuration function to get these parameters written to the configuration file
-	Set-KnifeConfiguration -server $server -nodename $client -keeplogs $keeplogs -chef_repo $chef_repo -name $name
+	Setup-ConfigFiles @splat
 
 }
