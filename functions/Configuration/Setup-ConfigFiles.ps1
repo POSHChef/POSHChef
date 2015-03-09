@@ -122,7 +122,7 @@ function Setup-ConfigFiles {
     "http*" {
 
       # Determien the path that the file will be donlowad to
-      $source = "{0}\{1}" -f (Split-Path -Leaf -Path $source)
+      $source = "{0}\{1}" -f $script:session.config.paths.file_cache_path, (Split-Path -Leaf -Path $source)
       Invoke-WebRequest -uri $uri -outfile $source -usebasicparsing
 
     }
