@@ -89,6 +89,27 @@
   <resource code="PC_ERROR_0028">
     <message>You must specified a valid path for the 'client_key' or 'validation_key'</message>
   </resource>
+  <resource code="PC_ERROR_0029">
+    <message>Unable to find node file: {0}</message>
+  </resource>
+  <resource code="PC_ERROR_0030">
+    <message>An error has occurred</message>
+  </resource>
+  <resource code="PC_ERROR_0031">
+    <message>One or more items in the run list cannot be found</message>
+  </resource>
+  <resource code="PC_ERROR_0032">
+    <message>One ore more items cannot be found on the Chef server</message>
+  </resource>
+  <resource code="PC_ERROR_0033">
+    <message>Operation should be one of 'add' or 'remove' - {0} given</message>
+  </resource>
+  <resource code="PC_ERROR_0034">
+    <message>Plugin requires the following parameters to be specified</message>
+  </resource>
+  <resource code="PC_ERROR_0035">
+    <message>Environment '{0}' is not known to the system, please check the spelling and try again</message>
+  </resource>
 
     <!-- WARN Messages -->
 	<resource code="PC_WARN_0001">
@@ -143,7 +164,9 @@
   <resource code="PC_WARN_0017">
     <message>Not removing environment var '{0}' as it has not been set</message>
   </resource>
-
+  <resource code="PC_WARN_0018">
+    <message>Node '{0}' is already assigned to the '{1}' environment</message>
+  </resource>
 
 	<!-- DEBUG Messages -->
 	<resource code="PC_DEBUG_0001">
@@ -410,7 +433,7 @@
     <message>Uploading Roles</message>
   </resource>
   <resource code="PC_INFO_0030">
-    <message>{0} {1}</message>
+    <message>{0} {1} [{2}]</message>
     <indent>2</indent>
     <colours>
       <foreground>magenta</foreground>

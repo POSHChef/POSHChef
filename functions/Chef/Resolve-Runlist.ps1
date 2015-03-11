@@ -26,10 +26,14 @@ function Resolve-Runlist {
 
 	[CmdletBinding()]
 	param (
-		
+
 		# Run list that needs to be analysed
 		$runlist
 	)
+
+	# Create an array that will hold the list of items that cannot
+	# be located on the server
+	$missing = New-Object System.Collections.ArrayList
 
 	# Iterate around the run_list and build up the expanded run_list
 	foreach ($item in $runlist) {
@@ -91,23 +95,32 @@ function Resolve-Runlist {
 						$script:session.roles += $item
 					}
 
-					# build up the path to desired item
-					$path = "/roles/{0}" -f $item_name
+					# Call the function to get the named role
+					$role = Get-Role -name $item_name
 
-					# Call the ChefQuery to get the runlist for the role
-					$role = Invoke-ChefQuery -path $path
-					
-					# The attributes for the role need to be merged with the ones already retrieved
-					# these are currently in the session object
-					# Attributes of the same name in different roles will be overridden
-					# The last role to have the same setting will win
-					$merged = Merge-Hashtables -primary $role.default_attributes -secondary $script:session.attributes.roles
-					$script:session.attributes.roles = $merged
+					# if the role is false do not merge
+					if ($role -ne $false) {
 
-					# Now call this function again with the runlist that has been applied to the role
-					Resolve-Runlist -runlist $role.run_list
+						# The attributes for the role need to be merged with the ones already retrieved
+						# these are currently in the session object
+						# Attributes of the same name in different roles will be overridden
+						# The last role to have the same setting will win
+						$merged = Merge-Hashtables -primary $role.default_attributes -secondary $script:session.attributes.roles
+						$script:session.attributes.roles = $merged
+
+						# Now call this function again with the runlist that has been applied to the role
+						Resolve-Runlist -runlist $role.run_list
+					} else {
+
+						$missing.Add($item_name) | Out-Null
+					}
 				}
 			}
 		}
+	}
+
+	# check the missing array to find out if any items cannot be found
+	if ($missing.count -gt 0) {
+		Write-Log -LogLevel Error -EventId PC_ERROR_0031 -extra $missing -stop
 	}
 }

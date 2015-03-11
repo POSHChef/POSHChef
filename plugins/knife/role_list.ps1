@@ -29,6 +29,9 @@ function role_list {
 
 		No additional parameters are required for this plugin
 
+		If the plugin detects that a result is expected then the object is passed on the pipeline
+		instead of being output to the screen
+
 	.EXAMPLE
 
 		Invoke-POSHKnife role list
@@ -48,12 +51,16 @@ function role_list {
 
 	# Get a list of the roles currently on the server
 	# This so it can be determined if the role already exists or needs to be created
-	$items_on_server = Invoke-ChefQuery -Path ("/{0}" -f $mapping)
+	$items_on_server = Get-Role
 
-	# Iterate around the items of the server and show list them
-	foreach ($item in ($items_on_server.keys | sort)) {
+	if ($PSCmdlet.MyInvocation.Line.Trim().startswith('$')) {
+		$items_on_server
+	} else {
+		# Iterate around the items of the server and show list them
+		foreach ($item in ($items_on_server.keys | sort)) {
 
-		Write-Log -EventId PC_MISC_0000 -extra ($item)
+			Write-Log -EventId PC_MISC_0000 -extra ($item)
+		}
 	}
-	
+
 }

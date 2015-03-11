@@ -23,7 +23,7 @@ function Set-Node {
 	Creates or updates a node on the chef server
 
 	.DESCRIPTION
-	Depending on the parameters passed to the function, the system will 
+	Depending on the parameters passed to the function, the system will
 	attempt to create or update the node on the server
 
 	#>
@@ -39,58 +39,84 @@ function Set-Node {
 		$attrs,
 
 		[switch]
-		$create
+		# Specify if the node information should be taken as is and pushed
+		# back up to the server
+		$update,
+
+		[string]
+		# Name of the node to update.  This is in case the node is alredy
+		# a string
+		$name
 	)
 
 	# If in debug mode, show the function currently in
 	Write-Log -IfDebug -Message $("***** {0} *****" -f $MyInvocation.MyCommand)
 
-	# set the method that needs to be specified based on the switch
-	$path = "/nodes/{0}" -f $script:session.config.node
+	if ($update) {
 
-	# use the current node information to set the postdata
-	$postdata = $node
+		# The node is being updated so assume that the node specified has all of the
+		# correct information to pass back to the Chef server
 
-	# if a runlist has been specified on the command line read this in and add to the postdata
-	if ($script:session.local_runlist -ne $false) {
-
-		Write-Log -IfDebug -EventId PC_DEBUG_0004 -extra $script:session.local_runlist
-
-		# ensure that the runlist is an array
-		if ($script:session.local_runlist -is [System.String]) {
-			$local:runlist = @($script:session.local_runlist)
+		# set the path for the Invoke-ChefQuery
+		if ($node -is [String]) {
+			$path = "/nodes/{0}" -f $name
+			$postdata = $node
 		} else {
-			$local:runlist = $script:session.local_runlist
+
+			$path = "/nodes/{0}" -f $node.name
+
+			# convert the node to postdata to be sent to the query
+			$postdata = $node | ConvertTo-JSON
 		}
 
-		# add to the existing hash
-		$postdata["run_list"] = $local:runlist
+	} else {
+		# set the method that needs to be specified based on the switch
+		$path = "/nodes/{0}" -f $script:session.config.node
+
+		# use the current node information to set the postdata
+		$postdata = $node
+
+		# if a runlist has been specified on the command line read this in and add to the postdata
+		if ($script:session.local_runlist -ne $false) {
+
+			Write-Log -IfDebug -EventId PC_DEBUG_0004 -extra $script:session.local_runlist
+
+			# ensure that the runlist is an array
+			if ($script:session.local_runlist -is [System.String]) {
+				$local:runlist = @($script:session.local_runlist)
+			} else {
+				$local:runlist = $script:session.local_runlist
+			}
+
+			# add to the existing hash
+			$postdata["run_list"] = $local:runlist
+		}
+
+		# check to see if the environment has been set
+		if ($script:session.environment -ne $false -and $postdata["chef_environment"] -ne $script:session.environment) {
+			$postdata["chef_environment"] = $script:session.environment
+		}
+
+		# If the attributes is not false then add to the postdata
+		if ($attrs.ContainsKey("AllNodes")) {
+			$attrs.Remove("AllNodes")
+		}
+
+		if ($attrs.length -gt 0) {
+
+			# add in the recipes and roles that have been discovered to the attrs
+			$attrs["recipes"] = $script:session.recipes
+			$attrs["roles"] = $script:session.roles
+
+			# add to the $postdata that needs to be sent back to the server
+			# this goes into an automatic key
+			$postdata["automatic"] = $attrs
+
+		}
+
+		# convert the postdata to a json object
+		$postdata = $postdata | ConvertTo-Json -Depth 999
 	}
-
-	# check to see if the environment has been set
-	if ($script:session.environment -ne $false -and $postdata["chef_environment"] -ne $script:session.environment) {
-		$postdata["chef_environment"] = $script:session.environment
-	}
-
-	# If the attributes is not false then add to the postdata
-	if ($attrs.ContainsKey("AllNodes")) {
-		$attrs.Remove("AllNodes")
-	}
-
-	if ($attrs.length -gt 0) {
-	
-		# add in the recipes and roles that have been discovered to the attrs
-		$attrs["recipes"] = $script:session.recipes
-		$attrs["roles"] = $script:session.roles
-		
-		# add to the $postdata that needs to be sent back to the server
-		# this goes into an automatic key
-		$postdata["automatic"] = $attrs
-		
-	}	
-
-	# convert the postdata to a json object
-	$postdata = $postdata | ConvertTo-Json -Depth 999
 
 	Write-Log -IfVerbose -Extra $postdata -EventId PC_DEBUG_0003
 
