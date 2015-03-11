@@ -28,9 +28,12 @@ function environment_list {
 
 		No additional parameters are required for this operation
 
+		If the plugin detects that the list of environments should be returned to a variable
+		then the object is passed back and nothing is outputted to tje screen.
+
 	.EXAMPLE
 
-		Invoke-POSHKnife environment list
+		PS C:\> Invoke-POSHKnife environment list
 
 		List all the environments
 
@@ -47,12 +50,18 @@ function environment_list {
 
 	# Get a list of the roles currently on the server
 	# This so it can be determined if the role already exists or needs to be created
-	$items_on_server = Invoke-ChefQuery -Path ("/{0}" -f $mapping)
+	# $items_on_server = Invoke-ChefQuery -Path ("/{0}" -f $mapping)
+	$items_on_server = Get-Environment
 
-	# Iterate around the items of the server and show list them
-	foreach ($item in ($items_on_server.keys | sort)) {
+	if ($PSCmdlet.MyInvocation.Line.Trim().startswith('$')) {
+		$items_on_server
+	} else {
+		# Iterate around the items of the server and show list them
+		foreach ($item in ($items_on_server.keys | sort)) {
 
-		Write-Log -EventId PC_MISC_0000 -extra ($item)
+			Write-Log -EventId PC_MISC_0000 -extra ($item)
+
+		}
 	}
-	
+
 }

@@ -98,47 +98,61 @@ function Invoke-ChefRestMethod {
 
 		$response = $request.GetResponse()
 
-	} catch {
+		# Take the response and read from the stream
+		$response_stream = $response.GetResponseStream()
+		$sr = New-Object system.IO.StreamReader $response_stream
 
-		# get a response from the exception
-		$response = $_.Exception.InnerException.Response;
+		# Get information about the api version that is actually in use from the response headers
+		# this will be used to determine how to interpret the response from the server
+		$api_info = @{}
+		$api_header = $response.GetResponseHeader("X-Ops-API-Info")
+
+		# Split on the ; character to get the components of the API information
+		$components = $api_header -split ";"
+		foreach($component in $components) {
+
+			# split the component using the = sign
+			$parts = $component -split "="
+
+			# now set the api_info hashtable
+			$api_info.$($parts[0]) = $parts[1]
+		}
+
+		# build up the return object to be sent to the calling function
+		$return = @{
+			data = $sr.ReadToEnd()
+			statuscode = [int32] ($response.StatusCode)
+			apiversion = $api_info.version
+		}
+
+	} catch [System.Net.WebException] {
+
+		# An exception has occured
+		# get the body of the response as it will have the error message in it
+		$response = $_.Exception.Response.GetResponseStream()
+
+		$sr = New-Object System.IO.StreamReader $response
+
+		# build up the return object to be sent to the calling function
+		$return = @{
+			data = $sr.ReadToEnd()
+			statuscode = [int32] $($_.Exception.Response.StatusCode)
+		}
 
 		# determine when to exit and when not to
-		if ([int]$response.StatusCode -ge 500) {
+		if ([int]$return.StatusCode -ge 500) {
 
 			Write-Log -ErrorLevel -EventId PC_ERROR_0001 -extra $_.Exception.Message -stop
 			$data = $false
 
 		}
+
 	}
 
-	# Take the response and read from the stream
-	$response_stream = $response.GetResponseStream()
-	$sr = New-Object system.IO.StreamReader $response_stream
 
-	# Read the response and convert to an object
-	$data = $sr.ReadToEnd()
-
-	# Determine the status code of the request
-	$statuscode = [int32] $($response.StatusCode)
-
-	# Get information about the api version that is actually in use from the response headers
-	# this will be used to determine how to interpret the response from the server
-	$api_info = @{}
-	$api_header = $response.GetResponseHeader("X-Ops-API-Info")
-
-	# Split on the ; character to get the components of the API information
-	$components = $api_header -split ";"
-	foreach($component in $components) {
-
-		# split the component using the = sign
-		$parts = $component -split "="
-
-		# now set the api_info hashtable
-		$api_info.$($parts[0]) = $parts[1]
-	}
+	$return
 
 	# Return a hashtable of the response data and the status code
-	return @{data = $data; statuscode = $statuscode; apiversion = $api_info.version}
+	# return @{data = $data; statuscode = $statuscode; apiversion = $api_info.version}
 
 }

@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,16 +21,16 @@ function node_show {
 	<#
 
 	.SYNOPSIS
-		Display the specified node
+	Display the specified node
 
 	.DESCRIPTION
-		Display the details of the specified node
+	Display the details of the specified node
 
 	.EXAMPLE
 
-		Invoke-POSHKnife node show -name foo
+	Invoke-POSHKnife node show -name foo
 
-		Will list out the node called 'foo'
+	Will list out the node called 'foo'
 
 	#>
 
@@ -38,7 +38,29 @@ function node_show {
 
 		[string]
 		# List of names of users to create
-		$name
+		$name,
+
+		[switch]
+		# Specify if the node should be saved to a file
+		$save,
+
+		[string]
+		# Directory that the file should be saved in.
+		# This is applicable when the filename is not an absolute path
+		# The default for this is the <BASEDIR>\nodes directory
+		$folder = [String]::Empty,
+
+		[string]
+		# Filename that contents should be saved in
+		# By default this will be the name of the node with JSON extension
+		$filename = [String]::Empty,
+
+		[string]
+		# The format that the file should be written out as
+		# By default this is as a PSON object
+		$format
+
+
 	)
 
 	Write-Log -Message " "
@@ -47,7 +69,20 @@ function node_show {
 	# Call the POSHChef function to get the node
 	$node = Get-Node -name $name -passthru
 
-	# output the information
-	$node
-	
+	# Depending on whether a file has been specified save the contents to it
+	# or output them to the pipeline
+	if (!$save) {
+		$node
+	} else {
+
+		# Build up the argument hashtable to pass to the Save-ChefItem
+		$splat = @{
+			folder = $folder
+			filename = $filename
+			format = $format
+			InputObject = $node
+		}
+		Save-ChefItem @splat
+	}
+
 }

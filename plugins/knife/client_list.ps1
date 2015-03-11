@@ -44,10 +44,13 @@ function client_list {
 	# This so it can be determined if the role already exists or needs to be created
 	$items_on_server = Invoke-ChefQuery -Path "/clients"
 
-	# Iterate around the items of the server and show list them
-	foreach ($item in ($items_on_server.keys | sort)) {
+	if ($PSCmdlet.MyInvocation.Line.Trim().startswith('$')) {
+		$items_on_server
+	} else {
+		# Iterate around the items of the server and show list them
+		foreach ($item in ($items_on_server.keys | sort)) {
 
-		Write-Log -EventId PC_MISC_0000 -extra ($item)
+			Write-Log -EventId PC_MISC_0000 -extra ($item)
+		}
 	}
-	
 }

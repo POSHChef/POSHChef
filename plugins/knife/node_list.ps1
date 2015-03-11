@@ -29,11 +29,21 @@ function node_list {
 
 		No additional parameters are required for this plugin
 
+		If the plugin detects that a result is expected then it will pass back an object
+		instead of outputting to the screen.
+
 	.EXAMPLE
 
-		Invoke-POSHKnife node list
+		PS C:\> Invoke-POSHKnife node list
 
-		Will list out the node
+		Will list out the names of the nodes on the server
+
+	.EXAMPLE
+
+		PS C:\> $list = Invoke-POSHKnife node list
+
+		A hashtable will be returned that contains the names of the nodes as keys and the value
+		is the HREF to that node on the chef server.
 
 	#>
 
@@ -44,10 +54,14 @@ function node_list {
 	# This so it can be determined if the role already exists or needs to be created
 	$items_on_server = Invoke-ChefQuery -Path "/nodes"
 
-	# Iterate around the items of the server and show list them
-	foreach ($item in ($items_on_server.keys | sort)) {
+	if ($PSCmdlet.MyInvocation.Line.Trim().startswith('$')) {
+		$items_on_server
+	} else {
+		# Iterate around the items of the server and show list them
+		foreach ($item in ($items_on_server.keys | sort)) {
 
-		Write-Log -EventId PC_MISC_0000 -extra ($item)
+			Write-Log -EventId PC_MISC_0000 -extra ($item)
+		}
 	}
-	
+
 }

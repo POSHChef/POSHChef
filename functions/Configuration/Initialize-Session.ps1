@@ -86,6 +86,11 @@ function Initialize-Session {
 
 						# Set the name of the directory to hold notification
 						notifications = "notifications"
+
+						# Create directories for items that maybe downloded from the chef server=
+						node = "chefitems\node"
+						environment = "chefitems\environment"
+						role = "chefitems\role"
 					}
 
 					# get information about the module
