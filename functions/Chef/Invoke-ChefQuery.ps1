@@ -70,7 +70,7 @@ function Invoke-ChefQuery {
 	Write-Log -IfDebug -EventId PC_DEBUG_0005 -extra $uri
 
 	# if the data is a hashtable convert it to a json string
-	if ($data -is [Hashtable]) {
+	if ($data -is [Hashtable] -or $data -is [System.Collections.Generic.Dictionary`2[System.String,System.Object]]) {
 		$data = $data | ConvertTo-JSON
 	}
 
@@ -122,6 +122,11 @@ function Invoke-ChefQuery {
 			$return = ConvertFrom-JsonToHashtable -InputObject $return
 		}
 
+	} else {
+
+		$content = $response.data | ConvertFrom-JSONToHashtable
+		Write-Log -eventid PC_ERROR_0030 -loglevel error -extra $content.error
+		$return = $false
 	}
 
 	# add the api version of the server to the session variable

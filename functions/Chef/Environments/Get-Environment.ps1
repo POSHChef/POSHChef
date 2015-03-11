@@ -31,7 +31,6 @@ function Get-Environment {
 	param (
 
 		[string]
-		[Parameter(Mandatory=$true)]
 		# name of the environment to retrieve
 		$name
 
@@ -43,15 +42,31 @@ function Get-Environment {
 	Write-Log -EventId PC_INFO_0032
 	Write-Log -EventId PC_MISC_0001 -extra $name
 
-	# Make a call to the chef server to get the environment
-	$environment = Invoke-ChefQuery -path ("/environments/{0}" -f $name)
+	# build up the uri to get the list of environments
+	$uri_parts = New-Object System.Collections.ArrayList
+	$uri_parts.Add("/environments") | Out-Null
 
-	# if the default attributes have been set then add them to the session attributes
-	if ($environment.default_attributes.count -gt 0) {
-		$merged = Merge-Hashtables -primary $environment.default_attributes -secondary $script:session.attributes.environments
-		$script:session.attributes.environments = $merged
+	if (![String]::IsNullOrEmpty($name)) {
+		$uri_parts.Add($name) | Out-Null
 	}
 
-	# set the name of the environment in the session
-	$script:session.environment = $name
+	# Make a call to the chef server to get the environment
+	$uri = $uri_parts -join "/"
+	$environment = Invoke-ChefQuery -path $uri
+
+	# if the caller of this function is expecting a returned value pass the environment
+	# back
+	if ($PSCmdlet.MyInvocation.Line.Trim().startswith('$')) {
+		$environment
+	} else {
+
+		# if the default attributes have been set then add them to the session attributes
+		if ($environment.default_attributes.count -gt 0) {
+			$merged = Merge-Hashtables -primary $environment.default_attributes -secondary $script:session.attributes.environments
+			$script:session.attributes.environments = $merged
+		}
+
+		# set the name of the environment in the session
+		$script:session.environment = $name
+	}
 }
