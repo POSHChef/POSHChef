@@ -173,7 +173,7 @@ function Setup-ConfigFiles {
     }
 
     Write-Log -EventId PC_INFO_0027 -Extra $target
-    Move-Item -Path $source -Destination $target -Force
+    Copy-Item -Path $source -Destination $target -Force
   }
 
 

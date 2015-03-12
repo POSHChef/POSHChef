@@ -56,6 +56,7 @@ function Initialize-POSHChef {
 		$validator,
 
 		[string]
+		[alias("key")]
 		# path to the client's key.
 		# if the machine has been pre-registered with chef then this will need to point
 		# to the file that has been created and downloaded
