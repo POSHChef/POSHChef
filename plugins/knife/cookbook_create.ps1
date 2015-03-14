@@ -164,7 +164,7 @@ function cookbook_create {
 			$file = "{0}\{1}" -f $cbpath, $file
 
 			# Work out the path to the skeleton file
-			$skeleton_file = "{0}\skeleton\cookbook\{1}" -f ($script:session.config.paths.module), (Split-Path -Leaf $file)
+			$skeleton_file = "{0}\skeleton\cookbook\{1}" -f ($script:session.module.path), (Split-Path -Leaf $file)
 
 			# If the file does not exist then create it using the skeleton file
 			if (!(Test-Path -Path $file) -and (Test-Path -Path $skeleton_file)) {

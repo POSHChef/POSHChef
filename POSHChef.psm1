@@ -27,8 +27,17 @@ foreach ($function in $functions) {
 # get a list of the functions that need to be expotred
 $functions_to_export = $Functions | Where-Object { $_.FullName -match "Exported"} | ForEach-Object { $_.BaseName }
 
-# Decalre the session variable which will be scoped to the module
-$Session = @{"fred" = "bloggs"}
+# Declare the session
+$Session = @{
+
+	# Add in module information, the most important of which is the path to the root of the module
+	module = @{
+		path = $PSScriptRoot
+	}
+}
+
+# Call function to setup the module information, including the version number
+Get-ModuleMetadata
 
 # Set aliases for the two most used commands
 Set-Alias -Name POSHChef -Value Invoke-POSHChef
@@ -37,4 +46,3 @@ Set-Alias -Name POSHKnife -Value Invoke-POSHKnife
 # Export the accessible functions
 Export-ModuleMember -function ( $functions_to_export )
 Export-ModuleMember -Alias "*"
-

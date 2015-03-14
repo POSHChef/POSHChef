@@ -121,7 +121,7 @@ function Initialize-POSHKnife {
 	Confirm-Parameters -parameters $PSBoundParameters -name ($MyInvocation.MyCommand)
 
 	# Initialize a session to that we can use the paths that are setup accessible
-	Initialize-Session -parameters $PSBoundParameters
+	Update-Session -parameters $PSBoundParameters
 
 	# Build up an object to pass to the Setup-ConfigFiles function to configure the conf file
 	# for Chef

@@ -41,7 +41,7 @@ function Write-Log(){}
 
 # Ensure required functions are available
 . "$PSScriptRoot\..\..\functions\exported\ConvertFrom-JsonToHashtable.ps1"
-. "$PSScriptRoot\..\..\functions\configuration\Initialize-Session.ps1"
+. "$PSScriptRoot\..\..\functions\configuration\Update-Session.ps1"
 . "$PSScriptRoot\..\..\functions\configuration\Get-Configuration.ps1"
 . "$PSScriptRoot\..\..\functions\exported\Set-Notification.ps1"
 

@@ -1,17 +1,17 @@
 <#
-Copyright 2014 ASOS.com Limited
+	Copyright 2014 ASOS.com Limited
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	    http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
 #>
 
 
@@ -39,18 +39,17 @@ function Get-ModuleFunctions {
 	[Cmdletbinding()]
 	param (
 
-		[object]
-		# Module information
-		$module_info
-
 	)
+
+	# Determine the name of the module from the MyInvocation object
+	$module = $script:session.module
 
 	# set up the functions array
 	$functions = @()
 
 	# Get a list of all the functions in the module
-	$files = Get-ChildItem -Recurse *.ps1 -Path (Split-Path -Parent $module_info.path)
-	
+	$files = Get-ChildItem -Recurse *.ps1 -Path $module.path
+
 	# iterate around each of the files
 	# and strip off the extension to give the name of the function
 	foreach ($file in $files) {
@@ -68,6 +67,10 @@ function Get-ModuleFunctions {
 	$functions += "Report-Handler"
 
 	# return the hashtable of information to the calling function
-	@{$module_info.name = $functions}
+	$return = @{
+		$module.name = $functions
+	}
+
+	$return
 
 }

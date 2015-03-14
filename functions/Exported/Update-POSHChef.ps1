@@ -51,9 +51,6 @@ function Update-POSHChef {
 		$loglevel = "info"
 	)
 
-	# Get the module information
-	$moduleinfo = Get-Module -Name POSHChef
-
 	# Set the log parameters for this function
 	if (!$logtargets) {
 		$logtargets = @(
@@ -75,7 +72,7 @@ function Update-POSHChef {
 
 	# Initialize the sesion and configure global variables
 	# Pass the module information so that it can be added to the session configuration
-	Initialize-Session -Parameters $PSBoundParameters -moduleinfo $moduleinfo
+	Update-Session -Parameters $PSBoundParameters
 
 	# Read the configuration file
 	Get-Configuration -config $config

@@ -34,7 +34,7 @@ Invoke-Expression $code
 
 # Mock functions that come from other modules
 function Write-Log(){}
-function Initialize-Session(){}
+function Update-Session(){}
 function Get-Configuration(){}
 
 # Ensure required functions are available

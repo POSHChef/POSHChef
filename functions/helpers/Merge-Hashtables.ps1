@@ -24,7 +24,7 @@ function Merge-Hashtables {
 
 	.DESCRIPTION
 	When adding two hashes together, an error will be thrown if there are duplicate keys in the table.
-	
+
 	The order in which the hashtables are passed to the function is very important.  So the primary hashtable
 	will be the master, and keys that exist here will override the same one in the secondary hashtable.
 
@@ -65,9 +65,16 @@ function Merge-Hashtables {
 		foreach ($key in $duplicates) {
 
 				# if the item is a hashtable then call this function again
-				if ($types -contains $primary.$key.gettype().name -and $types -contains $secondary.$key.gettype().name) {
+				if ($types -contains $primary.$key.gettype().name -and
+				    $types -contains $secondary.$key.gettype().name) {
 
-					$Primary.$key = Merge-Hashtables -Primary $Primary.$key -Secondary $Secondary.$key
+					# set the argument hashtable
+					$splat = @{
+						primary = $primay.$key
+						secondary = $secondary.$key
+					}
+
+					$Primary.$key = Merge-Hashtables @splat
 				}
 
 				# if the key is an array merge the two items
@@ -79,7 +86,7 @@ function Merge-Hashtables {
 					# This means that the normal additional functions and the Unique parameter of Select will not work properly
 					# so iterate around each of the two arrays and add to a result array
 					foreach ($arr in @($primary.$key, $secondary.$key)) {
-						
+
 						# analyse each item in the arr
 						foreach ($item in $arr) {
 
@@ -88,7 +95,7 @@ function Merge-Hashtables {
 								"Object[]" {
 									$result += , $item
 								}
-			
+
 								# If the type is a string make sure that the array does not already
 								# contain the same string
 								"String" {
@@ -96,7 +103,7 @@ function Merge-Hashtables {
 										$result += $item
 									}
 								}
-			
+
 								# For everything else add it in
 								default {
 									$result += $item
@@ -108,7 +115,7 @@ function Merge-Hashtables {
 					# Now assign the result back to the primary array
 					$primary.$key = $result
 				}
-	
+
 				#force primary key, so remove secondary conflict
 				$Secondary.Remove($key)
 
@@ -118,4 +125,4 @@ function Merge-Hashtables {
 	#join the two hash tables and return to the calling function
 	$Primary + $Secondary
 
-} 
+}
