@@ -18,15 +18,15 @@ limitations under the License.
 function Set-LogDir {
 
 	<#
-	
+
 		.SYNOPSIS
 		Creates the logging directory for all components
-	
+
 	#>
-	
+
 	[CmdletBinding()]
 	param (
-		
+
 		[string]
 		# Log directory that should be created
 		$logdir = [String]::Empty,
@@ -46,10 +46,10 @@ function Set-LogDir {
 
 	# Set the datetime for the log directory
 	$datetime = Get-Date -Date ([DateTime]::UTCNow) -Format "yyyy-MM-dd HH-mm-ss"
-		
+
 	# If the logdir has not been passed to the function get it from the configuration
 	if ([String]::IsNullOrEmpty($logdir)) {
-	
+
 		# use the logdir within the paths item in the config
 		$logdir = $script:session.config.paths.logdir
 
@@ -72,16 +72,19 @@ function Set-LogDir {
 			logProvider = "logfile"
 			verbosity = $loglevel
 			logdir = $logdir
-			logfilename = $logfilename		
+			logfilename = $logfilename
 		}
 
 		# Update the log parameters
-		Set-LogParameters -targets $logtargets -module (Get-ModuleFunctions -module $moduleinfo)	
+		$splat = @{
+			targets = $logtargets
+			module = Get-ModuleFunctions
+		}
+
+		Set-LogParameters @splat
 	}
 
-
-
-	# see if the log directory exists, and create it if not 
+	# see if the log directory exists, and create it if not
 	if (!(Test-Path -Path $logdir)) {
 		New-Item -Type directory -Path $logdir | Out-Null
 	}

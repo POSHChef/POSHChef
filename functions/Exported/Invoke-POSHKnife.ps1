@@ -145,9 +145,6 @@ function Invoke-POSHKnife {
 		# Set the error action preference
 		$ErrorActionPreference = "Stop"
 
-		# Define script information
-		$moduleInfo = Get-Module -Name POSHChef
-
 		$argcount = $PSBoundParameters.count
 
 		# Set the log parameters for this function
@@ -158,7 +155,7 @@ function Invoke-POSHKnife {
 		}
 
 		# Set the log parameters for this function
-		Set-LogParameters -targets $logtargets -resource_path ("{0}\lib\POSHChef.resources" -f (Split-Path -Parent $moduleInfo.path)) -module (Get-ModuleFunctions -module $moduleinfo)
+		Set-LogParameters -targets $logtargets -resource_path ("{0}\lib\POSHChef.resources" -f $script:session.module.path) -module (Get-ModuleFunctions)
 
 		# Patch the $PSBoundParameters to contain the default values
 		# if they have not been explicitly set
@@ -169,7 +166,7 @@ function Invoke-POSHKnife {
 		}
 
 		# Get the configuration for chef
-		Initialize-Session -Parameters $PSBoundParameters
+		Update-Session -Parameters $PSBoundParameters
 		Get-Configuration -knife -config $config
 
 		Set-LogDir -logtargets $logtargets
@@ -181,7 +178,7 @@ function Invoke-POSHKnife {
 		$cmd_hash = @{}
 
 		# define an array of the paths for knife plugins
-		$knife_plugin_dirs = @(("{0}\plugins\knife" -f (Split-Path -Parent $moduleInfo.path)),
+		$knife_plugin_dirs = @(("{0}\plugins\knife" -f $script:session.module.path),
 								$script:session.config.paths.knife_plugins)
 
 		# iterate around each of the knife_plugin_dirs

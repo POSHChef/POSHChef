@@ -66,9 +66,6 @@ function Get-SourcePath {
 		# If left blank the default 'knife.psd1' will be used
 		$config = [String]::Empty
 	)
-	
-	# Get the module information
-	$moduleinfo = Get-Module -Name POSHChef
 
 	# Patch the $PSBoundParameters to contain the default values
 	# if they have not been explicitly set
@@ -80,7 +77,7 @@ function Get-SourcePath {
 
 	# Initialize the sesion and configure global variables
 	# Pass the module information so that it can be added to the session configuration
-	Initialize-Session -Parameters $PSBoundParameters -moduleinfo $moduleinfo
+	Update-Session -Parameters $PSBoundParameters
 
 	# Read the configuration file
 	Get-Configuration -config $config
@@ -110,5 +107,5 @@ function Get-SourcePath {
 
 	# Return the return value to the calling function
 	$return
-	
+
 }

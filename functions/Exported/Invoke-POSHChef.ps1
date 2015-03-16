@@ -107,9 +107,6 @@ function Invoke-POSHChef {
 	# Update the ProgressPreference for when Invoke-WebRequest is used
 	$ProgressPreference = "SilentlyContinue"
 
-	# Define script information
-	$moduleInfo = Get-Module -Name POSHChef
-
 	# Set the log parameters for this function
 	if (!$logtargets) {
 		$logtargets = @(
@@ -117,7 +114,14 @@ function Invoke-POSHChef {
 		)
 	}
 
-	Set-LogParameters -targets $logtargets -resource_path ("{0}\lib\POSHChef.resources" -f (Split-Path -Parent $(Get-Module -Name POSHChef).path))  -module (Get-ModuleFunctions -module $moduleinfo)
+	# Build up the argument hash to send into Set-LogParameters
+	$splat = @{
+		targets = $logtargets
+		resource_path = "{0}\lib\POSHChef.resources" -f ($script:session.module.path)
+		module = Get-ModuleFunctions
+	}
+
+	Set-LogParameters @splat
 
 	# Create a hash table that contains information about the run, such as start, end and elapsed times
 	# this is not set in the Initialise-Session function as we need to set this up as sson as the function starts
@@ -137,7 +141,7 @@ function Invoke-POSHChef {
 						# decclare an elapsed time which is worked out from the stopwatch
 						elapsed = $false
 
-				   }
+					}
 
 	# Patch the $PSBoundParameters to contain the default values
 	# if they have not been explicitly set
@@ -147,17 +151,11 @@ function Invoke-POSHChef {
 		}
 	}
 
-	# Get the module information
-	$moduleinfo = Get-Module -Name POSHChef
-
-	# Work out the version of POSHChef that is running
-	$current_version = $moduleinfo.version.ToString()
-
-	Write-Log -EVentId PC_INFO_0006 -extra $current_version
+	Write-Log -EVentId PC_INFO_0006 -extra $script:session.module.version
 
 	# Initialize the sesion and configure global variables
 	# Pass the module information so that it can be added to the session configuration
-	Initialize-Session -Parameters $PSBoundParameters -moduleinfo $moduleinfo
+	Update-Session -Parameters $PSBoundParameters
 
 	# Read the configuration file
 	Get-Configuration -config $config
@@ -193,7 +191,7 @@ function Invoke-POSHChef {
 
 	# Copy the module DSC resources, if the switch has been specified on the command line
 	if ($options -contains "copydsc") {
-		Copy-Resources -Path $script:session.config.paths.module -subfolder "dscresources"
+		Copy-Resources -Path $script:session.module.path -subfolder "dscresources"
 	}
 
 	# Test that the node is registered on the server

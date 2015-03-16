@@ -15,7 +15,7 @@ limitations under the License.
 #>
 
 
-function Initialize-Session {
+function Update-Session {
 
 	<#
 
@@ -29,22 +29,16 @@ function Initialize-Session {
 	param (
 
 		# Object containing the arguments that have been passed to POSHChef
-		$parameters,
-
-		# Module information object
-		$moduleinfo = [String]::Empty
+		$parameters
 	)
 
 	# If in debug mode, show the function currently in
 	Write-Log -IfDebug -Message $("***** {0} *****" -f $MyInvocation.MyCommand)
 
-	# if the moduleinfo is empty then get it
-	if ([String]::IsNullOrEmpty($moduleinfo)) {
-		$moduleinfo = Get-Module -Name POSHChef
-	}
+	# Update the session object with the relevant information
+	$script:session = @{
 
-	# Create a global hashtable that contains all the properties for the different aspects of the session
-	$Script:Session = @{
+				module = $script:session.module
 
 				# Configuration hash table
 				config = @{
@@ -64,9 +58,6 @@ function Initialize-Session {
 
 						# Set the path that DSCResources should be copied to
 						dscresources = "C:\Windows\System32\WindowsPowerShell\v1.0\Modules\"
-
-						# Set the path to the module
-						module = (Split-Path -Parent ($moduleInfo.Path))
 
 						# Set the path to where the generated MOF files should be stored
 						mof_file_path = "mof"
@@ -92,9 +83,6 @@ function Initialize-Session {
 						environment = "chefitems\environment"
 						role = "chefitems\role"
 					}
-
-					# get information about the module
-					module_info = $moduleInfo
 
 					# Sepcify whether cookbook files should be downloaded or not
 					download = $parameters.download
@@ -169,14 +157,6 @@ function Initialize-Session {
 				skip = $parameters.skip
 			}
 
-
-	# Build up the basic headers to access the Chef server
-	#$global:headers = @{
-	#		'X-Chef-Version' = '{0}' -f $chef_config.version
-	#		}
-
-	# define a the array which will contain the expanded run list for the node
-	# $global:expanded_runlist = @()
 
 	# ensure that the paths in the config section of the session are rewritten as absolute
 	# paths if they are not already

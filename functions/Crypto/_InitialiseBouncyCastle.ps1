@@ -23,7 +23,7 @@ function _InitialiseBouncyCastle
 
 	# If the library path is false derive it
 	if ($libPath -eq $false) {
-		$libPath = "{0}\lib\" -f $script:session.config.paths.module
+		$libPath = "{0}\lib\" -f $script:session.module.path
 	}
 
 	# Load the Bouncycastle library without locking the DLL or needlessly re-loading

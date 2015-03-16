@@ -16,7 +16,7 @@ limitations under the License.
 
 
 function Invoke-AnalysePlatform {
-	
+
 	<#
 
 	.SYNOPSIS
@@ -39,20 +39,20 @@ function Invoke-AnalysePlatform {
     # define node_attribute hash
     $node_attributes = @{
 							client = @{
-								name = ($script:session.config.module_info.name)
-								version = ($script:session.config.module_info.version.tostring())
+								name = ($script:session.module.name)
+								version = ($script:session.module.version)
 							}
 						}
 
 	# get all the standard plugins from the module
-	$plugins = @(Get-ChildItem -Recurse -Path ("{0}\plugins\attributes" -f $script:session.config.paths.module) -Include *.ps1)
+	$plugins = @(Get-ChildItem -Recurse -Path ("{0}\plugins\attributes" -f $script:session.module.path) -Include *.ps1)
 
 	# add to this any plugins that have been specified in the POSHChef plugin path
 	$user_plugins = Get-ChildItem -Recurse -Path ($script:session.config.paths.chef_plugins) -Include *.ps1
 	if ($user_plugins.count -gt 0) {
 		$plugins += $user_plugins
 	}
-	
+
 
 	# If any plugin scripts have been found execute them to build up the attributes
 	if ($plugins.count -gt 0) {
@@ -86,4 +86,3 @@ function Invoke-AnalysePlatform {
     $node_attributes
 
 }
-

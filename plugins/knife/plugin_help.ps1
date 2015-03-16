@@ -30,8 +30,8 @@ function plugin_help {
 
 		This plugin displays the help for the named plugin.
 
-		When a plugin is installed or listed its name will be based on a file name.  Thus the plugin associated 
-		with the command 'POSHKnife node delete' is called 'node_delete'.  When help is requested about a 
+		When a plugin is installed or listed its name will be based on a file name.  Thus the plugin associated
+		with the command 'POSHKnife node delete' is called 'node_delete'.  When help is requested about a
 		plugin the name of the plugin should be used.
 
 	.EXAMPLE
@@ -73,7 +73,7 @@ function plugin_help {
 
 	# Build up a an array containing the paths to look for the plugin in
 	$search_folders = @($script:session.config.paths.knife_plugins,
-						[System.IO.Path]::Combine($script:session.config.paths.module, "plugins\knife"))
+						[System.IO.Path]::Combine($script:session.module.path, "plugins\knife"))
 
 	# set flag to denote if the plugin has been found
 	$found = $false
@@ -86,7 +86,7 @@ function plugin_help {
 
 		# test to make sure the path exists
 		if (Test-Path -Path $plugin) {
-		
+
 			# source the function so that help can be retrieve
 			. $plugin
 

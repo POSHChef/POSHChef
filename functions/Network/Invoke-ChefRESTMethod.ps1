@@ -60,7 +60,7 @@ function Invoke-ChefRestMethod {
 
 	# Set the agent
 	# $request.UserAgent = "Chef Knife/11.8.0 (ruby-1.9.3-p448; ohai-6.20.0; i386-mingw32; +http://opscode.com)"
-	$request.UserAgent = "POSHChef/{0} (PowerShell {1})" -f $script:Session.config.module_info.version.tostring(), $PSVersionTable.PSVersion.tostring()
+	$request.UserAgent = "POSHChef/{0} (PowerShell {1})" -f $script:session.module.version, $PSVersionTable.PSVersion.tostring()
 
 	# loop round the headers that have been passed
 	$headers.keys | ForEach-Object {
