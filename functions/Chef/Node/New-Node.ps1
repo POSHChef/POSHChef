@@ -74,8 +74,7 @@ function New-Node {
 
 	# if the statuscode does not equal 404, not found, then return as the node
 	# already exists
-	# if ($exists.statuscode -ne "404") {
-	if (![String]::IsNullOrEmpty($exists)) {
+	if ($exists.statuscode -ne "404") {
 		$exists
 		return
 	}

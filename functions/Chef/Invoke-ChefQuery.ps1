@@ -71,7 +71,7 @@ function Invoke-ChefQuery {
 
 	# if the data is a hashtable convert it to a json string
 	if ($data -is [Hashtable] -or $data -is [System.Collections.Generic.Dictionary`2[System.String,System.Object]]) {
-		$data = $data | ConvertTo-JSON
+		$data = $data | ConvertTo-JSON -Depth ([int]::MaxValue)
 	}
 
 	# If the path is a string then turn it into a System URI object
@@ -125,8 +125,14 @@ function Invoke-ChefQuery {
 	} else {
 
 		$content = $response.data | ConvertFrom-JSONToHashtable
-		Write-Log -eventid PC_ERROR_0030 -loglevel error -extra $content.error
-		$return = $false
+
+		# define the return variable
+		$return = $content
+		$return.statuscode = $response.statuscode
+
+		if (!$passthru) {
+			Write-Log -eventid PC_ERROR_0030 -loglevel error -extra $content.error
+		}
 	}
 
 	# add the api version of the server to the session variable

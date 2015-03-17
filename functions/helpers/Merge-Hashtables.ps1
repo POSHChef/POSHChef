@@ -70,7 +70,7 @@ function Merge-Hashtables {
 
 					# set the argument hashtable
 					$splat = @{
-						primary = $primay.$key
+						primary = $primary.$key
 						secondary = $secondary.$key
 					}
 
