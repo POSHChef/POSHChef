@@ -39,7 +39,7 @@ function Get-TargetResource
 	} else {
 		$returnValue.Ensure = "Absent"
 	}
-	
+
 	# return the hashtable to the calling function
 	$returnValue
 
@@ -88,10 +88,10 @@ function Set-TargetResource
 		[System.String]
 		$NotifiesServicePath
 	)
-	
+
 	# Use the Get-TargetResource to determine if the file exists
 	$status = Get-TargetResource -Target $Target -Source $Source
-	
+
 	# Switch on the Ensure parameter
 	switch ($Ensure) {
 
@@ -108,18 +108,18 @@ function Set-TargetResource
 				switch -Wildcard ($uri.scheme) {
 
 					"file" {
-					
+
 						# If the source file exists, copy it to the target
 						if (Test-Path -Path $Source) {
 
 							# Determine the type of the source so that the target directory can be created accordingly
 							$source_type = Get-Item -Path $source
-					
+
 							# if the source is a directory then the target must be as well so make sure it exists
 							# if it is a file then ensure the parent dir exists
 							if ($source_type.PSISContainer -eq $true) {
 								$parent = $target
-								$Source = "{0}\*" -f $Source 
+								$Source = "{0}\*" -f $Source
 							} else {
 								$parent = Split-Path -Parent -Path $target
 							}
@@ -127,7 +127,7 @@ function Set-TargetResource
 							# Ensure the parent path exists so that the file(s) can be copied to it
 							if (!(Test-Path -Path $parent)) {
 								# State that the parent directory is being created
-								Write-Verbose ("Creating target directory: {0}" -f $parent) 
+								Write-Verbose ("Creating target directory: {0}" -f $parent)
 
 								New-Item -Type Directory -Path $parent | out-null
 							}
@@ -154,7 +154,7 @@ function Set-TargetResource
 							OutFile = $Target
 							UseBasicParsing = $true
 						}
-						
+
 						# if a credential has been specified add it here
 						if (![String]::IsNullOrEmpty($credential)) {
 							$splat.credential = $credential
@@ -216,7 +216,7 @@ function Test-TargetResource
 
 		[ValidateSet("MD5","SHA1", "SHA256")]
 		[System.String]
-		$Algorithm = "MD5",		
+		$Algorithm = "MD5",
 
 		[ValidateSet("Present","Absent")]
 		[System.String]
@@ -256,37 +256,50 @@ function Test-TargetResource
 			# check the status to see if the file should be downloaded or not
 			if ($Status.Ensure -ieq "present") {
 
-				# Get the source to determine if it is a file or a directory
-				# If it is a directory then the system must make sure that a similar one exists in the target
-				# If it is a file then it needs to get the checksum
-				$source_type = Get-Item -Path $source
+				# Determine the scheme of the source, e.g file or http
+				$uri = $source -as [system.uri]
 
-				# if the source is a directory then the target must be as well so make sure it exists
-				# if it is a file then ensure the parent dir exists
-				if ($source_type.PSISContainer -eq $true) {
+				# check the scheme, if it is File then do some more checks to find out if the
+				# resource needs to download a directory or not
+				if ($uri.scheme -eq "file") {
 
-					# Test to see if the target exists
-					if (!(Test-Path -Path $target)) {
-						$test = $false
-					}
+						# Get the source to determine if it is a file or a directory
+						# If it is a directory then the system must make sure that a similar one exists in the target
+						# If it is a file then it needs to get the checksum
+						$source_type = Get-Item -Path $source
 
-				} else {
+						# if the source is a directory then the target must be as well so make sure it exists
+						# if it is a file then ensure the parent dir exists
+						if ($source_type.PSISContainer -eq $true) {
 
-					# The source is a file so get the checksum of the source and, if it is exists the local one and compare
+							# Test to see if the target exists
+							if (!(Test-Path -Path $target)) {
+								$test = $false
+							}
 
-					$checksums = @{
-						proposed = $Checksum
-						existing = ""
-					}
-
-					# The local file exists, so get its checksum and compare against the one that has been supplied
-					$checksums.existing = Get-Checksum -Path $Target -Algorithm $Algorithm
-
-					# Compare the two checksums to detrmine if the local resource needs updating
-					if ($checksums.proposed -ne $checksums.existing) {
-						$test = $false
-					}
+							# return the test as it is a directory so all files will be copied regardless
+							# of whether they need updating or not
+							return $test
+						}
 				}
+
+				# If there then the source is a file (whether from a share or HTTP) and there is already
+				# a copy at the target location.
+				# Perform a test against the supplied checksum to determine if it needs to be downloaded
+				# Build up the checksums hashtable to be used for comparison
+				$checksums = @{
+					proposed = $Checksum
+					existing = ""
+				}
+
+				# The local file exists, so get its checksum and compare against the one that has been supplied
+				$checksums.existing = Get-Checksum -Path $Target -Algorithm $Algorithm
+
+				# Compare the two checksums to detrmine if the local resource needs updating
+				if ($checksums.proposed -ne $checksums.existing) {
+					$test = $false
+				}
+
 
 			} else {
 
@@ -312,6 +325,3 @@ function Test-TargetResource
 
 	return $test
 }
-
-
-

@@ -48,7 +48,7 @@ Describe "POSHChef_RemoteFileResource" {
 	# Get the PSDrive and therefore the root so that the full path can be used
 	$PSDriveName = "TestDrive"
 	$PSDrive = Get-PSDrive -Name $PSDriveName
-	
+
 	# Create variables as shortcuts
 	$src_folder = "{0}\src" -f $PSDrive.Root
 
@@ -57,7 +57,7 @@ Describe "POSHChef_RemoteFileResource" {
 	$file1 = "{0}\file1.txt" -f $src_folder
 	$file2 = "{0}\file2.txt" -f $src_folder
 	$file3 = "{0}\file3.txt" -f $src_folder
-	
+
 	# Set the content of each of the files
 	Set-Content -Path $file1 -Value @"
 Contains 1 line
@@ -82,7 +82,7 @@ Contains 3 lines
 
 	Context ("Given a local file: {0}" -f $file1) {
 
-		# set where the file should be copied to 
+		# set where the file should be copied to
 		$target = "{0}\target\file1.txt" -f $PSDrive.Root
 
 		it ("it should be copied to the target: {0}" -f $target) {
@@ -106,7 +106,7 @@ Contains 3 lines
 			$services = (Get-Content -Path $services_notifications_file -Raw).Trim()
 
 			$service_name -eq $services | Should be $true
-					
+
 		}
 
 		it ("it is copied to the target location, and a reboot is requested") {
@@ -144,7 +144,7 @@ Contains 3 lines
 	}
 
 	Context ("Given a directory: {0}" -f $src_folder) {
-	
+
 		# set the target directory
 		$target = "{0}\target2" -f$PSDrive.Root
 
@@ -170,7 +170,7 @@ Contains 3 lines
 		}
 	}
 
-	# set the source 
+	# set the source
 	$source_file = "http://mirror.internode.on.net/pub/test/1meg.test"
 
 	Context ("Given a URL: {0}" -f $source_file) {
@@ -180,7 +180,7 @@ Contains 3 lines
 		it ("it should test that the file should be downloaded: {0}" -f $target) {
 
 			$result = Test-TargetResource -Ensure "Present" -Source $source_file -Target $target
-			
+
 			# The file should be copied so the test will be false to tell DSC to perform the copy
 			$result | Should be $false
 		}
@@ -191,19 +191,19 @@ Contains 3 lines
 
 			Test-Path -Path $target | Should be $true
 		}
-		
+
 		it ("and notifies the '{0}' service to be restarted" -f $service_name) {
 
 			# Get the contents of the notifications file
 			$services = (Get-Content -Path $services_notifications_file -Raw).Trim()
 
 			$service_name -eq $services | Should be $true
-					
+
 		}
 
 		it ("will not be downloaded if the checksum is the same") {
-			
-			$result = Test-TargetResource -Ensure "Present" -Source $source_file -Target $target -Checksum "2c228995e9766e1398e69466c494fa44"
+
+			$result = Test-TargetResource -Ensure "Present" -Source $source_file -Target $target -Checksum "uuu2pUHR98/CSbBbfXILFQ=="
 
 			# The file should be copied so the test will be false to tell DSC to perform the copy
 			$result | Should be $true
