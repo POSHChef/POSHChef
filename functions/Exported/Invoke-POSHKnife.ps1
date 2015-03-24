@@ -252,6 +252,11 @@ function Invoke-POSHKnife {
 			return
 		}
 
+		# Determine if the results of the plugin should be retruned
+		if ($PSCmdlet.MyInvocation.Line.Trim().StartsWith("$")) {
+			$script:session.knife.return_results = $true
+		}
+
 		# Check that the itemn supports the selected action
 		if (!($cmd_hash.$type.actions -contains $action) -and ![String]::IsNullOrEmpty($action)) {
 			Write-Log -EventId PC_ERROR_0015 -Extra @($type, $action)  -Error -stop
@@ -268,9 +273,6 @@ function Invoke-POSHKnife {
 
 			$h.$key = $PSBoundParameters.$key
 		}
-
-		# ensure the chef_type is added to $h
-		# $h.chef_type = $type
 
 		Write-Log -LogLevel Debug -Message ($h | convertto-json -depth 999)
 

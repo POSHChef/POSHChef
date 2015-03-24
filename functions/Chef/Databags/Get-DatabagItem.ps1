@@ -26,7 +26,7 @@ function Get-DatabagItem {
 		Databags are used in chef to store and share data between machines.
 		This information is meant to be static data that does not change, such as the URL for a CDN for example.
 
-		This function attempts to retrieve the item from the named databag and return a hashtable 
+		This function attempts to retrieve the item from the named databag and return a hashtable
 		of the data contained therein.
 
 	#>
@@ -46,10 +46,21 @@ function Get-DatabagItem {
 	# If in debug mode, show the function currently in
 	Write-Log -IfDebug -Message $("***** {0} *****" -f $MyInvocation.MyCommand)
 
-	$path = "/data/{0}/{1}" -f $name, $item
+	# Set an array to hold the parts of the uri
+	$uri_parts = New-Object System.Collections.ArrayList
+	$uri_parts.Add("/data") | Out-Null
+	$uri_parts.Add($name) | Out-Null
+
+	# if an item is specified get that item
+	if (![String]::IsNullOrEmpty($item)) {
+		$uri_parts.Add($item) | Out-Null
+	}
+
+	# Build up the URi from the parts
+	$uri = $uri_parts -join "/"
 
 	# Query the chef server using the API to get the named item
-	$dbitem = Invoke-ChefQuery -path $path
+	$dbitem = Invoke-ChefQuery -path $uri
 
 	# return the item to the calling function
 	$dbitem

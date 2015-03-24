@@ -53,7 +53,7 @@ function environment_list {
 	# $items_on_server = Invoke-ChefQuery -Path ("/{0}" -f $mapping)
 	$items_on_server = Get-Environment
 
-	if ($PSCmdlet.MyInvocation.Line.Trim().startswith('$')) {
+	if ($script:session.knife.return_results) {
 		$items_on_server
 	} else {
 		# Iterate around the items of the server and show list them

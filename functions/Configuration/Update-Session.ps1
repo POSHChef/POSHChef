@@ -155,6 +155,11 @@ function Update-Session {
 
 				# add in string array to set the items that should be skipped
 				skip = $parameters.skip
+
+				# Configuration for knife lugins
+				knife = @{
+					return_results = $false
+				}
 			}
 
 

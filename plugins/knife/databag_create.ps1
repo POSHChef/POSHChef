@@ -61,18 +61,22 @@ function databag_create {
 	Write-Log -Message " "
 	Write-Log -EVentId PC_INFO_0031 -extra ("Creating", (Get-Culture).TextInfo.ToTitleCase($mapping))
 
+	# Get a list of the existing databags on the server
+	$databags = Get-Databag
+
 	# iterate around each of the items in the name
 	foreach ($item in $name) {
 
-		Write-Log -EventId PC_MISC_0000 -extra $item
-
-		# Create the necessary body
-		$body = @{
-			name = $item
+		# Build up the hashtable for the arguments to create the databag on the server
+		$splat = @{
+			InputObject = @{
+				name = $item
+			}
+			list = $databags.keys
+			chef_type = "data"
 		}
 
-		# Call the Invoke-ChefQuery function to create the named bags
-		$result = Invoke-ChefQuery -Path "/data" -Method POST -data ($body | convertto-json -Depth 999)
+		Upload-ChefItem @splat
 
 	}
 }

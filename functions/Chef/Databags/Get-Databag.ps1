@@ -20,7 +20,7 @@ function Get-Databag {
 	<#
 
 	.SYNOPSIS
-		Gets a list of all the items contained within the named databag
+		Get a specific databag or list all on the server
 
 	#>
 
@@ -35,12 +35,18 @@ function Get-Databag {
 	# If in debug mode, show the function currently in
 	Write-Log -IfDebug -Message $("***** {0} *****" -f $MyInvocation.MyCommand)
 
-	# build up the path to call
-	$path = "/data/{0}" -f $name
-	
-	# Query the chef server using the API to get the named item
-	$databag = Invoke-ChefQuery -path $path
-	
+	# build up the uri to get the list of environments
+	$uri_parts = New-Object System.Collections.ArrayList
+	$uri_parts.Add("/data") | Out-Null
+
+	if (![String]::IsNullOrEmpty($name)) {
+		$uri_parts.Add($name) | Out-Null
+	}
+
+	# Make a call to the chef server to get the environment
+	$uri = $uri_parts -join "/"
+	$databag = Invoke-ChefQuery -path $uri
+
 	# return the databag to the calling function
 	$databag
 

@@ -44,7 +44,7 @@ function user_list {
 	# This so it can be determined if the role already exists or needs to be created
 	$items_on_server = Invoke-ChefQuery -Path "/users"
 
-	if ($PSCmdlet.MyInvocation.Line.Trim().startswith('$')) {
+	if ($script:session.knife.return_results) {
 		$items_on_server
 	} else {
 		# iterate around the items that have been returned based on the type that has been

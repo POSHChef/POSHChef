@@ -171,6 +171,15 @@
   <resource code="PC_WARN_0018">
     <message>Node '{0}' is already assigned to the '{1}' environment</message>
   </resource>
+  <resource code="PC_WARN_0019">
+    <message>Requested databag items do not exist:</message>
+  </resource>
+  <resource code="PC_WARN_0020">
+    <message>Databag '{0}' does not exist on the server, skipping</message>
+  </resource>
+  <resource code="PC_WARN_0021">
+    <message>Item '{0}' does not exist in the databag, skipping</message>
+  </resource>
 
 	<!-- DEBUG Messages -->
 	<resource code="PC_DEBUG_0001">

@@ -21,15 +21,13 @@ function databag_list {
 	<#
 
 	.SYNOPSIS
-		Display a list of all the data bags on the server
+		Display a list of the databags on the server, or list items for a named bag
 
 	.DESCRIPTION
 		Databags are useful to hold central bits of information that the system may require, such as the name of any
 		users to create for example.
 
-		This function lists the databags that are on the Chef server
-
-		No additional parameters are required for this operation
+		This function lists the databags that are on the Chef server, or the items within a named databag
 
 	.EXAMPLE
 
@@ -37,22 +35,42 @@ function databag_list {
 
 		Display a list of all the databags on the server
 
+	.EXAMPLE
+
+		Invoke-POSHKnife databag list -name foo
+
+		Display all the item names that are in the specified databag
+
 	#>
+
+	[CmdletBinding()]
+	param (
+
+		[string]
+		# Name of the databag to list items from
+		$name
+	)
 
 	# Determine the name of the chef type from the function name
 	$chef_type, $action = $MyInvocation.MyCommand -split "_"
 
-	# determine the mapping for the chef query
-	$mapping = "{0}s" -f $chef_type
+	# Build up the hashtable for the arguments to pass to Get-Databag
+	$splat = @{}
+	if ([String]::IsNullOrEmpty($name)) {
+		$extra = "Databags"
+	} else {
+		$extra = "items in Databag: {0}" -f $name
+		$splat.name = $name
+	}
 
 	Write-Log -Message " "
-	Write-Log -EVentId PC_INFO_0031 -extra ("Listing", (Get-Culture).TextInfo.ToTitleCase($mapping))
+	Write-Log -EVentId PC_INFO_0031 -extra ("Listing", $extra)
 
 	# Get a list of the roles currently on the server
 	# This so it can be determined if the role already exists or needs to be created
-	$items_on_server = Invoke-ChefQuery -Path "/data"
+	$items_on_server = Get-Databag @splat
 
-	if ($PSCmdlet.MyInvocation.Line.Trim().startswith('$')) {
+	if ($script:session.knife.return_results) {
 		$items_on_server
 	} else {
 
