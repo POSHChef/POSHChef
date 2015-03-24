@@ -39,10 +39,11 @@ function role_show {
 
   #>
 
+  [CmdletBinding()]
   param (
 
     [string]
-    # List of names of users to create
+    # Name of role to show
     $name,
 
     [switch]
@@ -63,10 +64,17 @@ function role_show {
     [string]
     # The format that the file should be written out as
     # By default this is as a PSON object
-    $format
+    $format = "json"
 
 
   )
+
+  # Setup the mandatory parameters
+  $mandatory = @{
+    name = "Name of role to display (-name)"
+  }
+
+  Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
   Write-Log -Message " "
   Write-Log -EVentId PC_INFO_0031 -extra ("Display", "Role")

@@ -24,7 +24,7 @@ function role_delete {
 
 	.DESCRIPTION
 		Removes the selected roles from the chef server
-		
+
 		When a role is removed, any server using the role will error the next time it runs as it can no longer find
 		the the role to download.
 
@@ -73,14 +73,21 @@ function role_delete {
 	param (
 
 		[string[]]
-		# List of names of users to delete
+		# List of roles to remove from Chef server
 		$name
 
 	)
 
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "String array of roles to remove (-name)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
+
 	# Determine the name of the chef type from the function name
 	$chef_type, $action = $MyInvocation.MyCommand -split "_"
-	 
+
 	# determine the mapping for the chef query
 	$mapping = "{0}s" -f $chef_type
 
@@ -98,10 +105,10 @@ function role_delete {
 
 		# if the user exists then remove it
 		if (![String]::IsNullOrEmpty($user_exists)) {
-			
+
 			Write-Log -EventId PC_MISC_0000 -extra $id
 
-			$result = Invoke-ChefQuery -Method DELETE -path ("/{0}/{1}" -f $mapping, $id) 
+			$result = Invoke-ChefQuery -Method DELETE -path ("/{0}/{1}" -f $mapping, $id)
 		}
 	}
 }

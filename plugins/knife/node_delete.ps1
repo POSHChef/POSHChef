@@ -35,22 +35,30 @@ function node_delete {
 		Attempt to remove the node 'test01.example.co.uk' from the chef server.
 
 	.NOTES
-		If a node is removed but not its client the POSHChef on the node will fail as it 
+		If a node is removed but not its client the POSHChef on the node will fail as it
 		will not be able to retrieve a valid node object
 
 	#>
 
+	[CmdletBinding()]
 	param (
 
 		[string[]]
-		# List of names of users to delete
+		# List of names of nodes to delete
 		$name
 
 	)
 
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "String array of nodes to remove (-name)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
+
 	# Determine the name of the chef type from the function name
 	$chef_type, $action = $MyInvocation.MyCommand -split "_"
-	 
+
 	# determine the mapping for the chef query
 	$mapping = "{0}s" -f $chef_type
 
@@ -68,10 +76,10 @@ function node_delete {
 
 		# if the user exists then remove it
 		if (![String]::IsNullOrEmpty($user_exists)) {
-			
+
 			Write-Log -EventId PC_MISC_0000 -extra $id
 
-			$result = Invoke-ChefQuery -Method DELETE -path ("/{0}/{1}" -f $mapping, $id) 
+			$result = Invoke-ChefQuery -Method DELETE -path ("/{0}/{1}" -f $mapping, $id)
 		}
 	}
 }

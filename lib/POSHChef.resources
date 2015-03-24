@@ -110,6 +110,10 @@
   <resource code="PC_ERROR_0035">
     <message>Environment '{0}' is not known to the system, please check the spelling and try again</message>
   </resource>
+  <resource code="PC_ERROR_0036">
+    <message>Some of your runlist items are invalid, please check</message>
+  </resource>
+
 
     <!-- WARN Messages -->
 	<resource code="PC_WARN_0001">

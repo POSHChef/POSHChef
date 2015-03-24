@@ -35,56 +35,35 @@ function Confirm-Parameters {
 	param (
 
 		[alias("switches")]
-		# Object of swicthes that needs to be analysed
+		# Object of parameters that needs to be analysed
 		$parameters,
 
-		[string]
-		# Function that has called this one
-		$name
+		[hashtable]
+		# Hashtable containing the keys of the parameters to check for
+		# and the help message for that key in the event of it being missing
+		$mandatory
 	)
 
 	# If in debug mode, show the function currently in
 	Write-Log -IfDebug -EventId PC_DEBUG_0017 -extra $MyInvocation.MyCommand
 
-	# Configure method variable to hold the mandatory parameters for a method
-	$mandatory = @()
-
 	# Set method variable to hold the missing parameters
-	$missing = @()
-
-	# Perform a swicth on the name of the function to ensure the correct parameters have been set
-	switch ($name) {
-
-		"Initialize-POSHChef" {
-
-			# Define a list of mandatory parameters
-			$mandatory = @("server", "nodename")
-
-		}
-
-		"Initialize-POSHKnife" {
-
-			# Define a list of mandatory parameters
-			$mandatory = @("server", "client", "key", "chef_repo")
-
-		}
-
-	}
+	$required = @()
 
 	# Use the mandatory array and iterate around it to ensure that those items have been set in the parameters object
-	foreach ($key in $mandatory) {
+	foreach ($key in $mandatory.keys) {
 
 		# check the value of the parameter as spcified by the key
 		if ([String]::IsNullOrEmpty($parameters.$key) -or ($parameters.$key) -eq $false) {
 
 			# add this key to the missing array
-			$missing += $key
+			$required += $mandatory.$key
 		}
 	}
 
 	# determine if the missing array is empty or not
-	if ($missing.count -gt 0) {
-		Write-Log -ErrorLevel -EventId PC_ERROR_0009 -extra ($missing -join ", ") -stop
+	if ($required.count -gt 0) {
+		Write-Log -ErrorLevel -EventId PC_ERROR_0009 -extra $required -stop
 	}
 
 }

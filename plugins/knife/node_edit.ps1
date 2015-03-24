@@ -54,6 +54,7 @@ function node_edit {
 
     #>
 
+    [CmdletBinding()]
     param (
 
       [string]
@@ -73,7 +74,7 @@ function node_edit {
 
       [string]
       # The format of the file, by default this will be json
-      $format,
+      $format = "json",
 
       # Ability to specify a node object which will allow the node to be updated
       # from a string or a hashtable
@@ -81,12 +82,14 @@ function node_edit {
 
     )
 
-    if ([String]::IsNullOrEmpty($node)) {
+    # Setup the mandatory parameters
+    $mandatory = @{
+      name = "Name of the node to update (-name)"
+    }
+    
+    Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
-      # if format it empty then set it to JSON
-      if ([String]::IsNullOrEmpty($format)) {
-        $format = "json"
-      }
+    if ([String]::IsNullOrEmpty($node)) {
 
       # if the filename is empty then set it to the name of the node
       if ([String]::IsNullOrEmpty($filename)) {

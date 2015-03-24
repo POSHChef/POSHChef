@@ -32,6 +32,7 @@ function databag_item {
 		To delete items requires the use of the delete switch and a list of items to remove
 	#>
 
+	[CmdLetBinding()]
 	param (
 
 		[String]
@@ -51,6 +52,13 @@ function databag_item {
 		$items
 	)
 
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "String array of databags to upload to Chef server (-name)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
+
 	Write-Log -Message " "
 	Write-Log -EVentId PC_INFO_0031 -extra ("Updating Databag -", (Get-Culture).TextInfo.ToTitleCase($name))
 
@@ -66,7 +74,7 @@ function databag_item {
 
 		# iterate around each of the items to remove
 		foreach ($item in $items) {
-			
+
 			# attempt to remove the specified item
 			$splat = @{
 				method = "DELETE"

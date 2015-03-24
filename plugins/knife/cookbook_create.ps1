@@ -75,6 +75,7 @@ function cookbook_create {
 		Create two new cookbooks and place them in the 'c:\temp\cookbooks' folder.
 	#>
 
+	[CmdletBinding()]
 	param (
 
 		[string[]]
@@ -91,6 +92,13 @@ function cookbook_create {
 	)
 
 	Write-log -message " "
+
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "String array of cookbooks to create (-name)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
 	# Source the cookbook_extend plugin so that it can be used to add the POSHChef
 	# parts to the cookbook

@@ -41,6 +41,7 @@ function node_environment {
 
   #>
 
+  [CmdletBinding()]
   param (
 
     [string]
@@ -51,6 +52,14 @@ function node_environment {
     # Name of the environment the machine should be assigned to
     $environment
   )
+
+  # Setup the mandatory parameters
+  $mandatory = @{
+    name = "Name of the node to add to the environment (-name)"
+    environment = "Name of the environment (-environment)"
+  }
+  
+  Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
   Write-Log -Message " "
   Write-Log -EVentId PC_INFO_0031 -extra ("Setting", "Node Environment")

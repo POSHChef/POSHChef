@@ -31,6 +31,7 @@ function cookbook_extend {
 
   #>
 
+  [CmdletBinding()]
   param (
 
     [string[]]
@@ -44,6 +45,13 @@ function cookbook_extend {
   )
 
   Write-log -message " "
+
+  # Setup the mandatory parameters
+  $mandatory = @{
+    name = "String array of cookbooks to extend (-name)"
+  }
+
+  Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
   # iterate around the names of the cookbooks
   foreach ($id in $name) {

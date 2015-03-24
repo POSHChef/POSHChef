@@ -24,7 +24,7 @@ function databag_get {
 
 	#>
 
-
+	[CmdletBinding()]
 	param (
 
 		[string[]]
@@ -32,7 +32,13 @@ function databag_get {
 		$name
 	)
 
-	
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "String array of databags to list items from (-name)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
+
 	# Determine the name of the chef type from the function name
 	$chef_type, $action = $MyInvocation.MyCommand -split "_"
 

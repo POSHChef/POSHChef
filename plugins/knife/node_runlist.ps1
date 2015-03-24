@@ -47,6 +47,7 @@ function node_runlist {
     This will attempt to add the base role to the node 'server-01.poshchef.com'
   #>
 
+  [CmdletBinding()]
   param (
 
     [string]
@@ -59,12 +60,29 @@ function node_runlist {
 
     [string]
     # Type of operation being performed
-    $operation
+    # Default operation is Add
+    $operation = "add"
 
   )
 
   Write-Log -Message " "
   Write-Log -EVentId PC_INFO_0031 -extra ("Updating", "RunList")
+
+  # Check that the mandatory parameters have been set
+  $mandatory = @{
+    name = "Name of node (-name)"
+    items = "Array of items to add to the runlist (-items)"
+    operation = "Operation to perform, 'add' or 'remove' (-operation)"
+  }
+
+  # Ensure that the default values for the parameters have been set
+  foreach ($param in $mandatory.keys) {
+    if (!$PSBoundParameters.ContainsKey($param)) {
+      $PSBoundParameters.$param = (Get-Variable -Name $param).Value
+    }
+  }
+
+  Confirm-Parameters -parameters $PSBoundParameters -mandatory $mandatory
 
   # define an array to hold the list of missing item
   $missing = @{
@@ -79,6 +97,13 @@ function node_runlist {
   # check that the operation is valid
   if (@("add", "remove") -notcontains $operation) {
     Write-Log -EventId PC_ERROR_0033 -extra $operation -loglevel Error
+    return
+  }
+
+  # Ensure that the specified items have the correct format
+  $incorrect = $items | Where-Object { $_ -notmatch "(role|recipe)\[.*\]" }
+  if (![String]::IsNullOrEmpty($incorrect)) {
+    Write-Log -LogLevel Error -EventId PC_ERROR_0036 -extra $incorrect
     return
   }
 
@@ -177,9 +202,11 @@ function node_runlist {
     if ($operation -eq "add") {
 
       # append the items onto the runlust of the node
-      $node.run_list += $items
+      $node.run_list += @($items)
 
     }
+
+    Write-Log -EventId PC_MISC_0000 -extra $node.name
 
     # Now that the runlist has been modified send the modified information to the server
     # set the argument information

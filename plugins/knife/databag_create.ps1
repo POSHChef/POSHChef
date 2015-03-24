@@ -37,12 +37,20 @@ function databag_create {
 
 	#>
 
+	[CmdletBinding()]
 	param (
 
 		[string[]]
 		# List of names of database to create
 		$name
 	)
+
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "String array of databags to create (-name)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
 	# Determine the name of the chef type from the function name
 	$chef_type, $action = $MyInvocation.MyCommand -split "_"
