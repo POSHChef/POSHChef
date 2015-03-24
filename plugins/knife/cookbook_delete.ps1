@@ -27,7 +27,7 @@ function cookbook_delete {
 
 	#>
 
-	[CmdletBinfing()]
+	[CmdletBinding()]
 	param (
 
 		[string[]]
