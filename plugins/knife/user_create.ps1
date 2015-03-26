@@ -59,6 +59,7 @@ function user_create {
 
 	#>
 
+	[CmdletBinding()]
 	param (
 
 		[string[]]
@@ -78,6 +79,13 @@ function user_create {
 		# Specify a directory that newly created user details should be saved in
 		$output = [String]::Empty
 	)
+
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "String array of users to create (-name)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
 	# Determine the name of the chef type from the function name
 	$chef_type, $action = $MyInvocation.MyCommand -split "_"

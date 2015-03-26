@@ -64,7 +64,7 @@ function cookbook_list {
 	# This so it can be determined if the role already exists or needs to be created
 	$items_on_server = Get-CookbookList
 
-	if ($PSCmdlet.MyInvocation.Line.Trim().startswith('$')) {
+	if ($script:session.knife.return_results) {
 		$items_on_server
 	} else {
 		# Iterate around the items of the server and show list them

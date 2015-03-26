@@ -43,8 +43,7 @@ function Upload-ChefItem {
     # Name of the item being uploaded
     $name,
 
-    [Parameter(ParameterSetName="file")]
-    [ValidateSet("environment", "role")]
+    [ValidateSet("environment", "role", "data")]
     [string]
     # Type of item that is being upload, this is so that the
     # correct URI can be generated
@@ -81,9 +80,12 @@ function Upload-ChefItem {
   switch ($PSCmdlet.ParameterSetName) {
     "object" {
       $chef_item = $InputObject
-      $chef_type = $chef_item.chef_type
       $id = $chef_item.name
       $filename = "object"
+
+      if (![String]::IsNullOrEmpty($chef_item.chef_type)) {
+        $chef_type = $chef_item.chef_type
+      }
     }
 
     "file" {
@@ -126,10 +128,17 @@ function Upload-ChefItem {
     }
   }
 
+  # determine the uri to call based on the chef_type
+  if ($chef_type -eq "data") {
+    $uri = "/{0}" -f $chef_type
+  } else {
+    $uri = "/{0}s" -f $chef_type
+  }
+
   # Build up the hashtable of arguments so that the item can be updated
   $splat = @{
     method = "POST"
-    uri = "/{0}s" -f $chef_type
+    uri = $uri
     data = $chef_item
   }
 

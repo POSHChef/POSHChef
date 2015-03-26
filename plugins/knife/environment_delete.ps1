@@ -35,6 +35,7 @@ function environment_delete {
 
 	#>
 
+	[CmdletBinding()]
 	param (
 
 		[string[]]
@@ -48,9 +49,16 @@ function environment_delete {
 
 	)
 
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "String array of environments to remove (-name)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
+
 	# Determine the name of the chef type from the function name
 	$chef_type, $action = $MyInvocation.MyCommand -split "_"
-	 
+
 	# determine the mapping for the chef query
 	$mapping = "{0}s" -f $chef_type
 
@@ -68,16 +76,16 @@ function environment_delete {
 
 		# if the user exists then remove it
 		if (![String]::IsNullOrEmpty($env_exists)) {
-			
+
 			# if the nodes switch has been set, ensure that all the nodes associated with the environment are removed as well
 			if ($deletenodes) {
 
 				# get a list of the nodes associated with this environment
 				$nodes = Invoke-ChefQuery -path ("/{0}/{1}/nodes" -f $mapping, $id)
-				
+
 				# iterate around the nodes that have been founf
 				foreach ($node in $nodes.keys) {
-				
+
 					if ($node -eq "statuscode") {
 						continue
 					}
@@ -93,7 +101,7 @@ function environment_delete {
 
 			Write-Log -EventId PC_MISC_0000 -extra $id
 
-			$result = Invoke-ChefQuery -Method DELETE -path ("/{0}/{1}" -f $mapping, $id) 
+			$result = Invoke-ChefQuery -Method DELETE -path ("/{0}/{1}" -f $mapping, $id)
 		}
 	}
 }

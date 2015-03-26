@@ -52,17 +52,36 @@ function environment_upload {
 		This will attempt to upload the environment contained within the 'base.json' file
 	#>
 
+	[CmdletBinding(DefaultParameterSetName="simple")]
 	param (
 
+		[Parameter(ParameterSetName="complex")]
 		# An environment object
 		$InputObject,
 
+		[Parameter(ParameterSetName="simple")]
 		[string[]]
 		# Array of names of the environments to be uploaded
 		# these will assumed to be a the 'roles' subfolder of the chef_repo setting
 		$names
 
 	)
+
+	# Setup the mandatory parameters, based on the parameter set name
+	switch ($PSCmdlet.ParameterSetName) {
+		"simple" {
+			$mandatory = @{
+				name = "String array of environments to upload (-name)"
+			}
+		}
+		"complex" {
+			$mandatory = @{
+				inputobject = "Hashtable describing the environment to upload (-InputObject)"
+			}
+		}
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
 	# Determine the name of the chef type from the function name
 	$chef_type, $action = $MyInvocation.MyCommand -split "_"
@@ -77,28 +96,30 @@ function environment_upload {
 	$list = Get-Environment
 
 	# iterate around the names that have been supplied
-	if ([String]::IsNullOrEmpty($InputObject)) {
+	switch ($PSCmdlet.ParameterSetName) {
 
-		foreach ($name in $names) {
+		"simple" {
+			foreach ($name in $names) {
 
-			# build up the hashtable to pass to the Uplaod-ChefItem function
-			$splat = @{
-				name = $name
-				list = $list.keys
-				chef_type = $chef_type
+				# build up the hashtable to pass to the Uplaod-ChefItem function
+				$splat = @{
+					name = $name
+					list = $list.keys
+					chef_type = $chef_type
+				}
+
+				Upload-ChefItem @splat
 			}
-
-			Upload-ChefItem @splat
 		}
 
-	} else {
+		"complex" {
 			$splat = @{
 				InputObject = $InputObject
 				list = $list.keys
 			}
 
 			Upload-ChefItem @splat
-
+		}
 	}
 
 }

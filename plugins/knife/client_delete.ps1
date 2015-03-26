@@ -24,7 +24,7 @@ function client_delete {
 
 	.DESCRIPTION
 		Removes the selected clients from the chef server
-		
+
 		Clients are nodes that have registered with the server.  Deleting a client removes the
 		public key of that node from the server which means it will not longer be authorised
 		to connect.
@@ -46,6 +46,7 @@ function client_delete {
 
 	#>
 
+	[CmdletBinding()]
 	param (
 
 		[string[]]
@@ -54,9 +55,15 @@ function client_delete {
 
 	)
 
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "String array of clients to delete (-name)"
+	}
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
+
 	# Determine the name of the chef type from the function name
 	$chef_type, $action = $MyInvocation.MyCommand -split "_"
-	 
+
 	# determine the mapping for the chef query
 	$mapping = "{0}s" -f $chef_type
 
@@ -74,10 +81,10 @@ function client_delete {
 
 		# if the user exists then remove it
 		if (![String]::IsNullOrEmpty($user_exists)) {
-			
+
 			Write-Log -EventId PC_MISC_0000 -extra $id
 
-			$result = Invoke-ChefQuery -Method DELETE -path ("/{0}/{1}" -f $mapping, $id) 
+			$result = Invoke-ChefQuery -Method DELETE -path ("/{0}/{1}" -f $mapping, $id)
 		}
 	}
 }

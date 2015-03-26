@@ -60,6 +60,13 @@ function plugin_help {
 
 	)
 
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "Name of the plugin to display help (-name)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
+
 	Write-Log " "
 	Write-Log -EVentId PC_INFO_0031 -extra ("Plugin Help -", $name)
 

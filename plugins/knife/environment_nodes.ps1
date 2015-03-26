@@ -24,12 +24,20 @@ function environment_nodes {
 
 	#>
 
+	[CmdletBinding()]
 	param (
 
 		[string]
 		# Name of the environment to show servers from
 		$name
 	)
+
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "Name of environment to list the member nodes from (-name)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
 	# Determine the name of the chef type from the function name
 	$chef_type, $action = $MyInvocation.MyCommand -split "_"
@@ -62,6 +70,6 @@ function environment_nodes {
 		}
 	}
 
-	
-	
+
+
 }

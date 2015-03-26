@@ -123,12 +123,21 @@ function Invoke-POSHKnife {
 
 			$ParamDictionary = New-Object 'Management.Automation.RuntimeDefinedParameterDictionary'
 
+			# Create an array of the parameters that should be discarded, this is so that
+			# when a function has Parameter annotations the poshknife function does not blow up
+			$discard = @(
+				"type", "action", "options", "debug", "erroraction", "errorvariable",
+				"outvariable", "outbuffer", "pipelinevariable", "verbose", "warningaction",
+				"warningvariable", "whatif", "confirm"
+			)
+
 			# get the parameters from the command that has been loaded
 			$cmd = Get-Command $function_name
 			foreach ($param in $cmd.parameters.keys) {
 
 				# do not include any parameters that are already configured in this function
-				if (@("type", "action", "options") -contains $param) {
+				# if (@("type", "action", "options") -contains $param) {
+				if ($discard -contains $param) {
 					continue
 				}
 
@@ -243,6 +252,11 @@ function Invoke-POSHKnife {
 			return
 		}
 
+		# Determine if the results of the plugin should be retruned
+		if ($PSCmdlet.MyInvocation.Line.Trim().StartsWith("$")) {
+			$script:session.knife.return_results = $true
+		}
+
 		# Check that the itemn supports the selected action
 		if (!($cmd_hash.$type.actions -contains $action) -and ![String]::IsNullOrEmpty($action)) {
 			Write-Log -EventId PC_ERROR_0015 -Extra @($type, $action)  -Error -stop
@@ -251,11 +265,16 @@ function Invoke-POSHKnife {
 		# Determine what items in the PSBoundParameters should be passed to the underlying function
 		$h = @{}
 		ForEach ($key in (gcm $function_name).Parameters.Keys) {
+
+			# only set parameters that have a value
+			if ([String]::IsNullOrEmpty($PSBoundParameters.$key)) {
+				continue
+			}
+
 			$h.$key = $PSBoundParameters.$key
 		}
 
-		# ensure the chef_type is added to $h
-		$h.chef_type = $type
+		Write-Log -LogLevel Debug -Message ($h | convertto-json -depth 999)
 
 		& $function_name @h
 

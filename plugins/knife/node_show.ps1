@@ -34,6 +34,7 @@ function node_show {
 
 	#>
 
+	[CmdletBinding()]
 	param (
 
 		[string]
@@ -58,10 +59,17 @@ function node_show {
 		[string]
 		# The format that the file should be written out as
 		# By default this is as a PSON object
-		$format
+		$format = "json"
 
 
 	)
+
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "Name of the node to display or save (-name)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
 	Write-Log -Message " "
 	Write-Log -EVentId PC_INFO_0031 -extra ("Display", "Node")

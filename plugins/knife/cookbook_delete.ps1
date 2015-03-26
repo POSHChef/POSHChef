@@ -27,6 +27,7 @@ function cookbook_delete {
 
 	#>
 
+	[CmdletBinding()]
 	param (
 
 		[string[]]
@@ -39,6 +40,13 @@ function cookbook_delete {
 		$version
 
 	)
+
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "String array of cookbooks to delete from Chef (-name)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
 	# Determine the name of the chef type from the function name
 	$chef_type, $action = $MyInvocation.MyCommand -split "_"

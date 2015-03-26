@@ -57,203 +57,215 @@ function cookbook_upload {
 
 	#>
 
+	[CmdletBinding()]
 	param (
 
-		[string]
+		[string[]]
 		# Name of the cookbook(s) to upload
-		$name,
+		$names,
 
 		[string]
 		# The path where the cookbook should be created
 		$path
 	)
 
+	Write-Log -Message " "
+	Write-Log -Eventid PC_INFO_0025
+
+	# Setup the mandatory parameters
+	$mandatory = @{
+		names = "String array of cookbooks to upload to the Chef server (-name)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
+
 	# if the path is null or empty then set to the default path
 	if ([String]::IsNullOrEmpty($path)) {
 		$path = "{0}\cookbooks" -f $script:session.config.chef_repo
 	}
 
-	# determine the path to the cookbook
-	$cookbook_path = "{0}\{1}" -f $path, $name
+	# Iterate around the names that have been supplied
+	foreach ($name in $names) {
 
-	Write-Log -Message " "
-	Write-Log -Eventid PC_INFO_0025
+		# determine the path to the cookbook
+		$cookbook_path = "{0}\{1}" -f $path, $name
 
-	# If the cookbook path exists, iterate around all the files and get a checksum
-	if (Test-Path -Path $cookbook_path) {
+		# If the cookbook path exists, iterate around all the files and get a checksum
+		if (Test-Path -Path $cookbook_path) {
 
-		$cookbook_path = Resolve-Path -Path $cookbook_path
+			$cookbook_path = Resolve-Path -Path $cookbook_path
 
-		Write-Log -EventId PC_MISC_0000 -extra $name
+			Write-Log -EventId PC_MISC_0000 -extra $name
 
-		# ensure that the recipe stub files exist in the main recipes area so that they are selectable from chef
-		Set-RecipeStubs -Path $cookbook_path
+			# ensure that the recipe stub files exist in the main recipes area so that they are selectable from chef
+			Set-RecipeStubs -Path $cookbook_path
 
-		# Generate the metadata.rb file from the metatdata.psd1 file and get the metadata to send to the server
-		$metadata = Set-Metadata -Path $cookbook_path
+			# Generate the metadata.rb file from the metatdata.psd1 file and get the metadata to send to the server
+			$metadata = Set-Metadata -Path $cookbook_path
 
-		# Create an object that will generate the MD5 checksums of the files
-		#$md5 = New-Object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider
-		#$utf8 = New-Object -TypeName System.Text.UTF8Encoding
+			# Create an object that will generate the MD5 checksums of the files
+			#$md5 = New-Object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider
+			#$utf8 = New-Object -TypeName System.Text.UTF8Encoding
 
-		# create a hashtable to hold the checkum file mapping
-		$checksum_files = @{}
+			# create a hashtable to hold the checkum file mapping
+			$checksum_files = @{}
 
-		# craete an array to hold all of the checksums that have been found
-		$checksums = @{checksums = @{}}
+			# craete an array to hold all of the checksums that have been found
+			$checksums = @{checksums = @{}}
 
-		# get a list of all the files in the directory
-		$files = Get-ChildItem -Path $cookbook_path -Recurse | Where-Object { $_.PSISContainer -eq $false }
+			# get a list of all the files in the directory
+			$files = Get-ChildItem -Path $cookbook_path -Recurse | Where-Object { $_.PSISContainer -eq $false }
 
-		# iterate around the files and add each checksum to the array
-		foreach ($file in $files) {
+			# iterate around the files and add each checksum to the array
+			foreach ($file in $files) {
 
-			# work out the checksum of the file
-			$checksum = Get-Checksum -Path $file.fullname -NoBase64
+				# work out the checksum of the file
+				$checksum = Get-Checksum -Path $file.fullname -NoBase64
 
-			# add the checksym and the file to the hashfile, but only if it does not already exist
-			if ($checksum_files.keys -notcontains $checksum) {
-				$checksum_files.$checksum += $file.fullname
-			}
-
-			# add the checksum to the array
-			$checksums.checksums.$checksum = $null
-
-		}
-
-		# Perform a post of the checksums to determine which files need to be uploaded
-		$results = Invoke-ChefQuery -path "/sandboxes" -method "POST" -data ($checksums | ConvertTo-Json -Depth 99)
-
-		Write-Log -EventId PC_MISC_0001 -extra "Determine which files need to be uploaded"
-
-		# iterate around the checksums in the result and determine which files need to be updated
-		foreach ($checksum in $results.checksums.keys) {
-
-			# determine if the file needs uploading
-			if ($results.checksums.$checksum.needs_upload -eq $true) {
-				Write-Log -EventId PC_MISC_0002 -extra ("'{0}' needs uploading" -f ($checksum_files.$checksum.replace("$cookbook_path\", ""))) -fgcolour darkred
-
-				# Call the Invoke-ChefQuery to upload the file
-				$data = Get-Content -Path ($checksum_files.$checksum) -Raw
-				$data_checksum = Invoke-Pack -source $checksum -encode
-
-				# create an argument splat
-				$splat = @{
-					path = $results.checksums.$checksum.url
-					contenttype = "application/x-binary"
-					method = "PUT"
-					data = $data
-					data_checksum = $data_checksum
+				# add the checksym and the file to the hashfile, but only if it does not already exist
+				if ($checksum_files.keys -notcontains $checksum) {
+					$checksum_files.$checksum += $file.fullname
 				}
 
-				$response = Invoke-ChefQuery @splat
+				# add the checksum to the array
+				$checksums.checksums.$checksum = $null
 
-			} else {
-				Write-Log -EventId PC_MISC_0002 -extra ("'{0}' has not changed" -f ($checksum_files.$checksum.replace("$cookbook_path\", ""))) -fgcolour darkgreen
 			}
-		}
 
-		# Now that the files have been uploaded, commit the sandbox
-		$results = Invoke-ChefQuery -path $results.uri -method "PUT" -data (@{is_completed = $true} | ConvertTo-Json)
+			# Perform a post of the checksums to determine which files need to be uploaded
+			$results = Invoke-ChefQuery -path "/sandboxes" -method "POST" -data ($checksums | ConvertTo-Json -Depth 99)
 
-		# Now build up the manifest that needs to be sent to the server when uploading cookbooks
-		$manifest = @{attributes = @()
-					  definitions = @()
-					  files = @()
-					  libraries = @()
-					  providers = @()
-					  recipes = @()
-					  resources = @()
-					  root_files = @()
-					  templates = @()
+			Write-Log -EventId PC_MISC_0001 -extra "Determine which files need to be uploaded"
 
-					  metadata = $metadata
+			# iterate around the checksums in the result and determine which files need to be updated
+			foreach ($checksum in $results.checksums.keys) {
 
-					  "frozen?" = $false
+				# determine if the file needs uploading
+				if ($results.checksums.$checksum.needs_upload -eq $true) {
+					Write-Log -EventId PC_MISC_0002 -extra ("'{0}' needs uploading" -f ($checksum_files.$checksum.replace("$cookbook_path\", ""))) -fgcolour darkred
 
-					  name = "{0}-{1}" -f $metadata.name, $metadata.version
-					  cookbook_name = $metadata.name
-					  version = $metadata.version
-					  json_class = "Chef::CookbookVersion"
-					  chef_type = "cookbook_version"}
+					# Call the Invoke-ChefQuery to upload the file
+					$data = Get-Content -Path ($checksum_files.$checksum) -Raw
+					$data_checksum = Invoke-Pack -source $checksum -encode
 
-		# set the types that a file can be
-		$components = @("files", "recipes", "templates")
+					# create an argument splat
+					$splat = @{
+						path = $results.checksums.$checksum.url
+						contenttype = "application/x-binary"
+						method = "PUT"
+						data = $data
+						data_checksum = $data_checksum
+					}
 
-		# Set the files as these have just been uploaded
-		foreach ($checksum in $results.checksums) {
+					$response = Invoke-ChefQuery @splat
 
-			if ($checksum_files.ContainsKey($checksum)) {
-
-				# trim the beginning of the file so it is relative to the cookbook
-				$relative_path = $checksum_files.$checksum.replace("$cookbook_path\", "")
-				#$relative_path = $file.FullName -replace ("{0}\\" -f [Regex]::Escape($cookbook_path)), ""
-
-				# turn backslashes into forward slashes
-				$relative_path = $relative_path -replace "\\", "/"
-
-				# determine the component of the cookbook from the path, e.g. where it belongs in the cookbook
-				$component = ($relative_path -split "/")[0]
-
-				# set a default for the component if it is not in components
-				if ($components -notcontains $component) {
-					$component = "root_files"
+				} else {
+					Write-Log -EventId PC_MISC_0002 -extra ("'{0}' has not changed" -f ($checksum_files.$checksum.replace("$cookbook_path\", ""))) -fgcolour darkgreen
 				}
-
-				# determine the name to be set in the manifest for this component
-				switch ($component) {
-					"files" {
-
-						# set the name which is relative to the files directory and the specificy of the file
-						# in this case it is default
-						$name = $relative_path -replace "files/default/", ""
-					}
-
-					"recipes" {
-
-						# set the name which is relative to the recipes path
-						$name = $relative_path -replace "recipes/", ""
-
-					}
-
-					"templates" {
-						$name = $relative_path -replace "templates/", ""
-					}
-
-					"root_files" {
-						$name = $relative_path
-					}
-				}
-
-				# build up a hash for this file
-				$hash = @{path = $relative_path
-						  name = $name
-						  checksum = $checksum
-						  specificity = "default"}
-
-				$manifest.$component += $hash
 			}
+
+			# Now that the files have been uploaded, commit the sandbox
+			$results = Invoke-ChefQuery -path $results.uri -method "PUT" -data (@{is_completed = $true} | ConvertTo-Json)
+
+			# Now build up the manifest that needs to be sent to the server when uploading cookbooks
+			$manifest = @{attributes = @()
+						  definitions = @()
+						  files = @()
+						  libraries = @()
+						  providers = @()
+						  recipes = @()
+						  resources = @()
+						  root_files = @()
+						  templates = @()
+
+						  metadata = $metadata
+
+						  "frozen?" = $false
+
+						  name = "{0}-{1}" -f $metadata.name, $metadata.version
+						  cookbook_name = $metadata.name
+						  version = $metadata.version
+						  json_class = "Chef::CookbookVersion"
+						  chef_type = "cookbook_version"}
+
+			# set the types that a file can be
+			$components = @("files", "recipes", "templates")
+
+			# Set the files as these have just been uploaded
+			foreach ($checksum in $results.checksums) {
+
+				if ($checksum_files.ContainsKey($checksum)) {
+
+					# trim the beginning of the file so it is relative to the cookbook
+					$relative_path = $checksum_files.$checksum.replace("$cookbook_path\", "")
+					#$relative_path = $file.FullName -replace ("{0}\\" -f [Regex]::Escape($cookbook_path)), ""
+
+					# turn backslashes into forward slashes
+					$relative_path = $relative_path -replace "\\", "/"
+
+					# determine the component of the cookbook from the path, e.g. where it belongs in the cookbook
+					$component = ($relative_path -split "/")[0]
+
+					# set a default for the component if it is not in components
+					if ($components -notcontains $component) {
+						$component = "root_files"
+					}
+
+					# determine the name to be set in the manifest for this component
+					switch ($component) {
+						"files" {
+
+							# set the name which is relative to the files directory and the specificy of the file
+							# in this case it is default
+							$name = $relative_path -replace "files/default/", ""
+						}
+
+						"recipes" {
+
+							# set the name which is relative to the recipes path
+							$name = $relative_path -replace "recipes/", ""
+
+						}
+
+						"templates" {
+							$name = $relative_path -replace "templates/", ""
+						}
+
+						"root_files" {
+							$name = $relative_path
+						}
+					}
+
+					# build up a hash for this file
+					$hash = @{path = $relative_path
+							  name = $name
+							  checksum = $checksum
+							  specificity = "default"}
+
+					$manifest.$component += $hash
+				}
+			}
+
+			# The recipes and the providing hashtables in the metadata need to be populated
+			foreach ($recipe in $manifest.recipes) {
+
+				# determine the name of the recipe including the cookbook
+				$name = "{0}::{1}" -f $manifest.metadata.name, $recipe.name
+
+				# add an entry to each of the hash tables
+				$manifest.metadata.providing.$name = ">= 0.0.0"
+				$manifest.metadata.recipes.$name = ""
+			}
+
+			# If in debug mode output the manifest
+			Write-Log -IfDebug -EventId PC_DEBUG_21 -extra ($manifest | convertto-json)
+
+			# Finally save the manifest on the server
+			$results = Invoke-ChefQuery -path ("/cookbooks/{0}/{1}" -f $manifest.metadata.name, $manifest.version) `
+										-method "PUT" `
+										-data ($manifest | ConvertTo-Json -Compress -Depth 50)
+
 		}
-
-		# The recipes and the providing hashtables in the metadata need to be populated
-		foreach ($recipe in $manifest.recipes) {
-
-			# determine the name of the recipe including the cookbook
-			$name = "{0}::{1}" -f $manifest.metadata.name, $recipe.name
-
-			# add an entry to each of the hash tables
-			$manifest.metadata.providing.$name = ">= 0.0.0"
-			$manifest.metadata.recipes.$name = ""
-		}
-
-		# If in debug mode output the manifest
-		Write-Log -IfDebug -EventId PC_DEBUG_21 -extra ($manifest | convertto-json)
-
-		# Finally save the manifest on the server
-		$results = Invoke-ChefQuery -path ("/cookbooks/{0}/{1}" -f $manifest.metadata.name, $manifest.version) `
-									-method "PUT" `
-									-data ($manifest | ConvertTo-Json -Compress -Depth 50)
-
 	}
 
 }

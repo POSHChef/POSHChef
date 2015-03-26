@@ -109,6 +109,14 @@ function Initialize-POSHKnife {
 		$cookbook_path = "{0}\chef_repo" -f $basedir
 	}
 
+	# mandatory parameters hashtable
+	$mandatory = @{
+		server = "Chef server to use (-server)"
+		client = "Name of the client / username (-client)"
+		key = "Key file for the named client (-key)"
+		"chef_repo" = "Path to Chef Repo on disk (-chef_repo)"
+	}
+
 	# Patch the $PSBoundParameters to contain the default values
 	# if they have not been explicitly set
 	foreach ($param in @("server", "client", "key", "keeplogs", "basedir", "chef_repo")) {
@@ -118,7 +126,7 @@ function Initialize-POSHKnife {
 	}
 
 	# Check that mandatory parameters have been set
-	Confirm-Parameters -parameters $PSBoundParameters -name ($MyInvocation.MyCommand)
+	Confirm-Parameters -parameters $PSBoundParameters -mandatory $mandatory
 
 	# Initialize a session to that we can use the paths that are setup accessible
 	Update-Session -parameters $PSBoundParameters

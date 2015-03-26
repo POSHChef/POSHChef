@@ -36,7 +36,7 @@ function client_create {
 
 		Key                                                               Name                                                              Password
 		---                                                               ----                                                              --------
-		-----BEGIN RSA PRIVATE KEY-----...                                foo                                                               foobar  
+		-----BEGIN RSA PRIVATE KEY-----...                                foo                                                               foobar
 
 		Creates a new client called 'foo'.  The user will have admin rights within the Chef system.
 
@@ -48,6 +48,7 @@ function client_create {
 
 	#>
 
+	[CmdletBinding()]
 	param (
 
 		[string[]]
@@ -63,9 +64,15 @@ function client_create {
 		$output = [String]::Empty
 	)
 
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "String array of clients to create (-name)"
+	}
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
+
 	# Determine the name of the chef type from the function name
 	$chef_type, $action = $MyInvocation.MyCommand -split "_"
-	 
+
 	# determine the mapping for the chef query
 	$mapping = "{0}s" -f $chef_type
 
@@ -77,7 +84,7 @@ function client_create {
 
 	# create a hash that will store the passwords and the privateky for the users that are created
 	$clients = @()
-	
+
 	# iterate around the names that have been passed to the function
 	$count = 0
 	foreach ($id in $name) {

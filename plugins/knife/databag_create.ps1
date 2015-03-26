@@ -37,12 +37,20 @@ function databag_create {
 
 	#>
 
+	[CmdletBinding()]
 	param (
 
 		[string[]]
 		# List of names of database to create
 		$name
 	)
+
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "String array of databags to create (-name)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
 	# Determine the name of the chef type from the function name
 	$chef_type, $action = $MyInvocation.MyCommand -split "_"
@@ -53,18 +61,22 @@ function databag_create {
 	Write-Log -Message " "
 	Write-Log -EVentId PC_INFO_0031 -extra ("Creating", (Get-Culture).TextInfo.ToTitleCase($mapping))
 
+	# Get a list of the existing databags on the server
+	$databags = Get-Databag
+
 	# iterate around each of the items in the name
 	foreach ($item in $name) {
 
-		Write-Log -EventId PC_MISC_0000 -extra $item
-
-		# Create the necessary body
-		$body = @{
-			name = $item
+		# Build up the hashtable for the arguments to create the databag on the server
+		$splat = @{
+			InputObject = @{
+				name = $item
+			}
+			list = $databags.keys
+			chef_type = "data"
 		}
 
-		# Call the Invoke-ChefQuery function to create the named bags
-		$result = Invoke-ChefQuery -Path "/data" -Method POST -data ($body | convertto-json -Depth 999)
+		Upload-ChefItem @splat
 
 	}
 }

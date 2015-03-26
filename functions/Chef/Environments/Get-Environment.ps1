@@ -39,9 +39,6 @@ function Get-Environment {
 	# If in debug mode, show the function currently in
 	Write-Log -IfDebug -Message $("***** {0} *****" -f $MyInvocation.MyCommand)
 
-	Write-Log -EventId PC_INFO_0032
-	Write-Log -EventId PC_MISC_0001 -extra $name
-
 	# build up the uri to get the list of environments
 	$uri_parts = New-Object System.Collections.ArrayList
 	$uri_parts.Add("/environments") | Out-Null
@@ -59,6 +56,9 @@ function Get-Environment {
 	if ($PSCmdlet.MyInvocation.Line.Trim().startswith('$')) {
 		$environment
 	} else {
+
+		Write-Log -EventId PC_INFO_0032
+		Write-Log -EventId PC_MISC_0001 -extra $name
 
 		# if the default attributes have been set then add them to the session attributes
 		if ($environment.default_attributes.count -gt 0) {

@@ -24,6 +24,7 @@ function search {
 
 	#>
 
+	[CmdletBinding()]
 	param (
 
 		[string]
@@ -34,6 +35,14 @@ function search {
 		# The query to run
 		$query
 	)
+
+	# Setup the mandatory parameters
+	$mandatory = @{
+		index = "Index on which the query should be run (-index)"
+		query = "Lucene query to run on the index (-query)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
 	# Output information on screen
 	Write-Log -Message " "

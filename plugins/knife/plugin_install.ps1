@@ -26,8 +26,8 @@ function plugin_install {
 		Although there are a few standard knife plugins for POSHChef, there is a plugin architecture that allows
 		people to create custom plugins to perform different tasks.
 
-		One such use case is to synchronise the environments on the Chef server with another repository, such as 
-		a filesystem.  This plugin could be called 'environments_sync.ps1' and would be stored in the 
+		One such use case is to synchronise the environments on the Chef server with another repository, such as
+		a filesystem.  This plugin could be called 'environments_sync.ps1' and would be stored in the
 		<BASEDIR>\plugins\knife
 
 		This would then be available to POSHKnife as a useable item, e.g.
@@ -46,8 +46,9 @@ function plugin_install {
 
 	#>
 
+	[CmdletBinding()]
 	param (
-		
+
 		[string[]]
 		# String array of plugins to attempt to install from the specified location
 		$name,
@@ -56,6 +57,14 @@ function plugin_install {
 		# Location to get the specified plugins from
 		$location
 	)
+
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "String array of plugins to copy (-name)"
+		location = "File location of plugins (-location)"
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
 	Write-Log " "
 	Write-Log -EVentId PC_INFO_0031 -extra ("Installing", "Plugins")

@@ -34,6 +34,7 @@ function environment_show {
 
   #>
 
+  [CmdletBinding()]
   param (
 
     [string]
@@ -62,6 +63,13 @@ function environment_show {
 
 
   )
+
+  # Setup the mandatory parameters
+  $mandatory = @{
+    name = "Name of environment to display (-name)"
+  }
+
+  Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
   Write-Log -Message " "
   Write-Log -EVentId PC_INFO_0031 -extra ("Display", "Environment")

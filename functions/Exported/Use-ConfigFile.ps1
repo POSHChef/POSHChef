@@ -38,11 +38,12 @@ function Use-ConfigFile {
     # Denotes the operation that is being set and thus the relevant environment variable
     $type,
 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory=$true,ParameterSetName="add")]
     [string]
     # Path to the configuration file to set in the environment variable
     $path,
 
+    [Parameter(ParameterSetName="remove")]
     [switch]
     # Specify if the environment variable should be removed or not
     $remove

@@ -115,6 +115,11 @@ function Initialize-POSHChef {
 
 	Write-Log -EventId PC_INFO_0019
 
+	$mandatory = @{
+		server = "Chef server to contact (-server)"
+		nodename = "Name of the node (-nodename)"
+	}
+
 	# Patch the $PSBoundParameters to contain the default values
 	# if they have not been explicitly set
 	foreach ($param in @("server", "nodename", "keeplogs", "basedir", "environment")) {
@@ -124,7 +129,7 @@ function Initialize-POSHChef {
 	}
 
 	# Check that mandatory parameters have been set
-	Confirm-Parameters -parameters $PSBoundParameters -name ($MyInvocation.MyCommand)
+	Confirm-Parameters -parameters $PSBoundParameters -mandatory $mandatory
 
 	# Initialize a session to that we can use the paths that are setup accessible
 	Update-Session -parameters $PSBoundParameters

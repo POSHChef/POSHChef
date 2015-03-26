@@ -30,6 +30,7 @@ function node_create {
 
 	#>
 
+	[CmdletBinding()]
 	param (
 
 		[string[]]
@@ -45,12 +46,26 @@ function node_create {
 		$environment = [String]::Empty
 	)
 
+	# Setup the mandatory parameters
+	$mandatory = @{
+		name = "String array of nodes to create on the Chef server (-name)"
+	}
+
+	# Ensure that the default values for the parameters have been set
+	foreach ($param in @("runlist")) {
+		if (!$PSBoundParameters.ContainsKey($param)) {
+			$PSBoundParameters.$param = (Get-Variable -Name $param).Value
+		}
+	}
+
+	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
+
 	Write-Log -Message " "
 	Write-Log -EVentId PC_INFO_0031 -extra ("Create", "Node")
 
 	# Iterate around the name that have been supplied and create a new node for each one
 	foreach ($id in $name) {
-		
+
 		# create argument hash to splat into the function
 		$splat = @{
 			name = $id
