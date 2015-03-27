@@ -82,6 +82,9 @@ function Update-Session {
 						node = "chefitems\node"
 						environment = "chefitems\environment"
 						role = "chefitems\role"
+
+						# Set the URL for the supermarket
+						supermarket_url = ""
 					}
 
 					# Sepcify whether cookbook files should be downloaded or not

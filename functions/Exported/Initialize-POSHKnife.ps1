@@ -94,7 +94,11 @@ function Initialize-POSHKnife {
 
 		[switch]
 		# Specify if the key should be kept in the same place
-		$nocopykey
+		$nocopykey,
+
+		[string]
+		# The Supermarket API endpoint to use
+		$supermarket_url = "https://supermarket.chef.io/api/v1"
 	)
 
 	# Set log paraneters so that we have access to the help file
@@ -142,6 +146,7 @@ function Initialize-POSHKnife {
 		chef_repo = $chef_repo
 		client_key = $key
 		apiversion = $apiversion
+		supermarket_url = $supermarket_url
 	}
 
 	# Create the argument hashtable to splat into the Setup-Configfiles function

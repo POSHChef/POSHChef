@@ -87,54 +87,7 @@ function cookbook_extend {
     Write-Log -EventId PC_INFO_0024
     Write-Log -Eventid PC_MISC_0001 -extra $cbpath
 
-    # Build up the list of directories and files that are required in the extension
-    $items = @{
-      directories = @(
-        "files\default\POSHChef\{0}\files\default\tests" -f $id
-        "files\default\POSHChef\{0}\templates\default" -f $id
-        "files\default\POSHChef\{0}\attributes" -f $id
-        "files\default\POSHChef\{0}\resources" -f $id
-        "files\default\POSHChef\{0}\recipes" -f $id
-      )
-      files = @(
-        "files\default\POSHChef\{0}\attributes\default.psd1" -f $id
-        "files\default\POSHChef\{0}\recipes\default.ps1" -f $id
-        "files\default\POSHChef\{0}\metadata.psd1" -f $id
-      )
-    }
-
-    # iterate around the directories and make sure they all exist
-    foreach ($dir in $items.directories) {
-
-      # build up the full path to the directory
-      $fullpath = "{0}\{1}" -f $cbpath, $dir
-
-      # if the path does not exist then create it
-      if (!(Test-Path -Path $fullpath)) {
-        New-Item -type directory -Path $fullpath | Out-Null
-      }
-    }
-
-    # now ensure that the files exist
-    foreach ($file in $items.files) {
-
-      # build up the full path to the file
-      $filepath = "{0}\{1}" -f $cbpath, $file
-
-      # Work out the path to the skeleton file
-      $skeleton_file = "{0}\skeleton\cookbook\{1}" -f ($script:session.module.path), (Split-Path -Leaf $filepath)
-
-      # If the file does not exist then create it using the skeleton file
-      if (!(Test-Path -Path $filepath) -and (Test-Path -Path $skeleton_file)) {
-
-        # get the contents of the skeleton file
-        $contents = Get-Content -Path $skeleton_file -raw
-
-        # Write out evaluated contents to the required file
-        $cookbook_name = $id
-        Set-Content -Path $filepath -Value ($ExecutionContext.InvokeCommand.ExpandString($contents))
-      }
-    }
+    Extend-Cookbook -name $id -path $cbpath
   }
 
 }

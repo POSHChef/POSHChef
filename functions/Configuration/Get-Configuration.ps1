@@ -118,7 +118,7 @@ function Get-Configuration {
 	}
 
 	# if the client_key has been set then set the session based on this
-	if (![String]::IsNullOrEmpty($configuration.client_key)) {		
+	if (![String]::IsNullOrEmpty($configuration.client_key)) {
 		$script:session.config.key = $configuration.client_key
 	}
 
@@ -165,6 +165,9 @@ function Get-Configuration {
 				$script:session.config.mof.keep = $configuration.mof.keep
 			}
 	}
+
+	# Ensure the supermarket url is set
+	$script:session.config.supermarket_url = $configuration.supermarket_url
 
 
 }

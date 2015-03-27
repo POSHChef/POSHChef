@@ -25,7 +25,7 @@ function Invoke-ChefRestMethod {
 
 		[hashtable]
 		# Hash of headers that need to be added to the request
-		$headers,
+		$headers = @{},
 
 		[string]
 		# The accept string.
@@ -41,7 +41,11 @@ function Invoke-ChefRestMethod {
 
 		[string]
 		# Set the content type to be applued to the request
-		$contenttype = "application/json"
+		$contenttype = "application/json",
+
+		[string]
+		# Path to where the file should be downloaded to
+		$outfile
 	)
 
 	# Function variables
@@ -100,30 +104,53 @@ function Invoke-ChefRestMethod {
 
 		# Take the response and read from the stream
 		$response_stream = $response.GetResponseStream()
-		$sr = New-Object system.IO.StreamReader $response_stream
 
-		# Get information about the api version that is actually in use from the response headers
-		# this will be used to determine how to interpret the response from the server
-		$api_info = @{}
-		$api_header = $response.GetResponseHeader("X-Ops-API-Info")
+		$return = @{}
 
-		# Split on the ; character to get the components of the API information
-		$components = $api_header -split ";"
-		foreach($component in $components) {
+		# if an outfile has been set ensure a filestream object is used
+		if ([String]::IsNullOrEmpty($outfile)) {
+			$sr = New-Object system.IO.StreamReader $response_stream
 
-			# split the component using the = sign
-			$parts = $component -split "="
+			# Get information about the api version that is actually in use from the response headers
+			# this will be used to determine how to interpret the response from the server
+			$api_info = @{}
+			$api_header = $response.GetResponseHeader("X-Ops-API-Info")
 
-			# now set the api_info hashtable
-			$api_info.$($parts[0]) = $parts[1]
+			# Split on the ; character to get the components of the API information
+			$components = $api_header -split ";"
+			foreach($component in $components) {
+
+				# split the component using the = sign
+				$parts = $component -split "="
+
+				# now set the api_info hashtable
+				$api_info.$($parts[0]) = $parts[1]
+
+			}
+
+			$return.data = $sr.ReadToEnd()
+			$return.apiversion = $api_info.version
+
+		} else {
+
+			$fs = New-Object System.IO.FileStream -ArgumentList $outfile,Create
+
+			# ensure the file is downloaded in chunks
+			$buffer = New-Object Byte[] 10KB
+			$count = $response_stream.Read($buffer, 0, $buffer.length)
+			while ($count -gt 0) {
+				$fs.Write($buffer, 0, $count)
+				$count = $response_stream.Read($buffer, 0, $buffer.length)
+			}
+
+
+			$fs.Flush()
+			$fs.Close()
+			$fs.Dispose()
 		}
 
 		# build up the return object to be sent to the calling function
-		$return = @{
-			data = $sr.ReadToEnd()
-			statuscode = [int32] ($response.StatusCode)
-			apiversion = $api_info.version
-		}
+		$return.statuscode = [int32] ($response.StatusCode)
 
 	} catch [System.Net.WebException] {
 
@@ -149,6 +176,7 @@ function Invoke-ChefRestMethod {
 
 	}
 
+	$response_stream.close()
 
 	$return
 
