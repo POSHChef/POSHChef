@@ -152,6 +152,8 @@ function Invoke-ChefRestMethod {
 		# build up the return object to be sent to the calling function
 		$return.statuscode = [int32] ($response.StatusCode)
 
+		$response_stream.close()
+
 	} catch [System.Net.WebException] {
 
 		# An exception has occured
@@ -174,9 +176,9 @@ function Invoke-ChefRestMethod {
 
 		}
 
-	}
+		$response.close()
 
-	$response_stream.close()
+	}
 
 	$return
 
