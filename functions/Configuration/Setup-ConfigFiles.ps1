@@ -64,7 +64,11 @@ function Setup-ConfigFiles {
     [switch]
     # Specify if the configuration file should be written out in Strict
     # mode.  This adds type hintng to the data file
-    $strict
+    $strict,
+
+    [string]
+    # Url of the supermarket URL to use
+    $supermarket_url
 
   )
 
@@ -229,6 +233,9 @@ function Setup-ConfigFiles {
 
       # Set the path to the chefrepo
       $configuration.chef_repo = $userconfig.chef_repo
+
+      # Set the URl to use for the supermarket URL
+      $configuration.supermarket_url = $userconfig.supermarket_url
 
     }
   }

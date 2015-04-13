@@ -100,11 +100,6 @@ function cookbook_create {
 
 	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
 
-	# Source the cookbook_extend plugin so that it can be used to add the POSHChef
-	# parts to the cookbook
-	$cookbook_extend_function = "{0}\cookbook_extend.ps1" -f $PSScriptRoot
-	. $cookbook_extend_function
-
 	# iterate around the names that have been passed to the function
 	foreach ($id in $name) {
 
@@ -188,7 +183,7 @@ function cookbook_create {
 
 		# Now that the basic cookbook has been created extend it
 		if (!$noextend) {
-			cookbook_extend -name $cbpath
+			Extend-Cookbook -path $cbpath -name $id
 		}
 	}
 }

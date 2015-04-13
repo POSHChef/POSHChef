@@ -50,11 +50,11 @@ function Get-Configuration {
 	# If in debug mode, show the function currently in
 	Write-Log -IfDebug -Message $("***** {0} *****" -f $MyInvocation.MyCommand)
 
-	Write-Log -Message " "
-	Write-Log -EventId PC_INFO_0007
+	Write-Log -Message " " -module $script:session.module.name
+	Write-Log -EventId PC_INFO_0007 -module $script:session.module.name
 
 	# Determine the path to the configuraton file
-	Write-Log -EventId PC_INFO_0008
+	Write-Log -EventId PC_INFO_0008 -module $script:session.module.name
 	if ($knife -eq $false) {
 
 		# check to see if a configuration file has been set in the environment
@@ -82,13 +82,14 @@ function Get-Configuration {
 	# set the configuration file path in the session
 	$script:session.config.file = $chef_config_file
 
-	Write-Log -EventId PC_MISC_0001 -Extra $chef_config_file
+	Write-Log -EventId PC_MISC_0001 -Extra $chef_config_file -module $script:session.module.name
+
 
 	# Determine if the path exists
 	if (!(Test-Path -Path $chef_config_file)) {
 
 		# The file does not exist so error
-		Write-Log -EventId PC_ERROR_0016 -extra $chef_config_file -stop -error
+		Write-Log -EventId PC_ERROR_0016 -extra $chef_config_file -stop -error -module $script:session.module.name
 
 	}
 
@@ -118,7 +119,7 @@ function Get-Configuration {
 	}
 
 	# if the client_key has been set then set the session based on this
-	if (![String]::IsNullOrEmpty($configuration.client_key)) {		
+	if (![String]::IsNullOrEmpty($configuration.client_key)) {
 		$script:session.config.key = $configuration.client_key
 	}
 
@@ -165,6 +166,9 @@ function Get-Configuration {
 				$script:session.config.mof.keep = $configuration.mof.keep
 			}
 	}
+
+	# Ensure the supermarket url is set
+	$script:session.config.supermarket_url = $configuration.supermarket_url
 
 
 }

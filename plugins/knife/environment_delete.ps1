@@ -66,7 +66,7 @@ function environment_delete {
 	Write-Log -EVentId PC_INFO_0031 -extra ("Deleting", (Get-Culture).TextInfo.ToTitleCase($mapping))
 
 	# Get a list of the users on the server so that it can be checked to see if the user exists before deleting
-	$items_on_server = Invoke-ChefQuery -Path ("/{0}" -f $mapping)
+	$items_on_server = Get-Environment
 
 	# iterate around the names that have been passed
 	foreach ($id in $name) {

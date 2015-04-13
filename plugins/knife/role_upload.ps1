@@ -63,7 +63,7 @@ function role_upload {
 
 	# Setup the mandatory parameters
 	$mandatory = @{
-		name = "String array of roles to upload (-name)"
+		names = "String array of roles to upload (-name)"
 	}
 
 	Confirm-Parameters -Parameters $PSBoundParameters -mandatory $mandatory
