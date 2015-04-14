@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
-    <version>0.0.0.0</version>
+    <version>$version$</version>
     <authors>POSHChef Development Team</authors>
     <owners>POSHChef Development Team</owners>
     <dependencies>
