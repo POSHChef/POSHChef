@@ -81,14 +81,15 @@ Describe "POSHChef_FolderResource" {
 
 
 	# Add permissions to the hash table to check that they are added
-	$folders.$folder.permissions = @{Everyone = "FullControl"} | ConvertTo-Json
+	$folders.$folder.permissions = @{Everyone = "FullControl"}
+	$permissions = "{'Everyone': 'FullControl'}"
 
 	# Iterate around the keys in the hash table to make sure that the folder is created with the correct permissions
 	foreach ($folder in $folders.keys) {
 
 		Context ("Create and delete the directory '{0}' with permissions" -f $folder) {
 
-			Set-TargetResource -ensure "Present" -path $folder -permissions $folders.$folder.permissions
+			Set-TargetResource -ensure "Present" -path $folder -permissions $permissions
 
 			it "creates the directory" {
 				Test-Path -Path $folder | Should Be $true
@@ -127,7 +128,7 @@ Describe "POSHChef_FolderResource" {
 			}
 
 			it "runs the Test-TargetResource to check all 'true'" {
-				Test-TargetResource -path $folder -permissions $folders.$folder.permissions | Should Be $true
+				Test-TargetResource -path $folder -permissions $permissions | Should Be $true
 			}
 
 			Set-TargetResource -ensure "Absent" -path $folder
@@ -154,7 +155,7 @@ Describe "POSHChef_FolderResource" {
 
 		Context ("Create and delete the directory '{0}' with permissions and is shared out as '{1}'" -f $folder, $folders.$folder.share.name) {
 
-			Set-TargetResource -ensure "Present" -path $folder -permissions $folders.$folder.permissions -share $folders.$folder.share.name
+			Set-TargetResource -ensure "Present" -path $folder -permissions $permissions -share $folders.$folder.share.name
 
 			it "creates the directory" {
 				Test-Path -Path $folder | Should Be $true
@@ -198,7 +199,7 @@ Describe "POSHChef_FolderResource" {
 			}
 
 			it "runs the Test-TargetResource to check all 'true'" {
-				Test-TargetResource -path $folder -permissions $folders.$folder.permissions -share $folders.$folder.share.name | Should Be $true
+				Test-TargetResource -path $folder -permissions $permissions -share $folders.$folder.share.name | Should Be $true
 			}
 
 			Set-TargetResource -ensure "Absent" -path $folder
@@ -225,7 +226,7 @@ Describe "POSHChef_FolderResource" {
 
 		Context ("Create and delete the directory '{0}' with permissions and is shared out as '{1}' with acl" -f $folder, $folders.$folder.share.name) {
 
-			Set-TargetResource -ensure "Present" -path $folder -permissions $folders.$folder.permissions -share $folders.$folder.share.name -acl $folders.$folder.share.acl
+			Set-TargetResource -ensure "Present" -path $folder -permissions $permissions -share $folders.$folder.share.name -acl $folders.$folder.share.acl
 
 			it "creates the directory" {
 				Test-Path -Path $folder | Should Be $true
@@ -289,7 +290,7 @@ Describe "POSHChef_FolderResource" {
 			}
 
 			it "runs the Test-TargetResource to check all 'true'" {
-				Test-TargetResource -path $folder -permissions $folders.$folder.permissions -share $folders.$folder.share.name -acl $folders.$folder.share.acl | Should Be $true
+				Test-TargetResource -path $folder -permissions $permissions -share $folders.$folder.share.name -acl $folders.$folder.share.acl | Should Be $true
 			}
 
 			Set-TargetResource -ensure "Absent" -path $folder
