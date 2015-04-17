@@ -109,9 +109,9 @@ Describe "Setup-ConfigFiles" {
 
   }
 
-  It ("Moves the client key to the correct location - {0}" -f $target_client_key) {
+  It ("Copies the client key to the correct location - {0}" -f $target_client_key) {
 
-    (Test-Path -Path $target_client_key) -and !(Test-Path -Path $client_key) | Should be $true
+    (Test-Path -Path $target_client_key) -and (Test-Path -Path $client_key) | Should be $true
 
   }
 
