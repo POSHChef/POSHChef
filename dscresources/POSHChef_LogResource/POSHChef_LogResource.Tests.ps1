@@ -38,11 +38,13 @@ Invoke-Expression $code
 
 # Mock functions that come from other modules
 function Write-Log(){}
+function Update-Session(){}
+function Get-Configuration(){}
+function Set-LogParameters(){}
 
 # Ensure required functions are available
 . "$PSScriptRoot\..\..\functions\exported\ConvertFrom-JsonToHashtable.ps1"
 . "$PSScriptRoot\..\..\functions\configuration\Update-Session.ps1"
-. "$PSScriptRoot\..\..\functions\configuration\Get-Configuration.ps1"
 . "$PSScriptRoot\..\..\functions\exported\Set-Notification.ps1"
 
 Describe "POSHChef_LogResource" {
@@ -83,7 +85,7 @@ Describe "POSHChef_LogResource" {
 
         $result = Set-TargetResource -Message $message -Notifies $service_name -NotifiesServicePath $services_notifications_file
 
-        $message -eq $result[0] | Should be $true
+        $message -eq $result | Should be $true
     }
 
 	it "will restart the service after a message has been output" {
@@ -92,7 +94,7 @@ Describe "POSHChef_LogResource" {
 		$services = (Get-Content -Path $services_notifications_file -Raw).Trim()
 
 		$service_name -eq $services | Should be $true
-			
+
 		Remove-Item $services_notifications_file -Force
 	}
 

@@ -34,6 +34,12 @@ Invoke-Expression $code
 
 # Mock functions that come from other modules
 function Write-Log(){}
+function Update-Session(){}
+function Get-Configuration(){}
+function Set-LogParameters(){}
+
+# Ensure required functions are available
+. "$PSScriptRoot\..\..\functions\exported\Set-Notification.ps1"
 
 Describe "POSHChef_RegistryResource" {
 
@@ -130,7 +136,7 @@ Describe "POSHChef_RegistryResource" {
 		# Test that the key has been removed
 		Test-Path -Path "hklm:SOFTWARE\PesterTests" | Should be $false
 	}
-	
+
 	it ("notifies the service for a restart: {0}" -f $service_name) {
 
 		# Get the contents of the notifications file

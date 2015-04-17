@@ -18,6 +18,8 @@ limitations under the License.
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 
+function Write-Log(){}
+
 # Include functions that are required for the succesful operation of the test
 . "$PSScriptRoot\..\Configuration\Get-ConfigurationHelp.ps1"
 . "$PSScriptRoot\..\Exported\Get-Checksum.ps1"

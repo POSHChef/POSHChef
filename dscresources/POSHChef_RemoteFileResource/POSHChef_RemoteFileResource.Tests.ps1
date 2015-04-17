@@ -37,6 +37,7 @@ Invoke-Expression $code
 function Write-Log(){}
 function Update-Session(){}
 function Get-Configuration(){}
+function Set-LogParameters(){}
 
 # Ensure required functions are available
 . "$PSScriptRoot\..\..\functions\exported\Get-CheckSum.ps1"

@@ -23,7 +23,7 @@ limitations under the License.
     The tests here will check that a directory is created, it has the correct permissions
     applied and if specified a share is created.
 
-    After doing this directly it will then test the Test-TargetResource to make sure that the internal Test function works as 
+    After doing this directly it will then test the Test-TargetResource to make sure that the internal Test function works as
     expected
 
 #>
@@ -34,6 +34,15 @@ $script = (Split-Path -Leaf $TestsPath).Replace(".Tests.ps1", ".psm1")
 $module = "{0}\{1}" -f (Split-Path -Parent -Path $TestsPath), $script
 $code = Get-Content $module | Out-String
 Invoke-Expression $code
+
+function Write-Log(){}
+function Update-Session(){}
+function Get-Configuration(){}
+function Set-LogParameters(){}
+
+# Include required functions
+. "$PSScriptRoot\..\..\functions\exported\Set-Notification.ps1"
+. "$PSScriptRoot\..\..\functions\exported\ConvertFrom-JSONToHashtable.ps1"
 
 Describe "POSHChef_FolderResource" {
 
@@ -98,7 +107,7 @@ Describe "POSHChef_FolderResource" {
 
 					# Get the access for the user
 					$user = $acl.Access | Where-Object { $_.IdentityReference -eq $account }
-					
+
 					# Work out the result so that is can be tested
 					if ([String]::IsNullOrEmpty($user)) {
 						$result = $false
@@ -106,7 +115,7 @@ Describe "POSHChef_FolderResource" {
 
 						# Determine if the rights has been set properly
 						$rights = $user | Where-Object { $_.FilesystemRights -eq $folders.$folder.permissions.$account}
-						
+
 						if ([String]::IsNullOrEmpty($rights)) {
 							$result = $false
 						}
@@ -172,7 +181,7 @@ Describe "POSHChef_FolderResource" {
 
 						# Determine if the rights has been set properly
 						$rights = $user | Where-Object { $_.FilesystemRights -eq $folders.$folder.permissions.$account}
-						
+
 						if ([String]::IsNullOrEmpty($rights)) {
 							$result = $false
 						}
@@ -243,7 +252,7 @@ Describe "POSHChef_FolderResource" {
 
 						# Determine if the rights has been set properly
 						$rights = $user | Where-Object { $_.FilesystemRights -eq $folders.$folder.permissions.$account}
-						
+
 						if ([String]::IsNullOrEmpty($rights)) {
 							$result = $false
 						}
@@ -252,7 +261,7 @@ Describe "POSHChef_FolderResource" {
 					# Test the result to make sure it is not false
 					$result | Should Not Be $false
 				}
-			
+
 			}
 
 			it "shares out the folder" {
