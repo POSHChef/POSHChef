@@ -72,33 +72,6 @@ Describe "POSHChef_RegistryResource" {
 		$result | should be $false
 	}
 
-	it "will perform the creation" {
-
-		Set-TargetResource @splat
-
-		# get the item property from the registry
-		$result = Get-ItemProperty -Path "hklm:software\pestertests"
-
-		$result.$($splat.valuename) -eq $splat.valuedata | should be $true
-
-	}
-
-	it ("notifies the service for a restart: {0}" -f $service_name) {
-
-		# Get the contents of the notifications file
-		$services = (Get-Content -Path $services_notifications_file -Raw).Trim()
-
-		$service_name -eq $services | Should be $true
-
-		Remove-Item $services_notifications_file -Force
-	}
-
-	it ("will not make a change if the information is the same") {
-
-		$result = Test-TargetResource @splat
-
-		$result | should be $true
-	}
 
 	it ("will make a change if the key value is modified") {
 
@@ -108,44 +81,5 @@ Describe "POSHChef_RegistryResource" {
 
 		$result | should be $false
 	}
-
-	it ("will request a reboot if the value has changed") {
-
-		$splat.reboot = $true
-
-		Set-TargetResource @splat
-
-		$global:DSCMachineStatus -eq 1 | Should be $true
-
-		# reset
-		$global:DSCMachineStatus = 0
-		$splat.reboot = $false
-
-	}
-
-	it "the key is removed" {
-
-		# set the splat to remove the new registry entry
-		$splat.ensure = "Absent"
-		$splat.valuename = ""
-		$splat.Remove("valuedata")
-		$splat.force = $true
-
-		Set-TargetResource @splat
-
-		# Test that the key has been removed
-		Test-Path -Path "hklm:SOFTWARE\PesterTests" | Should be $false
-	}
-
-	it ("notifies the service for a restart: {0}" -f $service_name) {
-
-		# Get the contents of the notifications file
-		$services = (Get-Content -Path $services_notifications_file -Raw).Trim()
-
-		$service_name -eq $services | Should be $true
-
-		Remove-Item $services_notifications_file -Force
-	}
-
 
 }

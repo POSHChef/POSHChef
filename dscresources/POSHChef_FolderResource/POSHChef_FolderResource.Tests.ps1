@@ -46,6 +46,33 @@ function Set-LogParameters(){}
 
 Describe "POSHChef_FolderResource" {
 
+	# Mock the Share command
+	Mock _CreateShare {
+	}
+	Mock _GetShare {
+		return $true
+	}
+	Mock _GetSecurityDescriptors {
+		param ($filter)
+
+		$descriptors = @(
+			@{
+				DACL = @{
+					accessmask = 2032127
+					trustee = @{
+						name = 'Everyone'
+						domain = $null
+					}
+				}
+			}
+		)
+
+		return $descriptors
+	}
+	Mock _Set-Share {
+
+	}
+
 	# Create a simple hash with one folder to be created
 	$folder = "{0}\temp\pester_test_1" -f $env:windir
 	$folders = @{
@@ -149,6 +176,8 @@ Describe "POSHChef_FolderResource" {
 	# create filter to be used to check for the share
 	$filter = "Name='{0}'" -f $share_name
 
+
+
 	# Iterate around the keys in the hash table to make sure that the folder is created with the correct permissions
 	# and a share
 	foreach ($folder in $folders.keys) {
@@ -195,7 +224,8 @@ Describe "POSHChef_FolderResource" {
 			}
 
 			it "shares out the folder" {
-				Get-WmiObject -Class Win32_Share -Filter $filter | Should Not BeNullOrEmpty
+				# Get-WmiObject -Class Win32_Share -Filter $filter | Should Not BeNullOrEmpty
+				Assert-MockCalled _CreateShare
 			}
 
 			it "runs the Test-TargetResource to check all 'true'" {
@@ -266,7 +296,8 @@ Describe "POSHChef_FolderResource" {
 			}
 
 			it "shares out the folder" {
-				Get-WmiObject -Class Win32_Share -Filter $filter | Should Not BeNullOrEmpty
+				#Get-WmiObject -Class Win32_Share -Filter $filter | Should Not BeNullOrEmpty
+				Assert-MockCalled _CreateShare
 			}
 
 			# get the acl that has been set on the sahre from WMI

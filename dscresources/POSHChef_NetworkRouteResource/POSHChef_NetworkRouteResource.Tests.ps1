@@ -52,6 +52,13 @@ $dgw = (Get-wmiObject Win32_networkAdapterConfiguration | ?{$_.IPEnabled}).Defau
 
 Describe 'POSHChef_NetworkRouteResource' {
 
+  Mock _AddRoute {
+
+  }
+  Mock _GetRoutes {
+
+  }
+
   Context 'route does not exist' {
 
     it "tests the route does not exist" {
@@ -65,9 +72,10 @@ Describe 'POSHChef_NetworkRouteResource' {
 
       Set-TargetResource -Destination $target -Mask $mask -Gateway $dgw -Ensure "Present"
 
-      $result = (Test-TargetResource -Destination $target -Mask $mask -Gateway $dgw -Ensure "Present")
+      # $result = (Test-TargetResource -Destination $target -Mask $mask -Gateway $dgw -Ensure "Present")
 
-      $result | Should be $true
+      # $result | Should be $true
+      Assert-MockCalled _AddRoute
     }
 
   }
@@ -78,7 +86,8 @@ Describe 'POSHChef_NetworkRouteResource' {
 
       $result = (Test-TargetResource -Destination $target -Mask $mask -Gateway $dgw -Ensure "Absent")
 
-      $result | Should be $true
+      #$result | Should be $true
+      Assert-MockCalled _GetRoutes
 
     }
 
