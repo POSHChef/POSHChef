@@ -35,7 +35,7 @@ function Get-TargetResource
 	} else {
 		$returnValue.Ensure = "Absent"
 	}
-	
+
 	# return the hashtable to the calling function
 	$returnValue
 
@@ -100,9 +100,9 @@ function Set-TargetResource
 
 		# Before the directory is removed, if it is exists, check to see if there
 		# are any shares associated with it
-		_Manage-FolderShare -path $path -remove | Out-Null	
+		_Manage-FolderShare -path $path -remove | Out-Null
 
-		_Manage-Folder -path $path -remove | out-null 
+		_Manage-Folder -path $path -remove | out-null
 	}
 
 	# Notify any services of this change
@@ -215,7 +215,7 @@ function _Manage-Folder {
     # If the function has been called with the switch 'test' specified then perform the test
     # and return the boolean value
     if ($test -eq $true) {
-		
+
         if (Test-Path -Path $path) {
 			$return = $path
 		} else {
@@ -346,7 +346,7 @@ function _Manage-FolderACL {
 
             # Create the new access rule for the entity
             $rights = [System.Security.AccessControl.FilesystemRights] $permissions.$account
-            $inheritance = [System.Security.AccessControl.InheritanceFlags] "ContainerInherit, ObjectInherit"  
+            $inheritance = [System.Security.AccessControl.InheritanceFlags] "ContainerInherit, ObjectInherit"
             $propagation = [System.Security.AccessControl.PropagationFlags]::None
             $control_type = [System.Security.AccessControl.AccessControlType]::Allow
             $user = New-Object System.Security.Principal.NTAccount($account)
@@ -399,7 +399,7 @@ function _Manage-FolderShare {
 
 	# if the path does not exist then retutn to the calling function
 	if (!(Test-Path -Path $path)) {
-		return 
+		return
 	}
 
     # If the name of the share is empty then return to the calling function
@@ -407,11 +407,11 @@ function _Manage-FolderShare {
         return
     }
 
-    # If the function has been called with the 'test' switch then check to see if the share 
+    # If the function has been called with the 'test' switch then check to see if the share
     # exists and return a boolean value
     if ($test -eq $true) {
 
-        $share_exists = Get-WmiObject -class Win32_Share -Filter ("Name='{0}'" -f $name)
+        $share_exists = _GetShare -name $name #Get-WmiObject -class Win32_Share -Filter ("Name='{0}'" -f $name)
 
         if (![String]::IsNullOrEmpty($share_exists)) {
            return $true
@@ -433,7 +433,7 @@ function _Manage-FolderShare {
 
 		# if the shares_on_folder is not empty then iterate around and remove the shares
 		foreach ($share in $shares_on_folder) {
-				
+
 			# create the filter for the share
 			$filter = "Name='{0}'" -f $share.name
 
@@ -445,9 +445,8 @@ function _Manage-FolderShare {
     }
 
     # If here then the share needs to be created
-    $shares = [WmiClass] "Win32_Share"
+		_CreateShare($path, $name)
 
-    $shares.Create($path, $name, 0) | out-null
 
 }
 
@@ -500,9 +499,7 @@ function _Manage-FolderShareACL {
     # Set the Filter
     $filter = "Name='{0}'" -f $name
 
-    $descriptor = Get-WmiObject -Class "Win32_LogicalShareSecuritySetting" -Filter $filter | Foreach-Object {
-                        $_.GetSecurityDescriptor().Descriptor
-                  }
+    $descriptor = @(_GetSecurityDescriptors -filter $filter)
 
     # Iterate around the share permissions that have been passed
     foreach ($account in $permissions.keys) {
@@ -522,28 +519,28 @@ function _Manage-FolderShareACL {
 
         # If the acl exists for the user then check that the rights are correct
         if (![String]::IsNullOrEmpty($exists) -and ([String]::IsNullOrEmpty(($exists | Where-Object { $_.DACL.AccessMask -eq $mask })))) {
-		
-			# if the function is in test mode then set false for the return value
-			if ($test -eq $true) {
-				return $false
-			} else {
 
-				# The user exists on the share, but the acl is wrong, so remove the user so they can be added with
-				# the correct permissions
-				$descriptor = _Remove-SharePermission -domain $identity.domain -user $identity.user -name $name
-			
-				# Set exists to be empty so that the permissions are added
-				$exists = $null
-			}
+						# if the function is in test mode then set false for the return value
+						if ($test -eq $true) {
+							return $false
+						} else {
 
-        }
+							# The user exists on the share, but the acl is wrong, so remove the user so they can be added with
+							# the correct permissions
+							$descriptor = _Remove-SharePermission -domain $identity.domain -user $identity.user -name $name
+
+							# Set exists to be empty so that the permissions are added
+							$exists = $null
+						}
+
+				}
 
         # If the exists is empty then add the permissions
         if ([String]::IsNullOrEmpty($exists)) {
 
-			if ($test -eq $true) {
-				return $false
-			}
+						if ($test -eq $true) {
+							return $false
+						}
 
             # Create the new ACE trustee for the share
             $user = new-Object System.Security.Principal.NTAccount($account)
@@ -563,17 +560,18 @@ function _Manage-FolderShareACL {
             # Create the ACE object to apply to the share
             $ace = ([WMIClass] "Win32_ace").CreateInstance()
             $ace.AccessMask = [System.Security.AccessControl.FilesystemRights] $permissions.$account
-            $ace.AceFlags = 0 
-            $ace.AceType = 0 
+            $ace.AceFlags = 0
+            $ace.AceType = 0
             $ace.Trustee = $trustee
 
             # append the new ACE to the descriptor
             $descriptor.DACL += @($ace.psobject.baseobject)
 
         }
-		
+
         # Set the access on the share
         _Set-Share -name $name -descriptor $descriptor
+				
     }
 }
 
@@ -630,7 +628,7 @@ function _Remove-SharePermission {
 	Write-Verbose ("Index of ACL to remove - {0}" -f $index)
 
     # Call the Remove-DACL function to return a list of the DACL that should be set
-    $required_dacls = _Remove-DACL -dacl $DACLs -index $index 
+    $required_dacls = _Remove-DACL -dacl $DACLs -index $index
 
     # Now set the security descriptoe with the correct DACL
     $descriptor.DACL = $required_dacls
@@ -697,7 +695,7 @@ function _Remove-DACL {
         # Index number of the item to be deleted
         $index
     )
-	
+
     # Check that the function has the necessary informaiton to work with
     if (($DACLs.Count -eq 1) -and ($index -eq 0)) {
 
@@ -716,7 +714,7 @@ function _Remove-DACL {
 
         # if the ACL to remove is at the end, get the acls from the beginning to penultimate
         $required_dacls = $DACLs[0..($DACLs.Count - 2)]
-    
+
     } else {
 
         # if the item to remove is in the middle then take everything up to the element before
@@ -808,15 +806,15 @@ function _Get-Identity {
 function _Translate-AccessMask {
 
     <#
-    
+
     .SYNOPSIS
     Translates the AccessMask value into Human readable format
-    
+
     #>
 
     [CmdletBinding()]
     param (
-    
+
         [Parameter(ParameterSetName="value")]
         [int]
         $val,
@@ -824,9 +822,9 @@ function _Translate-AccessMask {
         [Parameter(ParameterSetName="name")]
         [string]
         $name
-    
+
     )
-    
+
     # Build up hash table of the masks values and the name
     $mask = @{
         2032127 = "FullControl"
@@ -848,7 +846,7 @@ function _Translate-AccessMask {
 
         "name" {
 
-            $am = $mask.GetEnumerator() | ? { $_.Value -eq $name } 
+            $am = $mask.GetEnumerator() | ? { $_.Value -eq $name }
 
             $return = [int] $am.name
         }
@@ -859,6 +857,44 @@ function _Translate-AccessMask {
 
 }
 
-# Export-ModuleMember -Function *-TargetResource
+function _CreateShare {
+
+	<#
+
+	.SYNOPSIS
+		Function to perform the action of creating the share
+
+	#>
+	[CmdletBinding()]
+	param (
+
+		# Path to the directory to be shared
+		$path,
 
 
+		# Name of the share to create
+		$name
+	)
+
+	$share = [WmiClass] "win32_share"
+	$share.Create($path, $name, 0) | Out-Null
+}
+
+function _GetShare {
+
+	param (
+		$name
+	)
+
+	return Get-WmiObject -class Win32_Share -Filter ("Name='{0}'" -f $name)
+}
+
+function _GetSecurityDescriptors {
+	param (
+		$filter
+	)
+
+	return Get-WmiObject -Class "Win32_LogicalShareSecuritySetting" -Filter $filter | Foreach-Object {
+		$_.GetSecurityDescriptor().Descriptor
+	}
+}

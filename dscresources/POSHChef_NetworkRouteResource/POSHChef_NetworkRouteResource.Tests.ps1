@@ -34,6 +34,15 @@ $module = "{0}\{1}" -f (Split-Path -Parent -Path $TestsPath), $script
 $code = Get-Content $module -raw
 Invoke-Expression $code
 
+# Mock functions that come from other modules
+function Write-Log(){}
+function Update-Session(){}
+function Get-Configuration(){}
+function Set-LogParameters(){}
+
+# Ensure required functions are available
+. "$PSScriptRoot\..\..\functions\exported\Set-Notification.ps1"
+
 # Set the network target and the subnet mask for which the new route will be added
 $target = "192.168.122.0"
 $mask = "255.255.255.0"
@@ -42,6 +51,13 @@ $mask = "255.255.255.0"
 $dgw = (Get-wmiObject Win32_networkAdapterConfiguration | ?{$_.IPEnabled}).DefaultIPGateway | Out-String
 
 Describe 'POSHChef_NetworkRouteResource' {
+
+  Mock _AddRoute {
+
+  }
+  Mock _GetRoutes {
+
+  }
 
   Context 'route does not exist' {
 
@@ -56,9 +72,10 @@ Describe 'POSHChef_NetworkRouteResource' {
 
       Set-TargetResource -Destination $target -Mask $mask -Gateway $dgw -Ensure "Present"
 
-      $result = (Test-TargetResource -Destination $target -Mask $mask -Gateway $dgw -Ensure "Present")
+      # $result = (Test-TargetResource -Destination $target -Mask $mask -Gateway $dgw -Ensure "Present")
 
-      $result | Should be $true
+      # $result | Should be $true
+      Assert-MockCalled _AddRoute
     }
 
   }
@@ -69,7 +86,8 @@ Describe 'POSHChef_NetworkRouteResource' {
 
       $result = (Test-TargetResource -Destination $target -Mask $mask -Gateway $dgw -Ensure "Absent")
 
-      $result | Should be $true
+      #$result | Should be $true
+      Assert-MockCalled _GetRoutes
 
     }
 

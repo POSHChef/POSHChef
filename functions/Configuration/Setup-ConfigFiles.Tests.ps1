@@ -18,6 +18,8 @@ limitations under the License.
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 
+function Write-Log(){}
+
 # Include functions that are required for the succesful operation of the test
 . "$PSScriptRoot\..\Configuration\Get-ConfigurationHelp.ps1"
 . "$PSScriptRoot\..\Exported\Get-Checksum.ps1"
@@ -109,9 +111,9 @@ Describe "Setup-ConfigFiles" {
 
   }
 
-  It ("Moves the client key to the correct location - {0}" -f $target_client_key) {
+  It ("Copies the client key to the correct location - {0}" -f $target_client_key) {
 
-    (Test-Path -Path $target_client_key) -and !(Test-Path -Path $client_key) | Should be $true
+    (Test-Path -Path $target_client_key) -and (Test-Path -Path $client_key) | Should be $true
 
   }
 

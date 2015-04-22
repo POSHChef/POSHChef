@@ -31,6 +31,13 @@ $module = "{0}\{1}" -f (Split-Path -Parent -Path $TestsPath), $script
 $code = Get-Content $module | Out-String
 Invoke-Expression $code
 
+# Mock functions that come from other modules
+function Update-Session(){}
+function Get-Configuration(){}
+function Set-LogParameters(){}
+
+. "$PSScriptRoot\..\..\functions\exported\Set-Notification.ps1"
+
 Describe "POSHChef_TemplateResource" {
 
 	# Set the psdrive

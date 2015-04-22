@@ -36,6 +36,7 @@ Invoke-Expression $code
 function Write-Log(){}
 function Update-Session(){}
 function Get-Configuration(){}
+function Set-LogParameters(){}
 
 # Ensure required functions are available
 . "$PSScriptRoot\..\..\functions\exported\ConvertFrom-JsonToHashtable.ps1"
@@ -65,7 +66,7 @@ Describe "POSHChef_TemplateResource" {
 	# Build up the source and destination
 	$source = "{0}\template.yml.tmpl" -f $PSDrive.Root
 	$destination = "{0}\dummy\template.yml" -f $PSDrive.Root
-	
+
 	# Ensure the source file has the correct information
 	Set-Content -Path $source -Value `
 @'
@@ -83,7 +84,7 @@ path.data: [[ $node.ElasticSearch.paths.data ]]
 	$services_notifications_file = "{0}\service.txt" -f $PSDrive.Root
 
 	Context "File does not exist" {
-		
+
 		# set the expected string
 		$expected = @"
 cluster.name: {0}
@@ -106,7 +107,7 @@ path.data: {1}
 		}
 
 		Set-TargetResource @splat
-		
+
 		it "creates the destination file" {
 			Test-Path -Path $Destination | Should Be $true
 		}
@@ -125,7 +126,7 @@ path.data: {1}
 			$services = (Get-Content -Path $services_notifications_file -Raw).Trim()
 
 			$service_name -eq $services | Should be $true
-			
+
 			Remove-Item $services_notifications_file -Force
 		}
 
@@ -161,7 +162,7 @@ path.data: {1}
 
 			$content -eq $expected | Should Be $true
 		}
-		
+
 		it ("requests a reboot if the file is new") {
 
 			# set the flag to reboot the machine

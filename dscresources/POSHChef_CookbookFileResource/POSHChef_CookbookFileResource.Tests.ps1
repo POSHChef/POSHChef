@@ -42,6 +42,7 @@ Invoke-Expression $code
 function Write-Log(){}
 function Update-Session(){}
 function Get-Configuration(){}
+function Set-LogParameters(){}
 
 # Ensure required functions are available
 . "$PSScriptRoot\..\..\functions\exported\Get-CheckSum.ps1"
@@ -50,49 +51,50 @@ function Get-Configuration(){}
 
 Describe "POSHChef_CookbookFileResource" {
 
-    # Set the PSDrive, this is because .NET class methods do not understand the PSDrive notation so this
-    # this needs to be passed as a valid file path
-    $PSDriveName = "TestDrive"
-    $PSDrive = Get-PSDrive $PSDriveName
+  # Set the PSDrive, this is because .NET class methods do not understand the PSDrive notation so this
+  # this needs to be passed as a valid file path
+  $PSDriveName = "TestDrive"
+  $PSDrive = Get-PSDrive $PSDriveName
 
-    # Set the source and the destination
-    $source = "{0}\licence.key" -f $PSDrive.Root
-    $destination = "{0}\pester\licence.key" -f $PSDrive.Root
+  # Set the source and the destination
+  $source = "{0}\licence.key" -f $PSDrive.Root
+  $destination = "{0}\pester\licence.key" -f $PSDrive.Root
 
 	$licence_data = @"
-Licenced Until: 01/01/1970
+    Licenced Until: 01/01/1970
 "@
-	Set-Content -Path $source -Value $licence_data
+
+  Set-Content -Path $source -Value $licence_data
 
 	# Define a source file that will not exist
 	$noexist = "{0}\updated.key" -f $PSDrive.Root
 
-    # Set the name of a serice to restart
-    $service_name = "MyApp"
+  # Set the name of a serice to restart
+  $service_name = "MyApp"
 
-    # Set the notificationsservicepath file
-    $services_notifications_file = "{0}\service.txt" -f $PSDrive.Root
+  # Set the notificationsservicepath file
+  $services_notifications_file = "{0}\service.txt" -f $PSDrive.Root
 
-    Context "File does not exist" {
+  Context "File does not exist" {
 
-		# Create the splat argument hash
-        $splat = @{
-            Ensure = "Present"
-            Source = $source
-            Destination = $destination
-            Cookbook = "Pester"
-			Notifies = @($service_name)
-			NotifiesServicePath = $services_notifications_file
-			Reboot = $false
-        }
+	# Create the splat argument hash
+  $splat = @{
+    Ensure = "Present"
+    Source = $source
+    Destination = $destination
+    Cookbook = "Pester"
+		Notifies = @($service_name)
+		NotifiesServicePath = $services_notifications_file
+		Reboot = $false
+  }
 
-        it "is created" {
+  it "is created" {
 
-            Set-TargetResource @splat
+      Set-TargetResource @splat
 
-            Test-Path -Path $destination | Should Be $true
+      Test-Path -Path $destination | Should Be $true
 
-        }
+  }
 
 		it "has the correct content" {
 
@@ -109,7 +111,7 @@ Licenced Until: 01/01/1970
 			$services = (Get-Content -Path $services_notifications_file -Raw).Trim()
 
 			$service_name -eq $services | Should be $true
-					
+
 		}
 
 		it ("it copies the file, and a reboot is requested") {

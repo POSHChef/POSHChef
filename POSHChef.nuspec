@@ -9,10 +9,10 @@
     </dependencies>
     <id>POSHChef</id>
     <title>POSHChef</title>
-    <!--<iconUrl></iconUrl>-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A PowerShell Client for Chef</description>
-    <copyright>Copyright © 2013</copyright>
+    <copyright>Apache License, Version 2.0</copyright>
+    <iconUrl>https://raw.githubusercontent.com/wiki/POSHChef/POSHChef/images/poshchef_icon.png</iconUrl>
   </metadata>
   <files>
     <file src="**\*.ps*1" target="content\poshchef" exclude="" />

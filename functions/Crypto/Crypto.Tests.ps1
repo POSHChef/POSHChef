@@ -76,10 +76,8 @@ $plaintext = "Hello World!"
 
 # Set a variable that contains the path to the Crypto DLL
 $script:session = @{
-	config = @{
-		paths = @{
-			module = "$PSScriptRoot\..\.."
-		}
+	module = @{
+		path = "$PSScriptRoot\..\.."
 	}
 }
 
@@ -177,4 +175,3 @@ Describe "Encrypt with AES and then encrypt the AES key with RSA" {
 	}
 
 }
-

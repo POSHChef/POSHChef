@@ -23,7 +23,7 @@ limitations under the License.
     The tests here will check that a directory is created, it has the correct permissions
     applied and if specified a share is created.
 
-    After doing this directly it will then test the Test-TargetResource to make sure that the internal Test function works as 
+    After doing this directly it will then test the Test-TargetResource to make sure that the internal Test function works as
     expected
 
 #>
@@ -35,7 +35,43 @@ $module = "{0}\{1}" -f (Split-Path -Parent -Path $TestsPath), $script
 $code = Get-Content $module | Out-String
 Invoke-Expression $code
 
+function Write-Log(){}
+function Update-Session(){}
+function Get-Configuration(){}
+function Set-LogParameters(){}
+
+# Include required functions
+. "$PSScriptRoot\..\..\functions\exported\Set-Notification.ps1"
+. "$PSScriptRoot\..\..\functions\exported\ConvertFrom-JSONToHashtable.ps1"
+
 Describe "POSHChef_FolderResource" {
+
+	# Mock the Share command
+	Mock _CreateShare {
+	}
+	Mock _GetShare {
+		return $true
+	}
+	Mock _GetSecurityDescriptors {
+		param ($filter)
+
+		$descriptors = @(
+			@{
+				DACL = @{
+					accessmask = 2032127
+					trustee = @{
+						name = 'Everyone'
+						domain = $null
+					}
+				}
+			}
+		)
+
+		return $descriptors
+	}
+	Mock _Set-Share {
+
+	}
 
 	# Create a simple hash with one folder to be created
 	$folder = "{0}\temp\pester_test_1" -f $env:windir
@@ -72,14 +108,15 @@ Describe "POSHChef_FolderResource" {
 
 
 	# Add permissions to the hash table to check that they are added
-	$folders.$folder.permissions = @{Everyone = "FullControl"} | ConvertTo-Json
+	$folders.$folder.permissions = @{Everyone = "FullControl"}
+	$permissions = "{'Everyone': 'FullControl'}"
 
 	# Iterate around the keys in the hash table to make sure that the folder is created with the correct permissions
 	foreach ($folder in $folders.keys) {
 
 		Context ("Create and delete the directory '{0}' with permissions" -f $folder) {
 
-			Set-TargetResource -ensure "Present" -path $folder -permissions $folders.$folder.permissions
+			Set-TargetResource -ensure "Present" -path $folder -permissions $permissions
 
 			it "creates the directory" {
 				Test-Path -Path $folder | Should Be $true
@@ -98,7 +135,7 @@ Describe "POSHChef_FolderResource" {
 
 					# Get the access for the user
 					$user = $acl.Access | Where-Object { $_.IdentityReference -eq $account }
-					
+
 					# Work out the result so that is can be tested
 					if ([String]::IsNullOrEmpty($user)) {
 						$result = $false
@@ -106,7 +143,7 @@ Describe "POSHChef_FolderResource" {
 
 						# Determine if the rights has been set properly
 						$rights = $user | Where-Object { $_.FilesystemRights -eq $folders.$folder.permissions.$account}
-						
+
 						if ([String]::IsNullOrEmpty($rights)) {
 							$result = $false
 						}
@@ -118,7 +155,7 @@ Describe "POSHChef_FolderResource" {
 			}
 
 			it "runs the Test-TargetResource to check all 'true'" {
-				Test-TargetResource -path $folder -permissions $folders.$folder.permissions | Should Be $true
+				Test-TargetResource -path $folder -permissions $permissions | Should Be $true
 			}
 
 			Set-TargetResource -ensure "Absent" -path $folder
@@ -139,13 +176,15 @@ Describe "POSHChef_FolderResource" {
 	# create filter to be used to check for the share
 	$filter = "Name='{0}'" -f $share_name
 
+
+
 	# Iterate around the keys in the hash table to make sure that the folder is created with the correct permissions
 	# and a share
 	foreach ($folder in $folders.keys) {
 
 		Context ("Create and delete the directory '{0}' with permissions and is shared out as '{1}'" -f $folder, $folders.$folder.share.name) {
 
-			Set-TargetResource -ensure "Present" -path $folder -permissions $folders.$folder.permissions -share $folders.$folder.share.name
+			Set-TargetResource -ensure "Present" -path $folder -permissions $permissions -share $folders.$folder.share.name
 
 			it "creates the directory" {
 				Test-Path -Path $folder | Should Be $true
@@ -172,7 +211,7 @@ Describe "POSHChef_FolderResource" {
 
 						# Determine if the rights has been set properly
 						$rights = $user | Where-Object { $_.FilesystemRights -eq $folders.$folder.permissions.$account}
-						
+
 						if ([String]::IsNullOrEmpty($rights)) {
 							$result = $false
 						}
@@ -185,11 +224,12 @@ Describe "POSHChef_FolderResource" {
 			}
 
 			it "shares out the folder" {
-				Get-WmiObject -Class Win32_Share -Filter $filter | Should Not BeNullOrEmpty
+				# Get-WmiObject -Class Win32_Share -Filter $filter | Should Not BeNullOrEmpty
+				Assert-MockCalled _CreateShare
 			}
 
 			it "runs the Test-TargetResource to check all 'true'" {
-				Test-TargetResource -path $folder -permissions $folders.$folder.permissions -share $folders.$folder.share.name | Should Be $true
+				Test-TargetResource -path $folder -permissions $permissions -share $folders.$folder.share.name | Should Be $true
 			}
 
 			Set-TargetResource -ensure "Absent" -path $folder
@@ -216,7 +256,7 @@ Describe "POSHChef_FolderResource" {
 
 		Context ("Create and delete the directory '{0}' with permissions and is shared out as '{1}' with acl" -f $folder, $folders.$folder.share.name) {
 
-			Set-TargetResource -ensure "Present" -path $folder -permissions $folders.$folder.permissions -share $folders.$folder.share.name -acl $folders.$folder.share.acl
+			Set-TargetResource -ensure "Present" -path $folder -permissions $permissions -share $folders.$folder.share.name -acl $folders.$folder.share.acl
 
 			it "creates the directory" {
 				Test-Path -Path $folder | Should Be $true
@@ -243,7 +283,7 @@ Describe "POSHChef_FolderResource" {
 
 						# Determine if the rights has been set properly
 						$rights = $user | Where-Object { $_.FilesystemRights -eq $folders.$folder.permissions.$account}
-						
+
 						if ([String]::IsNullOrEmpty($rights)) {
 							$result = $false
 						}
@@ -252,11 +292,12 @@ Describe "POSHChef_FolderResource" {
 					# Test the result to make sure it is not false
 					$result | Should Not Be $false
 				}
-			
+
 			}
 
 			it "shares out the folder" {
-				Get-WmiObject -Class Win32_Share -Filter $filter | Should Not BeNullOrEmpty
+				#Get-WmiObject -Class Win32_Share -Filter $filter | Should Not BeNullOrEmpty
+				Assert-MockCalled _CreateShare
 			}
 
 			# get the acl that has been set on the sahre from WMI
@@ -280,7 +321,7 @@ Describe "POSHChef_FolderResource" {
 			}
 
 			it "runs the Test-TargetResource to check all 'true'" {
-				Test-TargetResource -path $folder -permissions $folders.$folder.permissions -share $folders.$folder.share.name -acl $folders.$folder.share.acl | Should Be $true
+				Test-TargetResource -path $folder -permissions $permissions -share $folders.$folder.share.name -acl $folders.$folder.share.acl | Should Be $true
 			}
 
 			Set-TargetResource -ensure "Absent" -path $folder

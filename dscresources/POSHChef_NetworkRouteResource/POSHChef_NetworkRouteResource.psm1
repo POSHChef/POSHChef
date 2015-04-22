@@ -108,7 +108,8 @@ function Set-TargetResource
 	Write-Verbose ("Command: {0}" -f $cmd)
 
 	# Execute the route command
-	Invoke-Expression $cmd
+	# Invoke-Expression $cmd
+	_AddRoute $cmd
 }
 
 
@@ -155,17 +156,17 @@ function Test-TargetResource
 	}
 
 	# Build up the agrument hashtable to pass to the Get-WMIObject
-	$splat = @{
-		class = $wmiclass
-	}
+	#$splat = @{
+	#	class = $wmiclass
+	#}
 
 	# If the destination has been set then add in a query to see if a route to it exists
-	if (![String]::IsNullOrEmpty($Destination)) {
-		$splat.filter = 'Destination="{0}"' -f $Destination
-	}
+	#if (![String]::IsNullOrEmpty($Destination)) {
+	#	$splat.filter = 'Destination="{0}"' -f $Destination
+	#}
 
 	# Obtain a list of the routes on the machine
-	$routes = Get-WmiObject @splat
+	$routes = _GetRoutes $wmiclass $filter
 
 	# Determine if the route exists
 	$exists = ![String]::IsNullOrEmpty($routes)
@@ -191,4 +192,12 @@ function Test-TargetResource
 
 	# return the test boolean
 	return $test
+}
+
+function _AddRoute($cmd) {
+	Invoke-Expression $cmd
+}
+
+function _GetRoutes($class, $filter) {
+	Get-WMIObject -class $class -filter $filter
 }
