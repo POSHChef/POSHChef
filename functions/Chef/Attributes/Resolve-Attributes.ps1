@@ -142,7 +142,7 @@ function Resolve-Attributes {
 	}
 
 	# Output the resolved attributes if in Debug mode
-	# Write-Log -IfDebug -Message ($resolved_attrs | ConvertTo-Json -Depth 8)
+	# Write-Log -IfDebug -Message $resolved_attrs -asJson -jsonDepth 8
 
 	# Add the resolved attrs to the dsc_config
 	$dsc_config.AllNodes += $resolved_attrs

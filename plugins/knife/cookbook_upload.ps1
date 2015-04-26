@@ -258,7 +258,7 @@ function cookbook_upload {
 			}
 
 			# If in debug mode output the manifest
-			Write-Log -IfDebug -EventId PC_DEBUG_21 -extra ($manifest | convertto-json)
+			Write-Log -IfDebug -EventId PC_DEBUG_21 -extra ($manifest | Format-Json)
 
 			# Finally save the manifest on the server
 			$results = Invoke-ChefQuery -path ("/cookbooks/{0}/{1}" -f $manifest.metadata.name, $manifest.version) `
