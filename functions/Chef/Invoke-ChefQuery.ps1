@@ -71,7 +71,7 @@ function Invoke-ChefQuery {
 
 	# if the data is a hashtable convert it to a json string
 	if ($data -is [Hashtable] -or $data -is [System.Collections.Generic.Dictionary`2[System.String,System.Object]]) {
-		$data = $data | ConvertTo-JSON -Depth ([int]::MaxValue)
+		$data = $data | ConvertTo-JSON -Depth ([int]::MaxValue) -Compress
 	}
 
 	# If the path is a string then turn it into a System URI object
