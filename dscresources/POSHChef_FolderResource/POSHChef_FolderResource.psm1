@@ -395,12 +395,12 @@ function _Manage-FolderShare {
         $remove
     )
 
-	Write-Verbose $MyInvocation.MyCommand
+		Write-Verbose $MyInvocation.MyCommand
 
-	# if the path does not exist then retutn to the calling function
-	if (!(Test-Path -Path $path)) {
-		return
-	}
+		# if the path does not exist then retutn to the calling function
+		if (!(Test-Path -Path $path)) {
+			return
+		}
 
     # If the name of the share is empty then return to the calling function
     if ([String]::IsNullOrEmpty($name) -and $remove -eq $false) {
@@ -423,29 +423,29 @@ function _Manage-FolderShare {
     # If the function has been called with the 'remove' switch then remove the share from the folder
     if ($remove -eq $true) {
 
-		# As the path exists check to see if there are any shares that need to be removed
-		# build up the filter to use
-		$split_path = $path -split "\\"
-		$filter = "Path='{0}'" -f ($split_path -join "\\")
+			# As the path exists check to see if there are any shares that need to be removed
+			# build up the filter to use
+			$split_path = $path -split "\\"
+			$filter = "Path='{0}'" -f ($split_path -join "\\")
 
-		# run WMI query to get the shares for the path
-		$shares_on_folder = @(Get-WmiObject -class Win32_Share -Filter $filter)
+			# run WMI query to get the shares for the path
+			$shares_on_folder = @(Get-WmiObject -class Win32_Share -Filter $filter)
 
-		# if the shares_on_folder is not empty then iterate around and remove the shares
-		foreach ($share in $shares_on_folder) {
+			# if the shares_on_folder is not empty then iterate around and remove the shares
+			foreach ($share in $shares_on_folder) {
 
-			# create the filter for the share
-			$filter = "Name='{0}'" -f $share.name
+				# create the filter for the share
+				$filter = "Name='{0}'" -f $share.name
 
-			# run another wmi query to remove the share
-			Get-WmiObject -Class Win32_Share -Filter $filter | Remove-WmiObject
-		}
+				# run another wmi query to remove the share
+				Get-WmiObject -Class Win32_Share -Filter $filter | Remove-WmiObject
+			}
 
-        return
+      return
     }
 
     # If here then the share needs to be created
-		_CreateShare($path, $name)
+		_CreateShare -path $path -name $name
 
 
 }
@@ -479,7 +479,7 @@ function _Manage-FolderShareACL {
 
     )
 
-	Write-Verbose $MyInvocation.MyCommand
+
 
     # If the share is empty then return to the calling funcyion
     if ([String]::IsNullOrEmpty($name)) {
@@ -520,12 +520,12 @@ function _Manage-FolderShareACL {
         # If the acl exists for the user then check that the rights are correct
         if (![String]::IsNullOrEmpty($exists) -and ([String]::IsNullOrEmpty(($exists | Where-Object { $_.DACL.AccessMask -eq $mask })))) {
 
-						# if the function is in test mode then set false for the return value
+					 # if the function is in test mode then set false for the return value
 						if ($test -eq $true) {
 							return $false
 						} else {
 
-							# The user exists on the share, but the acl is wrong, so remove the user so they can be added with
+						  # The user exists on the share, but the acl is wrong, so remove the user so they can be added with
 							# the correct permissions
 							$descriptor = _Remove-SharePermission -domain $identity.domain -user $identity.user -name $name
 
@@ -571,7 +571,7 @@ function _Manage-FolderShareACL {
 
         # Set the access on the share
         _Set-Share -name $name -descriptor $descriptor
-				
+
     }
 }
 
@@ -871,13 +871,13 @@ function _CreateShare {
 		# Path to the directory to be shared
 		$path,
 
-
 		# Name of the share to create
 		$name
 	)
-
+write-host $path
 	$share = [WmiClass] "win32_share"
-	$share.Create($path, $name, 0) | Out-Null
+	$status = $share.Create($path, $name, 0)
+
 }
 
 function _GetShare {
@@ -894,7 +894,9 @@ function _GetSecurityDescriptors {
 		$filter
 	)
 
-	return Get-WmiObject -Class "Win32_LogicalShareSecuritySetting" -Filter $filter | Foreach-Object {
+	$descriptor = Get-WmiObject -Class "Win32_LogicalShareSecuritySetting" -Filter $filter | Foreach-Object {
 		$_.GetSecurityDescriptor().Descriptor
 	}
+
+	return $descriptor
 }
