@@ -66,7 +66,7 @@ function Set-Node {
 			$path = "/nodes/{0}" -f $node.name
 
 			# convert the node to postdata to be sent to the query
-			$postdata = $node | ConvertTo-JSON
+			$postdata = $node | ConvertTo-JSON -Compress
 		}
 
 	} else {
@@ -115,7 +115,7 @@ function Set-Node {
 		}
 
 		# convert the postdata to a json object
-		$postdata = $postdata | ConvertTo-Json -Depth 999
+		$postdata = $postdata | ConvertTo-Json -Depth 999 -Compress
 	}
 
 	Write-Log -IfVerbose -Extra $postdata -EventId PC_DEBUG_0003

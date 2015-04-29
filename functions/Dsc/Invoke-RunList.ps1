@@ -65,7 +65,7 @@ function Invoke-RunList {
 				}
 
 				Write-Log -LogLevel Debug -EventId PC_DEBUG_0031 -extra "Invoke-Recipe"
-				Write-Log -LogLevel Debug -Message ($splat | ConvertTo-Json -Depth 99 | Out-String)
+				Write-Log -LogLevel Debug -Message $splat -asJson -jsonDepth 99
 
                 Invoke-Recipe @splat
             }
@@ -80,7 +80,7 @@ function Invoke-RunList {
 	}
 
 	Write-Log -LogLevel Debug -EventId PC_DEBUG_0031 -extra "RunList"
-	Write-Log -LogLevel Debug -Message ($splat | ConvertTo-Json -Depth 99 | Out-String)
+	Write-Log -LogLevel Debug -Message $splat -asJson -jsonDepth 99
 
 	# Excute the runlist and generate the MOF file
     DSCRunList @splat

@@ -133,7 +133,7 @@ function cookbook_upload {
 			}
 
 			# Perform a post of the checksums to determine which files need to be uploaded
-			$results = Invoke-ChefQuery -path "/sandboxes" -method "POST" -data ($checksums | ConvertTo-Json -Depth 99)
+			$results = Invoke-ChefQuery -path "/sandboxes" -method "POST" -data ($checksums | ConvertTo-Json -Depth 99 -Compress)
 
 			Write-Log -EventId PC_MISC_0001 -extra "Determine which files need to be uploaded"
 
@@ -165,7 +165,7 @@ function cookbook_upload {
 			}
 
 			# Now that the files have been uploaded, commit the sandbox
-			$results = Invoke-ChefQuery -path $results.uri -method "PUT" -data (@{is_completed = $true} | ConvertTo-Json)
+			$results = Invoke-ChefQuery -path $results.uri -method "PUT" -data (@{is_completed = $true} | ConvertTo-Json -Compress)
 
 			# Now build up the manifest that needs to be sent to the server when uploading cookbooks
 			$manifest = @{attributes = @()
@@ -258,7 +258,7 @@ function cookbook_upload {
 			}
 
 			# If in debug mode output the manifest
-			Write-Log -IfDebug -EventId PC_DEBUG_21 -extra ($manifest | convertto-json)
+			Write-Log -IfDebug -EventId PC_DEBUG_21 -extra ($manifest | Format-Json)
 
 			# Finally save the manifest on the server
 			$results = Invoke-ChefQuery -path ("/cookbooks/{0}/{1}" -f $manifest.metadata.name, $manifest.version) `

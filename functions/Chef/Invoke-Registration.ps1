@@ -42,7 +42,7 @@ function Invoke-Registration {
 	Write-Log -IfDebug -Message $("***** {0} *****" -f $MyInvocation.MyCommand)
 
 	# Build up the data string to pass in the request
-	$postdata = @{"name" = $script:session.config.client; "admin" = $false} | ConvertTo-Json
+	$postdata = @{"name" = $script:session.config.client; "admin" = $false} | ConvertTo-Json -Compress
 
 	Write-Log -IfDebug -Extra $postdata -EventId PC_DEBUG_0003
 

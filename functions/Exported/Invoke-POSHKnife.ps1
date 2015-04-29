@@ -274,7 +274,7 @@ function Invoke-POSHKnife {
 			$h.$key = $PSBoundParameters.$key
 		}
 
-		Write-Log -LogLevel Debug -Message ($h | convertto-json -depth 999)
+		Write-Log -LogLevel Debug -Message $h -asJson -jsonDepth 999
 
 		& $function_name @h
 

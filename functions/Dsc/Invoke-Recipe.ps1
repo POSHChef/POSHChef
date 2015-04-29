@@ -78,7 +78,7 @@ Function Invoke-Recipe {
 
 		# if in debug mode write out the parameters
 		Write-Log -LogLevel Debug -EventId PC_DEBUG_0031 -extra $RecipeName
-		Write-Log -LogLevel Debug -Message ($splat | ConvertTo-Json -Depth 99 | Out-String)
+		Write-Log -LogLevel Debug -Message $splat -asJson -jsonDepth 99
 
 		# Execute the recipe by passing the splat
 		& $RecipeName @splat
