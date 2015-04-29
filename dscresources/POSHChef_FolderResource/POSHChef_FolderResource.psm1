@@ -874,7 +874,7 @@ function _CreateShare {
 		# Name of the share to create
 		$name
 	)
-write-host $path
+
 	$share = [WmiClass] "win32_share"
 	$status = $share.Create($path, $name, 0)
 
