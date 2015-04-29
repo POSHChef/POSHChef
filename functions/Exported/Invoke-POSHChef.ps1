@@ -271,7 +271,7 @@ function Invoke-POSHChef {
 			}
 
 			Write-Log -LogLevel Debug -EventId PC_DEBUG_0031 -extra "Invoke-RunList"
-			Write-Log -LogLevel Debug -Message ($splat | ConvertTo-Json -Depth 99 | Out-String)
+			Write-Log -LogLevel Debug -Message $splat -asJson -jsonDepth 99
 
 			# Call the function to generate the mof file that DSC required
 			# this returns the path to the mof file

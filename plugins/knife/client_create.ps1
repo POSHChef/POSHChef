@@ -104,7 +104,7 @@ function client_create {
 			}
 
 			# Call Invoke-ChefQuery to perform the post
-			$result = Invoke-ChefQuery -Method POST -Path ("/{0}" -f $mapping) -Data ($body | ConvertTo-Json)
+			$result = Invoke-ChefQuery -Method POST -Path ("/{0}" -f $mapping) -Data ($body | ConvertTo-Json -Compress)
 
 			# Add the details of the user to the users array
 			$clients += (New-Object PSObject -Property @{Name = $id; Password = $password; Key = $result.private_key})

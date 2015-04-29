@@ -24,3 +24,10 @@ Note:  This is currently the location for the module, but it may change in the f
 ## More Information
 
 Please refer to the [Wiki](http://github.com/POSHChef/POSHChef/wiki) for more detailed installation information and further information.
+
+## Acknowledgements
+
+This project makes use of the following open source projects:
+
+- [7-Zip](http://www.7-zip.org/)
+- [BouncyCastle](http://www.bouncycastle.org/csharp/)
