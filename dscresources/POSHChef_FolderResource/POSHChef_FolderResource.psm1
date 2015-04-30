@@ -499,7 +499,7 @@ function _Manage-FolderShareACL {
     # Set the Filter
     $filter = "Name='{0}'" -f $name
 
-    $descriptor = @(_GetSecurityDescriptors -filter $filter)
+    $descriptor = _GetSecurityDescriptors -filter $filter
 
     # Iterate around the share permissions that have been passed
     foreach ($account in $permissions.keys) {
