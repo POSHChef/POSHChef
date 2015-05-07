@@ -132,9 +132,9 @@
     <indent>2</indent>
     <message>No run list has been specified</message>
   </resource>
-  <rescource code="PC_WARN_0006">
+  <resource code="PC_WARN_0006">
     <message>Unable to find recipe file for '{0}'</message>
-  </rescource>
+  </resource>
   <resource code="PC_WARN_0007">
     <message>{0} '{1}' does not exist on the server</message>
   </resource>
