@@ -57,6 +57,7 @@ function Extend-Cookbook {
       "files\default\POSHChef\{0}\attributes\default.psd1" -f $name
       "files\default\POSHChef\{0}\recipes\default.ps1" -f $name
       "files\default\POSHChef\{0}\metadata.psd1" -f $name
+      "poshchefignore"
     )
   }
 

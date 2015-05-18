@@ -1,0 +1,49 @@
+# POSHChef Ignore fiole
+# Patterns in this file are used by POSHChef to ensure that
+# unnecssary files are not uploaded to the chef server
+
+# The '#' character can be used to add comments to the file
+
+# Blank lines will be surpressed
+
+# Standard files #
+##################
+poshchefignore
+chefignore
+*.gitignore
+*.git
+
+# Project and Solution Files #
+##############################
+*.csproj
+*.csproj.vspscc
+*bin
+*obj
+*.sln
+*.vssscc
+
+## COMPILED ##
+##############
+a.out
+*.pyc
+*.so
+*.com
+*.class
+*.dll
+*.exe
+
+# Testing #
+###########
+.watchr
+.rspec
+spec\*
+spec\fixtures\*
+test\*
+features\*
+Guardfile
+Procfile
+
+# Vagrant #
+###########
+.vagrant
+Vagrantfile
