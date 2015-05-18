@@ -113,8 +113,8 @@ function cookbook_upload {
 			# craete an array to hold all of the checksums that have been found
 			$checksums = @{checksums = @{}}
 
-			# get a list of all the files in the directory
-			$files = Get-ChildItem -Path $cookbook_path -Recurse | Where-Object { $_.PSISContainer -eq $false }
+			# get a list of all the files in the directory, and remove those that should be ignored
+			$files = Get-CookbookFiles -path $cookbook_path
 
 			# iterate around the files and add each checksum to the array
 			foreach ($file in $files) {

@@ -667,6 +667,13 @@
   <resource code="PC_INFO_0066">
     <message>Downloading Cookbooks</message>
   </resource>
+  <resource code="PC_INFO_0067">
+    <message>'{1}' files out of a total of '{0}' have been ignored</message>
+    <indent>2</indent>
+    <colours>
+      <foreground>darkyellow</foreground>
+    </colours>
+  </resource>
 
 
   <!-- Verbose -->
