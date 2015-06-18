@@ -70,7 +70,7 @@ function Invoke-POSHKnife {
 
 		[string]
 		# log filename
-		$logfilename = "client.log",
+		$logfilename = "knife.log",
 
 		[string]
 		# Path to the configuration file to use
@@ -83,7 +83,11 @@ function Invoke-POSHKnife {
 
 		[string]
 		# quick way to change the verbnosity of the logging
-		$loglevel = "info"
+		$loglevel = "info",
+
+		[switch]
+		# Specify if the output should be logged to a file
+		$logtofile
 	)
 
 	# Build up the dynamic parameters that are required for the subcommand
@@ -178,7 +182,11 @@ function Invoke-POSHKnife {
 		Update-Session -Parameters $PSBoundParameters
 		Get-Configuration -knife -config $config
 
-		Set-LogDir -logtargets $logtargets
+		$splat = @{
+			logtargets = $logtargets
+			logtofile = $logtofile
+		}
+		Set-LogDir @splat
 
 		# now get a list of the commands that each type supports
 		# this is done by looking in the plugins directory and calling the function with the -supports flag
