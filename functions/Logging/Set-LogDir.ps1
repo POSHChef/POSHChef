@@ -37,12 +37,17 @@ function Set-LogDir {
 		$logtargets,
 
 		[switch]
-		# Specify if logging to a file should be added by default
+		# State whether logging should be enabled
 		$logtofile
 	)
 
 	# If in debug mode, show the function currently in
 	Write-Log -IfDebug -Message $("***** {0} *****" -f $MyInvocation.MyCommand)
+
+	# if 'logtofile' is not set then return
+	if (!$logtofile) {
+		return
+	}
 
 	# Set the datetime for the log directory
 	$datetime = Get-Date -Date ([DateTime]::UTCNow) -Format "yyyy-MM-dd HH-mm-ss"
@@ -63,7 +68,7 @@ function Set-LogDir {
 
 	# add in a logfile if one has not been specified
 	$logprovider_specified = $logtargets | Where-Object { $_.logProvider -eq "logfile" }
-	if ($logtofile -and [String]::IsNullOrEmpty($logprovider_specified)) {
+	if ([String]::IsNullOrEmpty($logprovider_specified)) {
 
 		# Output information about where the run is to be logged to when in debug mode
 		Write-Log -EventId PC_DEBUG_0032 -LogLevel Debug -Extra $logdir
