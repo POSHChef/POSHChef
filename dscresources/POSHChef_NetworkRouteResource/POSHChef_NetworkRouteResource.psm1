@@ -156,17 +156,17 @@ function Test-TargetResource
 	}
 
 	# Build up the agrument hashtable to pass to the Get-WMIObject
-	#$splat = @{
-	#	class = $wmiclass
-	#}
+	$splat = @{
+		class = $wmiclass
+	}
 
 	# If the destination has been set then add in a query to see if a route to it exists
-	#if (![String]::IsNullOrEmpty($Destination)) {
-	#	$splat.filter = 'Destination="{0}"' -f $Destination
-	#}
+	if (![String]::IsNullOrEmpty($Destination)) {
+		$splat.filter = 'Destination="{0}"' -f $Destination
+	}
 
 	# Obtain a list of the routes on the machine
-	$routes = _GetRoutes $wmiclass $filter
+	$routes = _GetRoutes @splat
 
 	# Determine if the route exists
 	$exists = ![String]::IsNullOrEmpty($routes)
@@ -198,6 +198,15 @@ function _AddRoute($cmd) {
 	Invoke-Expression $cmd
 }
 
-function _GetRoutes($class, $filter) {
+function _GetRoutes {
+
+	param (
+		[string]
+		$class,
+
+		[string]
+		$filter
+	)
+
 	Get-WMIObject -class $class -filter $filter
 }
