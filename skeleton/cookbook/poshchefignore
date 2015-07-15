@@ -10,27 +10,27 @@
 ##################
 poshchefignore
 chefignore
-*.gitignore
-*.git
+*\.gitignore
+*\.git
 
 # Project and Solution Files #
 ##############################
-*.csproj
-*.csproj.vspscc
+*\.csproj
+*\.csproj.vspscc
 *bin
 *obj
-*.sln
-*.vssscc
+*\.sln
+*\.vssscc
 
 ## COMPILED ##
 ##############
 a.out
-*.pyc
-*.so
-*.com
-*.class
-*.dll
-*.exe
+*\.pyc
+*\.so
+*\.com
+*\.class
+*\.dll
+*\.exe
 
 # Testing #
 ###########
