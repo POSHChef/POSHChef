@@ -117,7 +117,7 @@
 
     <!-- WARN Messages -->
 	<resource code="PC_WARN_0001">
-		<message>Cannot find specified node key, attempting resgistration</message>
+		<message>Cannot find specified node key, attempting registration</message>
 	</resource>
   <resource code="PC_WARN_0002">
     <message>Registering node on server</message>
