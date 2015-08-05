@@ -47,7 +47,13 @@ function Invoke-Registration {
 	Write-Log -IfDebug -Extra $postdata -EventId PC_DEBUG_0003
 
 	# Before attempting to register the client, ensure that the validation key exists
-	$validation_key_path = "{0}\{1}" -f $script:session.config.paths.conf, $script:session.config.validation_key
+	# This needs to check that the path is not absolute before pre-pending the configuration onto it
+	if (![System.IO.Path]::IsPathRooted($script:session.config.validation_key)) {
+		$validation_key_path = "{0}\{1}" -f $script:session.config.paths.conf, $script:session.config.validation_key
+	} else {
+		$validation_key_path = $script:session.config.validation_key
+	}
+
 	if (!(Test-Path -Path $validation_key_path)) {
 
 		Write-Log -ErrorLevel -EventId PC_ERROR_0007 -extra $validation_key_path -stop
