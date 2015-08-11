@@ -90,28 +90,18 @@ function Resolve-Runlist {
 				# if the $item_type is a role then get the role information as part of another request
 				"role" {
 
-					# add the role to the roles array in the session if it does not already exist
-					if (!($script:session.roles -contains $item)) {
-						$script:session.roles += $item
-					}
+					# Add all the roles to the session so that they can be processed
+					$script:session.roles += $item
 
-					# Call the function to get the named role
+					# Attempt to get the role to check that it exists
 					$role = Get-Role -name $item_name
 
 					# if the role is false do not merge
 					if ($role -ne $false) {
-
-						# The attributes for the role need to be merged with the ones already retrieved
-						# these are currently in the session object
-						# Attributes of the same name in different roles will be overridden
-						# The last role to have the same setting will win
-						$merged = Merge-Hashtables -primary $role.default_attributes -secondary $script:session.attributes.roles
-						$script:session.attributes.roles = $merged
-
+						
 						# Now call this function again with the runlist that has been applied to the role
 						Resolve-Runlist -runlist $role.run_list
 					} else {
-
 						$missing.Add($item_name) | Out-Null
 					}
 				}
