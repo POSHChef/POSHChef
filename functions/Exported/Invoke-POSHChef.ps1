@@ -238,6 +238,9 @@ function Invoke-POSHChef {
 			# Resolve the run list, in other words expand this out into base level recipes
 			Resolve-Runlist -runlist $_runlist
 
+			# Get the attributes as contained in the roles
+			Get-RoleAttributes
+
 			# Output information about the expanded_runlisy
 			Write-Log -Message " "
 			Write-Log -EventId PC_INFO_0016
