@@ -39,7 +39,7 @@ function Get-TargetResource
 	} else {
 		$returnValue.Ensure = "Absent"
 	}
-	
+
 	# return the hashtable to the calling function
 	$returnValue
 
@@ -105,7 +105,7 @@ function Set-TargetResource
 			if (![String]::IsNullOrEmpty($Variables)) {
 				$vars = $Variables | ConvertFrom-JsonToHashtable
 			}
-			
+
 			# Get the source path for the specified source
 			$SourcePath = Get-SourcePath -Source $Source -CacheDir $CacheDir -Cookbook $cookbook -Type template
 
@@ -118,11 +118,12 @@ function Set-TargetResource
 				node = $attrs
 				variables = $vars
 			}
-			$patched = _Patch-Template @splat
+			# $patched = _Patch-Template @splat
+			$patched = Expand-Template @splat
 
 			# Write out the patched variable to the Destination file
 			Write-Verbose ("Writing patched template: {0}" -f $Destination)
-			
+
 			# Ensure the parent path to the destination exists
 			$parent = Split-Path -Path $Destination -Parent
 			if (!(Test-Path -Path $Parent)) {
@@ -207,7 +208,7 @@ function Test-TargetResource
 
 	# Use the Get-TargetResource to determine if the file exists
 	$status = Get-TargetResource -Destination $Destination -Source $Source
-	
+
 	# Switch on the Ensure parameter
 	switch ($Ensure) {
 
@@ -249,7 +250,8 @@ function Test-TargetResource
 						node = $attrs
 						variables = $vars
 					}
-					$patched = _Patch-Template @splat
+					# $patched = _Patch-Template @splat
+					$patched = Expand-Template @splat
 
 					# Get the checksum for the patched template
 					Write-Verbose "Getting checksum for patched template"
@@ -271,7 +273,7 @@ function Test-TargetResource
 
 					# The file does not exist so it needs to be written out
 					# Set the test flag to false
-					$test = $false		
+					$test = $false
 				}
 			}
 		}
@@ -288,70 +290,3 @@ function Test-TargetResource
 
 	return $test
 }
-
-
-#### PRIVATE Functions
-function _Patch-Template {
-
-	<#
-
-	.SYNOPSIS
-		Patch the template file with the variables and node attributes
-
-	#>
-
-	[CmdletBinding()]
-	param (
-
-		[Parameter(Mandatory=$true)]
-		[string]
-		# Path to the template file
-		$path,
-
-		[Parameter(Mandatory=$true)]
-		[string]
-		# Tag in the text denoting the code to render
-		$BeginTag,
-
-		[Parameter(Mandatory=$true)]
-		[string]
-		# Tag in the text denoting the code to render
-		$EndTag,
-
-		[alias('attributes')]
-		# Hashtable of attributes to be replaced in the file
-		$node,
-
-		# Hashtable of variables that have been specified 
-		$variables
-	)
-
-	# Get the contents of the template file
-	$template = Get-Content -Path $path
-
-	# The begin and end tags may contain characters that have special meaning to RegEx
-	# So ensure they are escaped
-	$BeginTag = [Regex]::Escape($BeginTag)
-	$EndTag = [Regex]::Escape($EndTag)
-
-	# Ensure the output variable is empty
-	$output = ""
-	
-	# Ensure each line of the template is terminated with a line feed
-	$template | Foreach-Object { $text += [String] $_ + "`r"}
-
-	# Iterate ariound the template looking for the patterns
-	while ($text -match "(?m)(?<pre>.*?)$BeginTag(?<exp>.*?)$EndTag(?<post>.*)") { 
-		$text = $matches.post
-		$output += $matches.pre
-		$output += (Invoke-Expression $matches.exp)
-	}
-
-	# Finish off the render and return the result to the calling function
-	$output += $text
-	$output -replace "`r", [Environment]::NewLine
-
-}
-
-
-

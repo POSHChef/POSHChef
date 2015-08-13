@@ -73,5 +73,5 @@ function Invoke-Registration {
 	}
 
 	# Call the function to create the node on teh server
-	New-Node -name $script:session.config.node -environment $script:session.environment
+	$node = New-Node -name $script:session.config.node -environment $script:session.environment
 }

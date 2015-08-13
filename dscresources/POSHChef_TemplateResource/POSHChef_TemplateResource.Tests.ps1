@@ -44,6 +44,7 @@ function Set-LogParameters(){}
 . "$PSScriptRoot\..\..\functions\exported\Get-SourcePath.ps1"
 . "$PSScriptRoot\..\..\functions\exported\Set-Notification.ps1"
 . "$PSScriptRoot\..\..\functions\Miscellaneous\Get-Base64.ps1"
+. "$PSScriptRoot\..\..\functions\Patching\Expand-Template.ps1"
 
 Describe "POSHChef_TemplateResource" {
 
@@ -68,11 +69,11 @@ Describe "POSHChef_TemplateResource" {
 	$destination = "{0}\dummy\template.yml" -f $PSDrive.Root
 
 	# Ensure the source file has the correct information
-	Set-Content -Path $source -Value `
-@'
+	$source_content = @'
 cluster.name: [[ $node.ElasticSearch.cluster_name ]]
 path.data: [[ $node.ElasticSearch.paths.data ]]
 '@
+	[system.io.file]::WriteAllText($source, $source_content)
 
 	# Define a source file that will not exist
 	$noexist = "{0}\updated.yml.tmpl" -f $PSDrive.Root
