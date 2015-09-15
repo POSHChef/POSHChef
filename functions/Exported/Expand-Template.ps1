@@ -65,6 +65,9 @@ function Expand-Template {
     $beginTag = [Regex]::Escape($beginTag)
     $endTag = [Regex]::Escape($endTag)
 
+    # Previous versions of POSHChef used the vars keyword in the template so replicate that here
+    $vars = $variables
+
     # Set the output string
     $output = [String]::Empty
 

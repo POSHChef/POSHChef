@@ -50,6 +50,7 @@ function ConvertFrom-JsonToHashtable {
 		# load the required dll
 		[void][System.Reflection.Assembly]::LoadWithPartialName("System.Web.Extensions")
 		$deserializer = New-Object -TypeName System.Web.Script.Serialization.JavaScriptSerializer
+		$deserializer.MaxJsonLength = [int]::MaxValue
 		$dict = $deserializer.DeserializeObject($InputObject)
 
 	}
