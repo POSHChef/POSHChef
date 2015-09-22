@@ -77,7 +77,7 @@ function Set-Node {
 		$postdata = $node
 
 		# if a runlist has been specified on the command line read this in and add to the postdata
-		if ($script:session.local_runlist -ne $false) {
+		if ($script:session.local_runlist -ne $false -and $script:session.temporary_runlist -eq $false) {
 
 			Write-Log -IfDebug -EventId PC_DEBUG_0004 -extra $script:session.local_runlist
 

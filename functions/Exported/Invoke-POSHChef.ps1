@@ -23,9 +23,14 @@ function Invoke-POSHChef {
 	[CmdletBinding(PositionalBinding=$false)]
 	param (
 
-		[string]
+		[string[]]
 		# Path to file containing array of items to run in the runlist
 		$runlist = $false,
+		
+		[switch]
+		[alias("once")]
+		# Specify if the runlist set on the command line is temporary
+		$temporary_runlist,
 
 		[string]
 		# Enironment that the node should belong to
@@ -143,9 +148,12 @@ function Invoke-POSHChef {
 
 					}
 
+	# COnvert the temporary_runlist to boolean
+	$temporary_rumlist = [boolean] $temporary_runlist
+
 	# Patch the $PSBoundParameters to contain the default values
 	# if they have not been explicitly set
-	foreach ($param in @("options", "runlist", "environment", "cache", "download", "generated", "basedir", "logdir", "key", "skip", "json_attributes")) {
+	foreach ($param in @("options", "runlist", "environment", "cache", "download", "generated", "basedir", "logdir", "key", "skip", "json_attributes", "temporary_runlist")) {
 		if (!$PSBoundParameters.ContainsKey($param)) {
 			$PSBoundParameters.$param = (Get-Variable -Name $param).Value
 		}
