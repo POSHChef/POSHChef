@@ -113,6 +113,9 @@
   <resource code="PC_ERROR_0036">
     <message>Some of your runlist items are invalid, please check</message>
   </resource>
+  <resource code="PC_ERROR_0037">
+    <message>No recipes have been found.  Please check your settings. (Cache Path: {0})</message>
+  </resource>
 
 
     <!-- WARN Messages -->
@@ -133,7 +136,7 @@
     <message>No run list has been specified</message>
   </resource>
   <resource code="PC_WARN_0006">
-    <message>Unable to find recipe file for '{0}'</message>
+    <message>Unable to find recipe: '{0}'</message>
   </resource>
   <resource code="PC_WARN_0007">
     <message>{0} '{1}' does not exist on the server</message>
@@ -185,6 +188,9 @@
   </resource>
 
 	<!-- DEBUG Messages -->
+  <resource code="PC_DEBUG_0000">
+    <message>***** {0} *****</message>
+  </resource>
 	<resource code="PC_DEBUG_0001">
 		<message>Adding missing attributes to the configuration as it has not been explicity set</message>
 	</resource>
@@ -282,6 +288,9 @@
   <resource code="PC_DEBUG_0032">
     <message>Log directory: {0}</message>
   </resource>
+  <resource code="PC_DEBUG_0033">
+    <message>Sourcing recipes from '{0}': {1}</message>
+  </resource>
 
 
   <!-- INFO Messages -->
@@ -304,7 +313,7 @@
     <colours>
       <foreground>cyan</foreground>
     </colours>
-    <message>Executing run list</message>
+    <message>Compilation Phase</message>
   </resource>
   <resource code="PC_INFO_0004">
     <indent>1</indent>
@@ -672,6 +681,13 @@
     <indent>2</indent>
     <colours>
       <foreground>darkyellow</foreground>
+    </colours>
+  </resource>
+  <resource code="PC_INFO_0068">
+    <message>Loading Recipes</message>
+    <indent>2</indent>
+    <colours>
+      <foreground>gray</foreground>
     </colours>
   </resource>
 

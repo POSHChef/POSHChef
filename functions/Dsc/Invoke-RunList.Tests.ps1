@@ -23,6 +23,7 @@ function Write-Log(){}
 
 . "$here\$sut"
 . "$here\Invoke-Recipe.ps1"
+. "$here\Get-Recipes.ps1"
 
 Describe "Invoke-RunList" {
 

@@ -23,37 +23,24 @@ Function Invoke-Recipe {
     #>
     [CmdletBinding()]    
     param(
-        [Parameter(ValueFromPipeline=$true, Mandatory=$true, Position=0)]
-        [string]
-        $RecipeName,
+      [Parameter(ValueFromPipeline=$true, Mandatory=$true, Position=0)]
+      [string]
+      $RecipeName,
 
-        [Parameter(ValueFromPipeline=$true, Mandatory=$true, Position=1)]
-        [hashtable]
-        $Parameters,
+      [Parameter(ValueFromPipeline=$true, Mandatory=$true, Position=1)]
+      [hashtable]
+      $Parameters,
 
-        [Parameter(ValueFromPipeline=$true, Mandatory=$false, Position=2)]
-        [hashtable]
-        $AdditionalParameters,
-
-		[Parameter(ValueFromPipeline=$true, Mandatory=$false, Position=3)]
-		[string]
-		$CachePath
+  		[Parameter(ValueFromPipeline=$true, Mandatory=$false, Position=3)]
+  		[string]
+  		$CachePath
     )
 	
-	# Split the recipe name up so that it contains the consituent parts
-	$cookbook, $recipe = $RecipeName -split "_"
-	
-	# Check that the specified recipe exists in the file_cache_path
-	# if it does source the file, if not output message
-	# build up the pattern to match against the files
-	$pattern = "{0}\\recipes\\{1}.ps1" -f $cookbook, $recipe
-
-	Write-Log -IfDebug -EventId PC_DEBUG_0015 -extra ("{0} - {1}" -f $CachePath, $pattern)
-
-	# attempt to find the file
-	$recipe_exists = Get-ChildItem -Path ("{0}" -f $CachePath) `
-								   -Recurse `
-								   -Include "*.ps1" | Where-Object { $_.FullName -match $pattern }
+  # If in debug mode, show the function currently in
+  Write-Log -LogLevel DEBUG -EventId PC_DEBUG_0000 -extra $MyInvocation.MyCommand
+  
+  # Determine if the recipe that has been requested is loaded and known to the system
+  $recipe_exists = Get-Command -CommandType "configuration" -Name $RecipeName -ErrorAction SilentlyContinue
 
 	# check the $recipe_exists variable
 	if ([String]::IsNullOrEmpty($recipe_exists)) {
@@ -61,9 +48,6 @@ Function Invoke-Recipe {
 		Write-Log -LogLevel Warn -EventId PC_WARN_0006 -extra $recipeName
 
 	} else {
-
-		# Source the recipe file so that the function can be executed
-		. ($recipe_exists.FullName)
 
 		# define the splat hashtable that will be used to add necessary arguments
 		$splat = @{}
