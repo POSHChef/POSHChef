@@ -110,24 +110,25 @@ The answer is 42
     $result -eq $expected | Should be $true
 
   }
-
-  it "Correctly resolves expressions contained in the delimiter character" {
-
+  
+  it "Resolves multiple expressions on one line" {
+    
     # Define the template
     $template = @'
-; SQL Server Configuration file
-[[[ $node.stanza.name ]]]
+Good [[ $node.period ]], [[ $node.name ]].  It is good to talk to you.
+
+Today is [[ $node.today ]]
 '@
 
-    # Set what is expected
-    $expected = @"
-; SQL Server Configuration file
-[OPTIONS]
-"@
+    # Set the string that is to be expected
+    $expected = @'
+Good evening, Hal.  It is good to talk to you.
+
+Today is Tuesday
+'@
 
     # Call the function
-    $result = Expand-Template -template $template -attributes @{stanza = @{name = "OPTIONS"}}
-
+    $result = Expand-Template -template $template -attribute @{period = "evening"; name = "Hal"; today = "Tuesday"}
     $result -eq $expected | Should be $true
   }
 
@@ -142,6 +143,12 @@ The answer is 42
   					data = "D:\ElasticSearch\data"
   				}
   			}
+        Database = @{
+          server = "db-01"
+          name = "acme"
+          user = "roadrunner"
+          password = "wylecoyote"
+        }
   		}
   	}
 
@@ -157,6 +164,8 @@ The answer is 42
   	$source_content = @'
 cluster.name: [[ $node.ElasticSearch.cluster_name ]]
 path.data: [[ $node.ElasticSearch.paths.data ]]
+
+<connectionstring>Server=[[ $node.Database.server ]];Database=[[ $node.Database.name ]];User Id=[[ $node.Database.user ]];Password=[[ $node.Database.password ]];</connectionstring>
 '@
     [system.io.file]::WriteAllText($source, $source_content)
 
@@ -164,7 +173,15 @@ path.data: [[ $node.ElasticSearch.paths.data ]]
     $expected = @"
 cluster.name: {0}
 path.data: {1}
-"@ -f $attributes.default.ElasticSearch.cluster_name, $attributes.default.ElasticSearch.paths.data
+
+<connectionstring>Server={2};Database={3};User Id={4};Password={5};</connectionstring>
+"@ -f $attributes.default.ElasticSearch.cluster_name, 
+      $attributes.default.ElasticSearch.paths.data,
+      $attributes.default.Database.server,
+      $attributes.default.Database.name,
+      $attributes.default.Database.user,
+      $attributes.default.Database.password
+      
 
     $result = Expand-Template -path $source -attributes $attributes.default
 

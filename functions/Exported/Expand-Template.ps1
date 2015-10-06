@@ -73,7 +73,8 @@ function Expand-Template {
 
     # Build up the expression to match with
 	  # $pattern = "(?sm)(?<pre>.*?)[{0}?](?!{1})(?<exp>.*?){2}(?<post>.*?)$" -f $optionTag, $beginTag, $endTag
-    $pattern = "(?sm)(?<pre>.*?){0}(?<exp>.*?){1}(?<post>.*?)$" -f $beginTag, $endTag
+    # $pattern = "(?sm)(?<pre>.*?){0}(?<exp>.*?){1}(?<post>.*?)$" -f $beginTag, $endTag
+    $pattern = "(?sm)(?<pre>.*?){0}(?<exp>.*?){1}" -f $beginTag, $endTag
 
     # Create a Regex object using the pattern from above
     # This uses a .Net classes so that the named capture groups work.  The built in -match function did not cut it
@@ -96,7 +97,7 @@ function Expand-Template {
             $rendered.Append($evaluated) | Out-Null
         }
 
-        $rendered.Append(($match.Groups["post"].Value)) | Out-Null
+       # $rendered.Append(($match.Groups["post"].Value)) | Out-Null
 
     }
 
