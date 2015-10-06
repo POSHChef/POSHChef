@@ -44,7 +44,7 @@ function Set-LogParameters(){}
 . "$PSScriptRoot\..\..\functions\exported\Get-SourcePath.ps1"
 . "$PSScriptRoot\..\..\functions\exported\Set-Notification.ps1"
 . "$PSScriptRoot\..\..\functions\Miscellaneous\Get-Base64.ps1"
-. "$PSScriptRoot\..\..\functions\Patching\Expand-Template.ps1"
+. "$PSScriptRoot\..\..\functions\exported\Expand-Template.ps1"
 
 Describe "POSHChef_TemplateResource" {
 
@@ -72,6 +72,7 @@ Describe "POSHChef_TemplateResource" {
 	$source_content = @'
 cluster.name: [[ $node.ElasticSearch.cluster_name ]]
 path.data: [[ $node.ElasticSearch.paths.data ]]
+path.logs: [[ $variables.path.logs ]]
 '@
 	[system.io.file]::WriteAllText($source, $source_content)
 
@@ -90,6 +91,7 @@ path.data: [[ $node.ElasticSearch.paths.data ]]
 		$expected = @"
 cluster.name: {0}
 path.data: {1}
+path.logs: c:\elasticsearch\logs
 "@ -f $attributes.default.ElasticSearch.cluster_name, $attributes.default.ElasticSearch.paths.data
 
 		# set the expected contents of the services notification file
@@ -105,6 +107,7 @@ path.data: {1}
 			Notifies = @($service_name)
 			NotifiesServicePath = $services_notifications_file
 			Reboot = $false
+			Variables = @{path = @{logs = "c:\elasticsearch\logs"} } | ConvertTo-Json -Depth ([int]::MaxValue) -Compress
 		}
 
 		Set-TargetResource @splat
@@ -133,7 +136,16 @@ path.data: {1}
 
 		it "does not update the file if the attributes are the same" {
 
-			Test-TargetResource -Source $source -Destination $destination -Ensure "Present" -Cookbook "Pester" -attributes ($attributes.default | ConvertTo-Json -Depth 99) | Should be $true
+			$splat = @{
+				source = $source
+				destination = $destination
+				ensure = "Present"
+				cookbook = "Pester"
+				attributes = ($attributes.default | ConvertTo-Json -Depth 99)
+				Variables = @{path = @{logs = "c:\elasticsearch\logs"} } | ConvertTo-Json -Depth ([int]::MaxValue) -Compress
+			}
+
+			Test-TargetResource @splat  | Should be $true
 		}
 
 		it "if new attributes are set then the file should be updated" {
@@ -141,8 +153,17 @@ path.data: {1}
 			# set the name of the cluster to test
 			$attributes.default.ElasticSearch.cluster_name = "pester_cluster"
 
+			$splat = @{
+				Source = $source
+				Destination = $destination
+				Ensure = "Present"
+				Cookbook = "Pester"
+				Attributes = ($attributes.default | ConvertTo-Json -Depth 99)
+				Variables = @{path = @{logs = "c:\elasticsearch\logs"} } | ConvertTo-Json -Depth ([int]::MaxValue) -Compress
+			}
+
 			# check the file should be patched
-			Test-TargetResource -Source $source -Destination $destination -Ensure "Present" -Cookbook "Pester" -attributes ($attributes.default | ConvertTo-Json -Depth 99) | Should be $false
+			Test-TargetResource @splat  | Should be $false
 		}
 
 		it "overwrites the file when the attributes are different" {
@@ -154,14 +175,53 @@ path.data: {1}
 			$expected = @"
 cluster.name: {0}
 path.data: {1}
+path.logs: c:\elasticsearch\logs
 "@ -f $attributes.default.ElasticSearch.cluster_name, $attributes.default.ElasticSearch.paths.data
 
-			Set-TargetResource -Ensure "Present" -Cookbook "Pester" -Source $source -Destination $destination -attributes ($attributes.default | ConvertTo-Json -Depth 99)
+			$splat = @{
+				Ensure = "Present"
+				Cookbook = "Pester"
+				Source = $source
+				Destination = $destination
+				Attributes = ($attributes.default | ConvertTo-Json -Depth 99)
+				Variables = @{path = @{logs = "c:\elasticsearch\logs"} } | ConvertTo-Json -Depth ([int]::MaxValue) -Compress
+			}
+
+			Set-TargetResource @splat
 
 			# get the contents of the destination file
 			$content = (Get-Content -Path $destination -Raw).Trim()
 
 			$content -eq $expected | Should Be $true
+		}
+
+		it "test write out the template even if the attributes are empty" {
+
+			# set the attributes to empty
+			$attributes.default = @{}
+
+			# set what is expected
+			$expected = @"
+cluster.name: 
+path.data: 
+path.logs: c:\elasticsearch\logs
+"@
+
+			$splat = @{
+				Ensure = "Present"
+				Cookbook = "Pester"
+				Source = $source
+				Destination = $destination
+				Attributes = @{} | ConvertTo-Json -Depth ([int]::MaxValue) -Compress
+				Variables = @{path = @{logs = "c:\elasticsearch\logs"} } | ConvertTo-Json -Depth ([int]::MaxValue) -Compress
+			}
+
+			Test-TargetResource @splat | Should be $false
+
+			# get the contents of the destination file
+			#$content = (Get-Content -Path $destination -Raw).Trim()
+
+			#$content -eq $expected | Should Be $true
 		}
 
 		it ("requests a reboot if the file is new") {

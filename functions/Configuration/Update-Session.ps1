@@ -131,6 +131,7 @@ function Update-Session {
 
 				# Set a parameter to hold any local run_list that has been set
 				local_runlist = $parameters.runlist
+				temporary_runlist = $parameters.temporary_runlist
 
 				# Define attribute to hold the expanded run list
 				expanded_runlist = @()
