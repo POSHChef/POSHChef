@@ -54,6 +54,9 @@ function Resolve-Attributes {
 										cache = $script:session.config.paths.file_cache_path
 										handlers_path = $script:session.config.paths.handlers
 									}
+						thisrun = @{
+								logdir = $script:session.config.logdir
+							}
 						}
 
 	# If there are attribute files then load them in

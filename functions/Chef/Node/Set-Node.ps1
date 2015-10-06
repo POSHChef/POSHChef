@@ -97,10 +97,15 @@ function Set-Node {
 			$postdata["chef_environment"] = $script:session.environment
 		}
 
-		# If the attributes is not false then add to the postdata
+		# Remove the AllNodes key, if it is exists as this is not required
 		if ($attrs.ContainsKey("AllNodes")) {
 			$attrs.Remove("AllNodes")
 		}
+		
+		# The attributes contain a 'thisrun' key which states, among other things, the logdir for
+		# the last run, this needs to be removed from the attributes as it will change on every run
+		# and does not need to be sent back to the server
+		$attrs.Remove("thisrun") | Out-Null
 
 		if ($attrs.length -gt 0) {
 
