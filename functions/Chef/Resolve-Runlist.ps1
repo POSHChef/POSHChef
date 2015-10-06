@@ -50,8 +50,8 @@ function Resolve-Runlist {
 				"recipe" {
 
 					# add the role to the roles array in the session if it does not already exist
-					if (!($script:session.recipes -contains $item)) {
-						$script:session.recipes += $item
+					if (!($script:session.recipes -contains $item_name)) {
+						$script:session.recipes += $item_name
 					}
 
 					# add in default if there is nothing on the list
@@ -91,8 +91,8 @@ function Resolve-Runlist {
 				"role" {
 
 					# add the role to the roles array in the session if it does not already exist
-					if (!($script:session.roles -contains $item)) {
-						$script:session.roles += $item
+					if (!($script:session.roles -contains $item_name)) {
+						$script:session.roles += $item_name
 					}
 
 					# Call the function to get the named role
