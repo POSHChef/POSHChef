@@ -75,26 +75,26 @@ Describe "POSHChef_CookbookFileResource" {
   # Set the notificationsservicepath file
   $services_notifications_file = "{0}\service.txt" -f $PSDrive.Root
 
-  Context "File does not exist" {
+  Context "Source is a file" {
 
-	# Create the splat argument hash
-  $splat = @{
-    Ensure = "Present"
-    Source = $source
-    Destination = $destination
-    Cookbook = "Pester"
-		Notifies = @($service_name)
-		NotifiesServicePath = $services_notifications_file
-		Reboot = $false
-  }
+  	# Create the splat argument hash
+    $splat = @{
+      Ensure = "Present"
+      Source = $source
+      Destination = $destination
+      Cookbook = "Pester"
+  		Notifies = @($service_name)
+  		NotifiesServicePath = $services_notifications_file
+  		Reboot = $false
+    }
 
-  it "is created" {
+    it "is created" {
 
-      Set-TargetResource @splat
+        Set-TargetResource @splat
 
-      Test-Path -Path $destination | Should Be $true
+        Test-Path -Path $destination | Should Be $true
 
-  }
+    }
 
 		it "has the correct content" {
 
@@ -160,7 +160,7 @@ Licenced Until: 01/01/2070
             Test-Path -Path $destination | Should Be $false
 
 		}
-    }
+  }
 
 	Context "File does not exist, but neither does the source" {
 
@@ -180,4 +180,34 @@ Licenced Until: 01/01/2070
 
 		}
 	}
+  
+  Context "Source is a string" {
+    
+    $content = "This is a test"
+    
+    # Create the splat argument hash
+    $splat = @{
+      Ensure = "Present"
+      Source = $content
+      IsContent = $true
+      Destination = $destination
+      Cookbook = "Pester"
+      Notifies = @($service_name)
+      NotifiesServicePath = $services_notifications_file
+      Reboot = $false
+    }
+    
+    it "creates the desination file and has the correct content" {
+
+        Set-TargetResource @splat
+
+        Test-Path -Path $destination | Should Be $true
+        
+        # get the contents of the destination file for comparison
+        $ondisk = Get-Content -Path $Destination
+  
+        $content -eq $ondisk | Should Be $true
+
+    }
+  }
 }

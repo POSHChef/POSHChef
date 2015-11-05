@@ -75,7 +75,16 @@ function Set-TargetResource
 		$Notifies,
 
 		[System.String]
-		$NotifiesServicePath
+		$NotifiesServicePath,
+		
+		[System.Boolean]
+		# Specify whether the source that has been set is a string that needs to be
+		# Written out to the file or if false it is a file that needs to be copied
+		# from the coobook
+		$IsContent = $false,
+		
+		[System.String]
+		$Encoding = "UTF-8"
 	)
 	
 	# Use the Get-TargetResource to determine if the file exists
@@ -87,7 +96,19 @@ function Set-TargetResource
 		"Present" {
 		
 			# Get the source path for the specified source
-			$SourcePath = Get-SourcePath -Source $Source -CacheDir $CacheDir -Cookbook $cookbook -Type file
+			if ($IsContent -eq $false) {
+				# Get the source path for the specified source
+				$SourcePath = Get-SourcePath -Source $Source -CacheDir $CacheDir -Cookbook $cookbook -Type file
+
+			} else {
+				
+				# Determine the path to the temporaty file based on the string, e.g. a hash
+				# This is so that it can be resolved to the same name int eh Set-TargetResource
+				$SourcePath = _GetFileName -contents $Source
+				if (!(Test-Path -Path $SourcePath)) {
+					_WriteStringToFile -contents $Source -Path $SourcePath -Encoding $Encoding
+				}
+			}
 
 			# Ensure the parent directory of the file exists
 			$parent = Split-Path -Parent -Path $Destination
@@ -151,7 +172,16 @@ function Test-TargetResource
 		$Notifies,
 
 		[System.String]
-		$NotifiesServicePath
+		$NotifiesServicePath,
+		
+		[System.Boolean]
+		# Specify whether the source that has been set is a string that needs to be
+		# Written out to the file or if false it is a file that needs to be copied
+		# from the coobook
+		$IsContent = $false,
+		
+		[System.String]
+		$Encoding = "UTF-8"
 	)
 
 	# Define test variable that will be used to return boolean for the test
@@ -166,8 +196,21 @@ function Test-TargetResource
 
 		"Present" {
 
-			# Get the source path for the specified source
-			$SourcePath = Get-SourcePath -Source $Source -CacheDir $CacheDir -Cookbook $cookbook -Type file
+			# Work out if the Source is a file or content, if it is a file then check that
+			# it exists in the cookbook
+			if ($IsContent -eq $false) {
+				# Get the source path for the specified source
+				$SourcePath = Get-SourcePath -Source $Source -CacheDir $CacheDir -Cookbook $cookbook -Type file
+
+			} else {
+				
+				# Determine the path to the temporaty file based on the string, e.g. a hash
+				# This is so that it can be resolved to the same name int eh Set-TargetResource
+				$SourcePath = _GetFileName -contents $Source
+				write-host $sourcepath
+				_WriteStringToFile -contents $Source -Path $SourcePath -Encoding $Encoding
+				
+			}
 
 			# Determine if the SourcePath exists
 			if ($SourcePath -eq $false) {
@@ -175,7 +218,7 @@ function Test-TargetResource
 			} else {
 
 				# Write out information to show the file that is being used as the template
-				Write-Verbose ("Using cookbook file: {0}" -f $SourcePath)
+				Write-Verbose ("Using file: {0}" -f $SourcePath)
 
 				# Does the destination file exist
 				if ($Status.Ensure -ieq "present") {
@@ -187,7 +230,7 @@ function Test-TargetResource
 					}
 
 					# Get the checksum for the patched template
-					Write-Verbose "Getting checksum for cookbook file"
+					Write-Verbose "Getting checksum for file"
 					$checksum.file = Get-Checksum -path $SourcePath
 					Write-Verbose $checksum.file
 
@@ -224,7 +267,70 @@ function Test-TargetResource
 	return $test
 }
 
+function _GetFilename {
+	
+	<#
+	
+	.SYNOPSIS
+		Based on the content determine a filename to be used to save the content to
+		
+	.DESCRIPTION
+		Due to the way in which DSC works it is not possible to pass things between resources.
+		In order to test a string in a file against the one that needs to be set then a temporary
+		file needs to be created.
+		
+		When this function is called by either function then the result should be the same
+		as it is based on the temp directory of the user and a hash of the content.
+	
+	.NOTE
+		The encoding of the string is not an issue here as it is just to get the filename 
+	
+	#>
+	
+	param (
+		[String]
+		# Contents that need to be written out
+		$contents,
+		
+		[String]
+		# Base path in which to save the file
+		$Base = $env:TEMP
+	)
+	
+	$StringBuilder = New-Object System.Text.StringBuilder 
+	
+	[System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($contents)) | Foreach-Object { 
+		[Void] $StringBuilder.Append($_.ToString("x2")) 
+	} 
+	$hash = $StringBuilder.ToString() 
+	
+	# Work out the filename to use
+	$filename = "{0}\{1}.tmp" -f $Base, $hash
+	
+	# Return the filename to the calling function
+	return $filename
+	
+}
 
+function _WriteStringToFile {
+	
+	param (
+			[String]
+			# Contents that have to ben written out to the file
+			$contents,
+			
+			[String]
+			# The file that should be written out to
+			$path,
+			
+			[String]
+			# Encoding that should be used on the file
+			$Encoding
+	)
+	
+	# Get the encoding that has been sepcified as an object to pass to the WriteAllText function
+	$enc = [System.Text.Encoding]::GetEncoding($Encoding)
 
-
-
+	# Use WriteAll text to write out the file
+	[System.IO.File]::WriteAllText($path, $contents, $enc)
+}
