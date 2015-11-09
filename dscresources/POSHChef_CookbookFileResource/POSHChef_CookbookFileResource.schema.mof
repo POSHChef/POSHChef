@@ -11,5 +11,6 @@ class POSHChef_CookbookFileResource : OMI_BaseResource
 	[Write, Description("Array containing the services that need to be notified of any change")] string Notifies[];
 	[Write, Description("Path to the file that will be used to store the service to restart")] string NotifiesServicePath;
 	[Write, Description("Specify that the source is the content to be written out to the file")] Boolean IsContent;
-	[Write, Description("The encoding to be used for the file")] string Encoding;
+	[Write, Description("The encoding to be used for the file"), ValueMap{"UTF8", "UTF7", "Ascii", "Unicode", "UTF32"}, Values{"UTF8", "UTF7", "Ascii", "Unicode", "UTF32"}] string Encoding;
+	[Write, Description("State if byte order mark (BOM) should be enabled")] Boolean WithBOM;
 };

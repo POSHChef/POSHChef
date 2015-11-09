@@ -190,6 +190,7 @@ Licenced Until: 01/01/2070
       Ensure = "Present"
       Source = $content
       IsContent = $true
+      WithBOM = $false
       Destination = $destination
       Cookbook = "Pester"
       Notifies = @($service_name)

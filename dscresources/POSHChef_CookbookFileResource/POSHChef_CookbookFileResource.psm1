@@ -84,7 +84,10 @@ function Set-TargetResource
 		$IsContent = $false,
 		
 		[System.String]
-		$Encoding = "UTF-8"
+		$Encoding = "UTF8",
+		
+		[System.Boolean]
+		$WithBOM = $true
 	)
 	
 	# Use the Get-TargetResource to determine if the file exists
@@ -106,7 +109,7 @@ function Set-TargetResource
 				# This is so that it can be resolved to the same name int eh Set-TargetResource
 				$SourcePath = _GetFileName -contents $Source
 				if (!(Test-Path -Path $SourcePath)) {
-					_WriteStringToFile -contents $Source -Path $SourcePath -Encoding $Encoding
+					_WriteStringToFile -contents $Source -Path $SourcePath -Encoding $Encoding -WithBOM $WithBOM
 				}
 			}
 
@@ -181,7 +184,10 @@ function Test-TargetResource
 		$IsContent = $false,
 		
 		[System.String]
-		$Encoding = "UTF-8"
+		$Encoding = "UTF8",
+		
+		[System.Boolean]
+		$WithBOM = $true
 	)
 
 	# Define test variable that will be used to return boolean for the test
@@ -208,7 +214,7 @@ function Test-TargetResource
 				# This is so that it can be resolved to the same name int eh Set-TargetResource
 				$SourcePath = _GetFileName -contents $Source
 				write-host $sourcepath
-				_WriteStringToFile -contents $Source -Path $SourcePath -Encoding $Encoding
+				_WriteStringToFile -contents $Source -Path $SourcePath -Encoding $Encoding -WithBOM $WithBOM
 				
 			}
 
@@ -325,12 +331,18 @@ function _WriteStringToFile {
 			
 			[String]
 			# Encoding that should be used on the file
-			$Encoding
+			$Encoding,
+			
+			[Boolean]
+			$WithBOM
 	)
 	
-	# Get the encoding that has been sepcified as an object to pass to the WriteAllText function
-	$enc = [System.Text.Encoding]::GetEncoding($Encoding)
-
+	# Build up the objecttype that is to be created
+	$object_type = "System.Text.{0}Encoding" -f $Encoding
+	
+	# Instantiate the encoding object with or without BOM
+	$enc = New-Object $object_tyep($WithBOM)
+	
 	# Use WriteAll text to write out the file
 	[System.IO.File]::WriteAllText($path, $contents, $enc)
 }
