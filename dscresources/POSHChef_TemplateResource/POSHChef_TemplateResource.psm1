@@ -88,7 +88,13 @@ function Set-TargetResource
 		$BeginTag = "[[",
 
 		[System.String]
-		$EndTag = "]]"
+		$EndTag = "]]",
+		
+		[System.String]
+		$Encoding = "UTF8",
+		
+		[System.Boolean]
+		$WithBOM = $true
 	)
 
 	# Use the Get-TargetResource to determine if the file exists
@@ -131,9 +137,8 @@ function Set-TargetResource
 				New-Item -Type Directory -Path $parent | Out-String
 			}
 
-			# Use the WriteAllText to write out the contents of the file, this is so that no carriage returns are
-			# added to the end of thefile, as is the case with Set-Content
-			[System.IO.File]::WriteAllText($Destination, $patched)
+			# Write out the file with the correct encoding
+			_WriteStringToFile -Path $Destination -Encoding $Encoding -Contents $patched -WithBOM $WithBom
 
 		}
 
@@ -199,7 +204,13 @@ function Test-TargetResource
 		$BeginTag = "[[",
 
 		[System.String]
-		$EndTag = "]]"
+		$EndTag = "]]",
+		
+		[System.String]
+		$Encoding = "UTF8",
+		
+		[System.Boolean]
+		$WithBOM = $true
 	)
 
 	# Define test variable that will be used to return boolean for the test
@@ -289,4 +300,33 @@ function Test-TargetResource
 	}
 
 	return $test
+}
+
+function _WriteStringToFile {
+	
+	param (
+			[String]
+			# Contents that have to ben written out to the file
+			$contents,
+			
+			[String]
+			# The file that should be written out to
+			$path,
+			
+			[String]
+			# Encoding that should be used on the file
+			$Encoding,
+			
+			[Boolean]
+			$WithBOM
+	)
+	
+	# Build up the objecttype that is to be created
+	$object_type = "System.Text.{0}Encoding" -f $Encoding
+	
+	# Instantiate the encoding object with or without BOM
+	$enc = New-Object $object_type($WithBOM)
+	
+	# Use WriteAll text to write out the file
+	[System.IO.File]::WriteAllText($path, $contents, $enc)
 }
