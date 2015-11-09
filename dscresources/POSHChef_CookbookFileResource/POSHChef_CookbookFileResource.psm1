@@ -213,7 +213,6 @@ function Test-TargetResource
 				# Determine the path to the temporaty file based on the string, e.g. a hash
 				# This is so that it can be resolved to the same name int eh Set-TargetResource
 				$SourcePath = _GetFileName -contents $Source
-				write-host $sourcepath
 				_WriteStringToFile -contents $Source -Path $SourcePath -Encoding $Encoding -WithBOM $WithBOM
 				
 			}
