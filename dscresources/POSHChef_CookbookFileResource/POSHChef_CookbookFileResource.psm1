@@ -341,7 +341,7 @@ function _WriteStringToFile {
 	$object_type = "System.Text.{0}Encoding" -f $Encoding
 	
 	# Instantiate the encoding object with or without BOM
-	$enc = New-Object $object_tyep($WithBOM)
+	$enc = New-Object $object_type($WithBOM)
 	
 	# Use WriteAll text to write out the file
 	[System.IO.File]::WriteAllText($path, $contents, $enc)

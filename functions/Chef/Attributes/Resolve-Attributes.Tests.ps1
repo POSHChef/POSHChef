@@ -122,6 +122,9 @@ Describe "Resolve-Attributes" {
 								PSDscAllowPlainTextPassword = $true
 								recipes = $null
 								roles = $null
+								thisrun = @{
+									logdir = $null
+								}
 							}
 						)
 					}
@@ -133,7 +136,7 @@ Describe "Resolve-Attributes" {
 		# Compare the JSON representation of the hash tables
 		# This is so that a string comparison can be done
 		# Compare-Object uses objects and will only look at one level, it will not recusrively look
-		$result = ($expected |  ConvertTo-Json -Depth 10) -eq ($resolved | ConvertTo-Json -depth 10)
+		$result = ($expected |  ConvertTo-Json -Depth ([int]::maxvalue)) -eq ($resolved | ConvertTo-Json -depth ([int]::maxvalue))
 
 		# if the result is the same as the expected then all good
 		$result | Should Be $true
@@ -179,6 +182,9 @@ Describe "Resolve-Attributes" {
 								PSDscAllowPlainTextPassword = $true
 								recipes = $null
 								roles = $null
+								thisrun = @{
+									logdir = $null
+								}
 							}
 						)
 					}
@@ -237,6 +243,9 @@ Describe "Resolve-Attributes" {
 								PSDscAllowPlainTextPassword = $true
 								recipes = $null
 								roles = $null
+								thisrun = @{
+									logdir = $null
+								}
 							}
 						)
 					}
@@ -306,6 +315,9 @@ Describe "Resolve-Attributes" {
 								PSDscAllowPlainTextPassword = $true
 								recipes = $null
 								roles = $null
+								thisrun = @{
+									logdir = $null
+								}
 							}
 						)
 					}
@@ -397,6 +409,9 @@ Describe "Resolve-Attributes" {
 								PSDscAllowPlainTextPassword = $true
 								recipes = $null
 								roles = $null
+								thisrun = @{
+									logdir = $null
+								}
 							}
 						)
 					}
@@ -420,4 +435,3 @@ Describe "Resolve-Attributes" {
 	}
 	
 }
-

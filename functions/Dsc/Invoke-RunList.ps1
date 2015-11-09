@@ -78,7 +78,6 @@ function Invoke-RunList {
 
 			foreach ($recipeName in $runList) {
 	  
-				Write-Log " "
 		    Write-Log -EventId PC_MISC_0001 -extra $recipeName
 
 				# Turn the call to the recipe to use an argument hashtable
