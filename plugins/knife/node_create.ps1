@@ -43,7 +43,11 @@ function node_create {
 
 		[string]
 		# Environment, if any, that the machine should belong to
-		$environment = [String]::Empty
+		$environment = [String]::Empty,
+		
+		[hashtable]
+		# hashtable of attributes to add to the server
+		$attributes = @{}
 	)
 
 	# Setup the mandatory parameters
@@ -74,6 +78,18 @@ function node_create {
 		}
 
 		$node = New-Node @splat
+
+		# if attributes have been set then call the update command
+		if ($attributes.count -gt 0) {
+			
+			$splat = @{
+				attrs = $attributes
+				name = $id
+			}
+
+			Update-Node @splat
+			
+		}
 
 		$node
 	}

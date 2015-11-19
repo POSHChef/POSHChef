@@ -21,6 +21,7 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 . "$PSScriptRoot\..\..\Helpers\Merge-Hashtables.ps1"
 . "$PSScriptRoot\..\..\Miscellaneous\Sort-Hashtable.ps1"
 . "$PSScriptRoot\..\..\Exported\ConvertFrom-JsonToHashtable.ps1"
+. "$PSScriptRoot\..\Node\Get-Node.ps1"
 
 # Only functions that already exist can be Mocked
 # Stub out Write-Log function so that it can be mocked
@@ -36,6 +37,7 @@ Describe "Resolve-Attributes" {
 	# Mock the Write-Log function and do nothing
 	# This is in case the Logging module is not vailable
 	Mock Write-Log -MockWith {}
+	Mock Get-Node -MockWith { return @{automatic = @{testing = "Pester"}} }
 
 	# Create a file that will act as an attribute file
 	# Setup -File "cache\attributes.psd1" `
@@ -80,7 +82,7 @@ Describe "Resolve-Attributes" {
 		
 	}
 
-	It "Given role attributes and and array, ensure they are added together" {
+	It "Given node and role attributes and an array, ensure they are added together" {
 
 		# Add the role attributes to the session
 		$script:session.attributes = @{
@@ -122,6 +124,7 @@ Describe "Resolve-Attributes" {
 								PSDscAllowPlainTextPassword = $true
 								recipes = $null
 								roles = $null
+								testing = "Pester"
 								thisrun = @{
 									logdir = $null
 								}
@@ -140,6 +143,65 @@ Describe "Resolve-Attributes" {
 
 		# if the result is the same as the expected then all good
 		$result | Should Be $true
+	}
+
+	it "Overrides a node attribute" {
+		
+		# Add the role attributes to the session
+		$script:session.attributes = @{
+		
+				roles = @{
+
+					testing = "NUnit"
+				}
+		}
+		
+		# build the expected object
+		$expected = [Ordered] @{
+						AllNodes = @(
+							[Ordered] @{
+								base = [Ordered] @{
+									Fruit = @(
+										"apple"
+									)
+									Timezone = "GMT Standard Time"
+								}
+								chef = [Ordered] @{
+									chef_environment = "_default"
+									config_file = "C:\POSHChef\conf\client.psd1"
+								}
+								NodeName = $env:computername
+								platform = "windows"
+								POSHChef = [Ordered] @{
+									cache = $PSDrive.Root
+									conf = "C:\POSHChef\conf"
+									handlers_path = "C:\POSHChef\handlers"
+									notifications = "C:\POSHChef\notifications"
+									plugins = "C:\POSHChef\plugins"
+								}
+								PSDscAllowPlainTextPassword = $true
+								recipes = $null
+								roles = $null
+								testing = "NUnit"
+								thisrun = @{
+									logdir = $null
+								}
+							}
+						)
+					}
+
+		# Get the result of the resolved attributes
+		$resolved = Resolve-Attributes | Sort-Hashtable
+		
+		# Perform the comparison of the objects
+		# Compare the JSON representation of the hash tables
+		# This is so that a string comparison can be done
+		# Compare-Object uses objects and will only look at one level, it will not recusrively look
+		$result = ($expected | ConvertTo-Json -Depth 10) -eq ($resolved | ConvertTo-Json -depth 10)
+
+		# if the result is the same as the expected then all good
+		$result | Should Be $true
+		
 	}
 
 	$role_timezone = "New Zealand Standard Time"
@@ -182,6 +244,7 @@ Describe "Resolve-Attributes" {
 								PSDscAllowPlainTextPassword = $true
 								recipes = $null
 								roles = $null
+								testing = "Pester"
 								thisrun = @{
 									logdir = $null
 								}
@@ -243,6 +306,7 @@ Describe "Resolve-Attributes" {
 								PSDscAllowPlainTextPassword = $true
 								recipes = $null
 								roles = $null
+								testing = "Pester"
 								thisrun = @{
 									logdir = $null
 								}
@@ -315,6 +379,7 @@ Describe "Resolve-Attributes" {
 								PSDscAllowPlainTextPassword = $true
 								recipes = $null
 								roles = $null
+								testing = "Pester"
 								thisrun = @{
 									logdir = $null
 								}
@@ -409,6 +474,7 @@ Describe "Resolve-Attributes" {
 								PSDscAllowPlainTextPassword = $true
 								recipes = $null
 								roles = $null
+								testing = "Pester"
 								thisrun = @{
 									logdir = $null
 								}

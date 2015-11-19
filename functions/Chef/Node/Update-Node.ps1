@@ -29,14 +29,17 @@ function Update-Node {
 
 		[Hashtable]
 		# Node attributes to send to the Chef server
-		$attrs = @{}
+		$attrs = @{},
+		
+		[string]
+		$name = [String]::Empty
 	)
 
 	# If in debug mode, show the function currently in
 	Write-Log -IfDebug -Message $("***** {0} *****" -f $MyInvocation.MyCommand)
 
 	# Firstly determine if the node exists
-	$node = Get-Node
+	$node = Get-Node -name $name
 
 	# If the node is false then run the fucntion to register the node
 	if ($node -eq $false) {
@@ -44,7 +47,16 @@ function Update-Node {
 	}
 
 	# Update the node with the specifc information from the command line
-	Set-Node -node $node -attrs $attrs
+	$splat = @{
+		node = $node
+		attrs = $attrs
+	}
+	
+	if (![String]::IsNullOrEmpty($name)) {
+		$splat.name = $name
+	}
+
+	Set-Node @splat
 	
 
 

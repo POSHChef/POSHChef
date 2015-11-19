@@ -70,8 +70,14 @@ function Set-Node {
 		}
 
 	} else {
+		
+		# if the name is null then set as the node name in the session
+		if ([String]::IsNullOrEmpty($name)) {
+			$name = $script:session.config.node
+		}
+		
 		# set the method that needs to be specified based on the switch
-		$path = "/nodes/{0}" -f $script:session.config.node
+		$path = "/nodes/{0}" -f $name
 
 		# use the current node information to set the postdata
 		$postdata = $node

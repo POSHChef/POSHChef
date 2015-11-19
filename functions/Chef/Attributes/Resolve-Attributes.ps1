@@ -43,21 +43,33 @@ function Resolve-Attributes {
 	$attributes = @(Get-ChildItem -Recurse -Path ($script:session.config.paths.file_cache_path) -Include *.psd1 | `
 					Where-Object { $_.FullName -match "attributes" })
 
-	# define a hash table that will contain the resolved
-	# $resolved_attrs = @{NodeName = (([System.Net.Dns]::GetHostByName(($env:computername))).HostName)
-	$resolved_attrs = @{NodeName = (hostname)
-						PSDscAllowPlainTextPassword = $true
-						POSHChef = @{
-										conf = $script:session.config.paths.conf
-										plugins = $script:session.config.paths.plugins
-										notifications = $script:session.config.paths.notifications
-										cache = $script:session.config.paths.file_cache_path
-										handlers_path = $script:session.config.paths.handlers
-									}
-						thisrun = @{
-								logdir = $script:session.config.logdir
-							}
-						}
+	# retrieve the node from the server so that any attributes that have been set there are respected
+	$chef_node = Get-Node 
+	
+	# depending on the result set the resolved_attrs or create a new hashtable
+	if ($chef_node.containskey("automatic")) {
+		$resolved_attrs = $chef_node.automatic
+	} else {
+		$resolved_attrs = @{}
+	}
+
+	# update the resolved_attributes
+	$resolved_attrs.NodeName = hostname
+	$resolved_attrs.PSDscAllowPlainTextPassword = $true
+	
+	if (!$resolved_attrs.containskey("POSHChef")) {
+		$resolved_attrs.POSHChef = @{}
+	}
+	
+	$resolved_attrs.POSHChef.conf = $script:session.config.paths.conf
+	$resolved_attrs.POSHChef.plugins = $script:session.config.paths.plugins
+	$resolved_attrs.POSHChef.notifications = $script:session.config.paths.notifications
+	$resolved_attrs.POSHChef.cache = $script:session.config.paths.file_cache_path
+	$resolved_attrs.POSHChef.handlers_path = $script:session.config.paths.handlers
+	
+	$resolved_attrs.thisrun = @{
+		logdir = $script:session.config.logdir
+	}
 
 	# If there are attribute files then load them in
 	if ($attributes.count -gt 0) {
