@@ -37,7 +37,7 @@ Describe "Resolve-Attributes" {
 	# Mock the Write-Log function and do nothing
 	# This is in case the Logging module is not vailable
 	Mock Write-Log -MockWith {}
-	Mock Get-Node -MockWith { return @{automatic = @{testing = "Pester"}} }
+	# Mock Get-Node -MockWith { return @{automatic = @{testing = "Pester"}} }
 
 	# Create a file that will act as an attribute file
 	# Setup -File "cache\attributes.psd1" `
@@ -124,7 +124,6 @@ Describe "Resolve-Attributes" {
 								PSDscAllowPlainTextPassword = $true
 								recipes = $null
 								roles = $null
-								testing = "Pester"
 								thisrun = @{
 									logdir = $null
 								}
@@ -244,7 +243,6 @@ Describe "Resolve-Attributes" {
 								PSDscAllowPlainTextPassword = $true
 								recipes = $null
 								roles = $null
-								testing = "Pester"
 								thisrun = @{
 									logdir = $null
 								}
@@ -306,7 +304,6 @@ Describe "Resolve-Attributes" {
 								PSDscAllowPlainTextPassword = $true
 								recipes = $null
 								roles = $null
-								testing = "Pester"
 								thisrun = @{
 									logdir = $null
 								}
@@ -379,7 +376,6 @@ Describe "Resolve-Attributes" {
 								PSDscAllowPlainTextPassword = $true
 								recipes = $null
 								roles = $null
-								testing = "Pester"
 								thisrun = @{
 									logdir = $null
 								}
@@ -474,7 +470,6 @@ Describe "Resolve-Attributes" {
 								PSDscAllowPlainTextPassword = $true
 								recipes = $null
 								roles = $null
-								testing = "Pester"
 								thisrun = @{
 									logdir = $null
 								}
