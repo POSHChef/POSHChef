@@ -43,15 +43,8 @@ function Resolve-Attributes {
 	$attributes = @(Get-ChildItem -Recurse -Path ($script:session.config.paths.file_cache_path) -Include *.psd1 | `
 					Where-Object { $_.FullName -match "attributes" })
 
-	# retrieve the node from the server so that any attributes that have been set there are respected
-	$chef_node = Get-Node 
-	
-	# depending on the result set the resolved_attrs or create a new hashtable
-	if ($chef_node.containskey("automatic")) {
-		$resolved_attrs = $chef_node.automatic
-	} else {
-		$resolved_attrs = @{}
-	}
+	# Craete the resolved attributes hashtable
+	$resolved_attrs = @{}
 
 	# update the resolved_attributes
 	$resolved_attrs.NodeName = hostname
@@ -102,6 +95,15 @@ function Resolve-Attributes {
 
 	} else {
 		Write-Log -Message "`tno cookbook attributes found" -fgcolour yellow 
+	}
+
+	# retrieve the node from the server so that any attributes that have been set there are respected
+	# Any roles or environment attributes will overwrite these values
+	$chef_node = Get-Node 
+	
+	# depending on the result set the resolved_attrs or create a new hashtable
+	if ($chef_node.containskey("automatic")) {
+		$resolved_attrs = Merge-Hashtables -Primary $chef_node.automatic -Secondary $resolved_attrs
 	}
 
 	# Now check to see if there are any role attributes

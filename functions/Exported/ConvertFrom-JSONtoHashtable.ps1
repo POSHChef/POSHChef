@@ -37,7 +37,11 @@ function ConvertFrom-JsonToHashtable {
 		[Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true)]
 		[AllowNull()]
 		[string]
-		$InputObject
+		$InputObject,
+		
+		[switch]
+		# Switch to denote that the returning object should be case sensitive
+		$casesensitive
 	)
 
 	# Perform a test to determine if the inputobject is null, if it is then return an empty hash table
@@ -52,6 +56,11 @@ function ConvertFrom-JsonToHashtable {
 		$deserializer = New-Object -TypeName System.Web.Script.Serialization.JavaScriptSerializer
 		$deserializer.MaxJsonLength = [int]::MaxValue
 		$dict = $deserializer.DeserializeObject($InputObject)
+
+		# If the caseinsensitve is false then make the dictionary case insensitive
+		if ($casesensitive -eq $false) {
+			$dict = New-Object "System.Collections.Generic.Dictionary[System.String, System.Object]"($dict, [StringComparer]::OrdinalIgnoreCase)
+		}
 
 	}
 	
