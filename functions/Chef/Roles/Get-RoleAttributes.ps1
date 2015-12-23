@@ -32,36 +32,23 @@ function Get-RoleAttributes {
 
   # Get the list of roles from the session and reverse it
   $roles = $script:session.roles
-  [array]::Reverse($roles)
-
-  # Remove duplicates in the roles array
-  $roles = $roles | Select -Unique
 
   # Iterate around the roles
-  foreach ($role in $roles) {
+  foreach ($role_name in $roles) {
 
-    if ($role -match "(.*)?\[(.*)\]") {
+    # Call the function to get the named role
+    $role = Get-Role -name $role_name
 
-      # get the run list type and the name of the item
-      $role_name = $matches[2]
+    # if the role is false do not merge
+    if ($role -ne $false) {
 
-      # Call the function to get the named role
-      $role = Get-Role -name $role_name
-
-      # if the role is false do not merge
-      if ($role -ne $false) {
-
-        # The attributes for the role need to be merged with the ones already retrieved
-        # these are currently in the session object
-        # Attributes of the same name in different roles will be overridden
-        # The last role to have the same setting will win
-        $merged = Merge-Hashtables -primary $role.default_attributes -secondary $script:session.attributes.roles
-        $script:session.attributes.roles = $merged
-      }
+      # The attributes for the role need to be merged with the ones already retrieved
+      # these are currently in the session object
+      # Attributes of the same name in different roles will be overridden
+      # The last role to have the same setting will win
+      $merged = Merge-Hashtables -primary $role.default_attributes -secondary $script:session.attributes.roles
+      $script:session.attributes.roles = $merged
     }
+  
   }
-
-  # Set the list of roles in the session
-  $script:session.roles = $roles
-
 }

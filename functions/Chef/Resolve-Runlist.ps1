@@ -105,8 +105,8 @@ function Resolve-Runlist {
 						# these are currently in the session object
 						# Attributes of the same name in different roles will be overridden
 						# The last role to have the same setting will win
-						$merged = Merge-Hashtables -primary $role.default_attributes -secondary $script:session.attributes.roles
-						$script:session.attributes.roles = $merged
+						#$merged = Merge-Hashtables -primary $role.default_attributes -secondary $script:session.attributes.roles
+						#$script:session.attributes.roles = $merged
 
 						# Now call this function again with the runlist that has been applied to the role
 						Resolve-Runlist -runlist $role.run_list
