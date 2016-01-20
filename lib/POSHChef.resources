@@ -116,6 +116,12 @@
   <resource code="PC_ERROR_0037">
     <message>No recipes have been found.  Please check your settings. (Cache Path: {0})</message>
   </resource>
+  <resource code="PC_ERROR_0038">
+    <message>No metadata can be found.  Please ensure 'metadata.psd1' exists in 'files\default\POSHChef\&gt;cookbook&lt;' or 'metadata.rb' exists in the root</message>
+  </resource>  
+  <resource code="PC_ERROR_0039">
+    <message>Operation must be 'add' or 'remove'</message>
+  </resource>
 
 
     <!-- WARN Messages -->
@@ -185,6 +191,9 @@
   </resource>
   <resource code="PC_WARN_0022">
     <message>Cookbook '{0}' cannot be found in the Supermarket</message>
+  </resource>
+  <resource code="PC_WARN_0023">
+    <message>This cookbook does not appear to have a metadata.rb file, please check and try again</message>
   </resource>
 
 	<!-- DEBUG Messages -->

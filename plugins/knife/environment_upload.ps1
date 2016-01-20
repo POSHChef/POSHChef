@@ -71,7 +71,7 @@ function environment_upload {
 	switch ($PSCmdlet.ParameterSetName) {
 		"simple" {
 			$mandatory = @{
-				name = "String array of environments to upload (-name)"
+				names = "String array of environments to upload (-name)"
 			}
 		}
 		"complex" {

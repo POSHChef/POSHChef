@@ -119,6 +119,11 @@ function cookbook_upload {
 			# iterate around the files and add each checksum to the array
 			foreach ($file in $files) {
 
+                # Do not attempt to get the checksum if the file is zero length
+                if ($file.length -eq 0) {
+                    continue
+                }
+
 				# work out the checksum of the file
 				$checksum = Get-Checksum -Path $file.fullname -NoBase64
 
@@ -307,8 +312,8 @@ function Set-Metadata {
 		$community_cookbook = $true
 	}
 
-	# Attempt find the metadata.psd1 file in the files section of the cookbook
-	$metadata_file = Get-ChildItem -Recurse -Path ("{0}\files" -f $path) -Include "metadata.psd1"
+	# Work out the path to the poshchef_metadata_file
+	$metadata_file = Get-ChildItem -Recurse -Path ("{0}\files" -f $path) -Include "metadata.psd1" -ErrorAction SilentlyContinue
 
 	# Only proceed if the file has been found
 	if (![String]::IsNullOrEmpty($metadata_file)) {
@@ -344,11 +349,26 @@ function Set-Metadata {
 		if ($community_cookbook -eq $false) {
 			Set-Content -Path $cookbook_metadata_file -Value ($lines -join "`n")
 		}
+		
+		# Get the long_description from the file that is referenced
+		$readme = Get-Content -Path ("{0}\{1}" -f $path, $metadata.long_description) -Raw
+		$metadata.long_description = $readme.ToString()
+		
+	} else {
+		
+		# Now set the metadata_file to be the ruby version of the file
+		# this is in case the cookbook is a community one that does not have any poshchef components
+		$metadata_file = Get-ChildItem -Path ("{0}\metadata.rb" -f $path) -ErrorAction SilentlyContinue
+		
+		# Get the metadata from the ruby file
+		$metadata = Get-RubyMetadata -path $metadata_file
+		
 	}
 
-	# Get the long_description from the file that is referenced
-	$readme = Get-Content -Path ("{0}\{1}" -f $path, $metadata.long_description) -Raw
-	$metadata.long_description = $readme.ToString()
+	# If the metadata is empty then throw an error
+	if ($metadata.count -eq 0) {
+		Write-Log -LogLevel Error -EventId PC_ERROR_0038 -stop
+	}
 
 	# add in the extra parameters that are required in the metadata
 	foreach ($item in @("platforms", "dependencies", "recommendations", "suggestions", "conflicting", "replacing", "attributes", "groupings", "providing", "recipes")) {
@@ -381,6 +401,12 @@ function Set-RecipeStubs {
 
 	Write-Log -EventId PC_MISC_0001 -extra "Checking recipe stub files exist"
 
+	# Check see if the POSHChef files exist, if not return to the calling function
+	$poshchef_files_path = "{0}\files\POSHChef" -f $path
+	if (!(Test-Path -Path $poshchef_files_path)) {
+		return
+	}
+
 	# set the string that will be added to the file
 	$content = @'
 #
@@ -412,3 +438,59 @@ function Set-RecipeStubs {
 		}
 	}
 }
+
+function Get-RubyMetadata {
+
+    <#
+
+        .SYNOPSIS
+            Analyse the Ruby metadata file for information about the cookbook
+
+        .DESCRIPTION
+            In the scenario when a community cookbook is to be uploaded there will not
+            be a PSD1 file to work with.  This function will read the metadata from the
+            metadata.rb that should be present
+    #>
+
+    [CmdletBinding()]
+    param (
+
+        [String]
+        # Path to the ruby metadata file
+        $path
+    )
+
+    # Create a new hashtable that the information from the metadata can be assigned to
+    $metadata = New-Object System.Collections.Hashtable
+
+		# Check that the path is not empty
+		if ([String]::IsNullOrEmpty($path)) {
+			Write-Log -EventId PC_WARN_0023 
+			return @()
+		}
+
+    # Read in the contents of the ruby file
+    $data = Get-Content -Path $path
+
+    # iterate around each line and split on the whitespace to get the key and the value
+    foreach ($line in $data) {
+
+        if ([String]::IsNullOrEmpty($line)) {
+            continue
+        }
+
+        $key, $value = $line -split "\s+",2
+
+        # ensure that only the required items are added
+        if (@("description", "name", "version", "maintainer", "maintainer_email") -notcontains $key) {
+            continue
+        }
+
+        # now add the key and the value to hashtable
+        $metadata.Add($key, ($value -replace "[`"|']", ''))
+
+    }
+
+    return $metadata
+}
+   
